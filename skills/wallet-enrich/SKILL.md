@@ -69,7 +69,8 @@ const profile = await res.json();
 ```json
 {
   "ok": true,
-  "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+  "address": "0x2211d1d0020daea8039e46cf1367962070d77da9",
+  "basename": "jesse.base.eth",
   "network": "base-mainnet (eip155:8453)",
   "type": "contract",
   "native": { "symbol": "ETH", "balance": "0.0098", "balanceWei": "..." },
@@ -90,7 +91,9 @@ const profile = await res.json();
 
 ## Notes
 
-- Input must be a `0x` + 40-hex address. ENS/Basename strings are not yet resolved (coming).
+- `basename` is the address's **Base ENS name** (e.g. `jesse.base.eth`) when one exists, forward-confirmed
+  (the name must resolve back to the address), else `null` — so it's never wrong, just sometimes absent.
+- Input must be a `0x` + 40-hex address. Passing a Basename/ENS string as *input* is not yet resolved (coming).
 - Token holdings cover a curated set of major Base tokens; absence there does not prove a zero balance of
   every token.
 - Use this instead of hand-rolling several RPC calls + ABI decoding — one paid call returns the decoded profile.
