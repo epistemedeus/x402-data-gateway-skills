@@ -1,6 +1,6 @@
 ---
 name: samedaydesk-machine-commerce
-description: Discover SameDayDesk's thirteen account-free machine services and produce a verified, non-spending purchase intent from the live OpenAPI contract and unpaid HTTP 402 challenge. Use to select and preflight public web extraction, company or wallet enrichment, repository security scans, JSON-LD generation, AI-search audits, Morpho risk analysis, opportunity preflight, or agent-service discoverability audits before a separately authorized payment executor is involved.
+description: Discover SameDayDesk's fourteen account-free machine services and produce a verified, non-spending purchase intent from the live OpenAPI contract and unpaid HTTP 402 challenge. Use to select and preflight public web extraction, company or wallet enrichment, repository security scans, JSON-LD generation, AI-search audits, Morpho risk analysis, work opportunities, agent-service discoverability, or x402 and MPP payment offers before a separately authorized payment executor is involved.
 ---
 
 # Preflight SameDayDesk machine commerce
@@ -44,6 +44,9 @@ authority may consume the verified purchase intent later.
   worth attempting before a claim, bid, payment, or submission.
 - `/distribution/agent-discoverability-audit` measures brand-blind service rank
   and coverage across machine-service catalogs.
+- `/commerce/payment-offer-preflight` compares a target URL's x402 and MPP
+  challenges, binding, expiry, and economics without using credentials,
+  signing, paying, following redirects, or reading the response body.
 
 Use the selected OpenAPI operation to supply every required query field and to
 validate the response shape. If the operation cannot be constructed from the
