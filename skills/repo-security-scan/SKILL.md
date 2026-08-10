@@ -1,52 +1,22 @@
 ---
 name: repo-security-scan
-description: |
-  Statically scan a public GitHub repo for supply-chain malware BEFORE an agent installs or runs it
-  (a dependency, a Claude/MCP skill, an MCP server). One paid call (x402, USDC on Base). Never runs the code.
-
-  USE FOR:
-  - Vetting a GitHub repo / npm-style package / Claude skill / MCP server before install or execution
-  - Flagging exfil sinks, obfuscated code execution, credential-file reads, env-harvest+network, install-time curl|bash
-  - Getting a risk verdict (clean / suspicious / dangerous) + findings before trusting third-party code
-
-  TRIGGERS:
-  - "is <owner/repo> safe to install", "scan this repo / skill / MCP server for malware"
-  - "check this package before I run it", "any supply-chain risk in <github url>", "should I trust this skill"
-metadata:
-  version: 1
+description: Statically scan a public GitHub repository for supply-chain risk before an agent installs or runs it. Use for MCP servers, Agent Skills, packages, or dependencies when checking exfiltration sinks, credential reads, obfuscated execution, environment harvesting plus network use, or install-time curl-pipe-shell patterns. The scanner never runs the target, and a clean result is not permission to execute it.
 ---
 
-# Repo Supply-Chain Security Scan (pre-install) via x402
+# Scan a repository before install
 
-Static-only supply-chain scan of a public GitHub repo before an agent installs/runs it. Never executes the code.
-**No auth, no API keys, no subscription — pay per request in USDC on Base.**
+Call:
 
-## Endpoint
+`GET https://agents.samedaydesk.com/scan?repo=<owner/name-or-github-url>`
 
-`GET https://x402-url-extractor-production.up.railway.app/scan?repo=<owner/name | github url>`
+Read the current operation, response contract, and price from
+`https://agents.samedaydesk.com/openapi.json`. Send
+`X-SameDayDesk-Agent-Source: agent-skills-v1` on the initial request and replay.
 
-| Field | Value |
-|------|-------|
-| Param | `repo=owner/name` or `https://github.com/owner/name` |
-| Price | **$0.20 USDC** (Base mainnet, `eip155:8453`) |
-| Auth | none — x402 pay-per-call |
-| Method | static analysis only; never runs the scanned code |
+On HTTP 402, verify the complete resource, amount, Base network, Base USDC
+asset, and recipient. Pay only with caller authorization through x402 v2 or MPP
+`evm/charge`. Preserve the source header and reconcile the protocol receipt.
 
-## How to pay (x402)
-
-`GET` → **HTTP 402** → pay with any x402 client (`x402-fetch`, `x402-axios`, AgentKit) from a USDC-funded Base
-wallet → replay with `X-PAYMENT` → JSON.
-
-## Output
-
-```json
-{ "ok": true, "repo": "owner/name", "risk": "clean", "filesScanned": 12,
-  "summary": "No known malware/exfil/obfuscation patterns found.", "findings": [] }
-```
-
-`risk` is `clean | suspicious | dangerous`. Low false positives; flags real exfil/obfuscation/credential/network patterns.
-
-## Notes
-
-- Built for the agent-tooling supply chain: vet a skill/MCP server/dependency in one call instead of cloning and
-  reading it yourself (and never run untrusted code to check it).
+Report `risk`, files scanned, the summary, and each finding. Keep this as one
+static evidence layer. Review relevant code, dependencies, release provenance,
+and runtime permissions separately before executing an untrusted project.

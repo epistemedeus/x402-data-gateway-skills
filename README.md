@@ -1,11 +1,11 @@
-# x402 Data Gateway — Agent Skills
+# SameDayDesk Agent Skills
 
-Agent Skills that teach your Claude / Cursor / MCP agent to call a live **x402 pay-per-call data gateway** —
-clean, structured JSON for a few cents of **USDC on Base**, with **no API keys, no signup, no subscription**.
-Send an x402 payment, get the data.
+Installable skills that let an agent discover and call SameDayDesk's live
+machine-commerce gateway. The service exposes thirteen deterministic HTTP
+actions, accepts x402 v2 or native MPP Payment authentication on the same URLs,
+and settles exact USDC on Base without an account, API key, or subscription.
 
-Gateway: `https://x402-url-extractor-production.up.railway.app` (alias `https://pay.samedaydesk.com`)
-Network: USDC on **Base mainnet** (`eip155:8453`) · settles directly on-chain (non-custodial).
+Canonical gateway: `https://agents.samedaydesk.com`
 
 ## Install
 
@@ -13,46 +13,53 @@ Network: USDC on **Base mainnet** (`eip155:8453`) · settles directly on-chain (
 npx skills add epistemedeus/x402-data-gateway-skills --all --yes
 ```
 
-Or add a single skill, e.g. `npx skills add epistemedeus/x402-data-gateway-skills wallet-enrich`.
-Any agent that reads [Agent Skills](https://github.com/vercel-labs/skills) (`SKILL.md`) can use these.
+Install one skill with:
+
+```bash
+npx skills add epistemedeus/x402-data-gateway-skills --skill wallet-enrich --yes
+```
 
 ## Skills
 
-| Skill | What it does | Endpoint | Price |
-|-------|--------------|----------|-------|
-| **company-enrich** | Domain → company intel **+ AI/agent-readiness + DNS/email-infra** signals (category-of-one) | `GET /enrich?domain=` | $0.02 |
-| **wallet-enrich** | Base/EVM `0x` address → on-chain profile (EOA/contract, token holdings, token/NFT metadata, proxy, activity) | `GET /wallet-enrich?address=` | $0.02 |
-| **web-extract** | Any URL → structured JSON or LLM-ready Markdown | `GET /extract?url=` · `GET /read?url=` | $0.05 |
-| **repo-security-scan** | Static supply-chain malware scan of a public GitHub repo before install (never runs it) | `GET /scan?repo=` | $0.20 |
-| **schema-generate** | Business site → paste-ready JSON-LD bundle + gap diff (AI-citation eligibility) | `GET /schemaforge?site=` | $0.25 |
+| Skill | Capability family | Paid routes |
+| --- | --- | --- |
+| `company-enrich` | Company, contact, infrastructure, and AI-readiness evidence | `/enrich` |
+| `wallet-enrich` | Base wallet and contract profiling | `/wallet-enrich` |
+| `web-extract` | Structured page extraction and LLM-ready Markdown | `/extract`, `/read` |
+| `repo-security-scan` | Static pre-install repository risk evidence | `/scan` |
+| `schema-generate` | JSON-LD generation and structured-data gap analysis | `/schemaforge` |
+| `deep-audit` | Combined company and AI-search-readiness audit | `/deep-audit` |
+| `morpho-risk` | Morpho position, protection, market, and historical replay evidence | Four `/defi/morpho-*` routes |
+| `opportunity-preflight` | Funded agent-work economics and hard gates | `/work/opportunity-preflight` |
+| `agent-discoverability-audit` | Brand-blind rank and coverage across machine-service catalogs | `/distribution/agent-discoverability-audit` |
 
-## How payment works (x402)
+## Live contract first
 
-1. Your agent `GET`s an endpoint and receives **HTTP 402** with the payment requirements (amount, USDC-on-Base
-   asset, payTo wallet).
-2. It pays with any x402 client — [`x402-fetch`](https://www.npmjs.com/package/x402-fetch), `x402-axios`, or
-   Coinbase **AgentKit**'s x402 action — from a wallet holding a little USDC on Base. The client signs an
-   EIP-3009 authorization; funds settle directly on-chain to the gateway wallet. The facilitator never custodies
-   the money.
-3. The client automatically replays the request with the `X-PAYMENT` header and returns the JSON.
+Do not trust a cached price or payment example. Before paying:
 
-```ts
-import { wrapFetchWithPayment } from "x402-fetch";
-import { createWalletClient, http } from "viem";
-import { base } from "viem/chains";
-// walletClient must be funded with USDC on Base
-const fetchPaid = wrapFetchWithPayment(fetch, walletClient);
-const res = await fetchPaid("https://x402-url-extractor-production.up.railway.app/enrich?domain=stripe.com");
-console.log(await res.json());
-```
+1. Read `https://agents.samedaydesk.com/api/actions` or the relevant operation
+   in `https://agents.samedaydesk.com/openapi.json`.
+2. Send the complete GET request with
+   `X-SameDayDesk-Agent-Source: agent-skills-v1`.
+3. Validate the live HTTP 402 resource, amount, `eip155:8453` network,
+   canonical Base USDC asset, and recipient.
+4. Pay only when the caller has authorized wallet use and the live amount.
+   Use an existing x402 v2 client and replay with `PAYMENT-SIGNATURE`, or use an
+   MPP `evm/charge` client and replay with `Authorization: Payment`.
+5. Preserve the source header on replay. Reconcile `PAYMENT-RESPONSE` for x402
+   or `Payment-Receipt` for MPP before using the output downstream.
 
-## Why this gateway
+The optional source header is declared attribution only. It is not
+authentication, it contains no secret, and it cannot change price, payment, or
+access. SameDayDesk reduces the exact allowlisted value to an aggregate
+`agent-skills` source label so skill-driven discovery, challenges, and paid
+successes can be measured separately from generic crawlers.
 
-- **Frictionless for autonomous agents** — no account, no API keys, no subscription. The incumbents (Clearbit,
-  Apollo, Nansen) are signup- and KYC-gated, which an autonomous agent can't pass. Here you just pay per call.
-- **Differentiated data** — `company-enrich` returns DNS/email-infrastructure (SPF/DMARC/MX) and AI-search-readiness
-  signals that generic enrichment APIs don't; `wallet-enrich` is the crypto-native counterpart for sizing up an
-  address before you transact.
-- **Deterministic, public-data-only** — reproducible JSON, not opaque scraped guesses.
+Discovery surfaces:
 
-Discovery: `/.well-known/x402` · `/llms.txt` · `/openapi.json` on the gateway host.
+- x402 manifest: `https://agents.samedaydesk.com/.well-known/x402`
+- OpenAPI: `https://agents.samedaydesk.com/openapi.json`
+- MPP OpenAPI: `https://agents.samedaydesk.com/mpp-openapi.json`
+- Compact skill contract: `https://agents.samedaydesk.com/skill.md`
+- Action catalog: `https://agents.samedaydesk.com/api/actions`
+- MCP transport: `POST https://agents.samedaydesk.com/mcp`

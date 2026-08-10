@@ -1,99 +1,23 @@
 ---
 name: wallet-enrich
-description: |
-  Profile any Base / EVM wallet or contract address in one paid call (x402, USDC on Base). Hand it a bare
-  0x address; get back a clean structured on-chain profile — no API keys, no signup, pay-per-call.
-
-  USE FOR:
-  - Sizing up a wallet or counterparty BEFORE sending funds, swapping, or signing
-  - Telling an EOA apart from a contract (and identifying the contract: ERC-20 / ERC-721 / ERC-1155)
-  - Reading a wallet's native ETH + major Base token holdings (USDC/USDbC/USDT/EURC/DAI/WETH/cbETH/cbBTC/AERO/DEGEN/VIRTUAL)
-  - Pulling token/NFT contract metadata (name, symbol, decimals, total supply) for an unknown address
-  - Detecting EIP-1967 proxy contracts and their implementation address
-  - A quick "is this address active / funded / a known token" check with a single derived profile label
-
-  TRIGGERS:
-  - "enrich this wallet", "profile this address", "who/what is 0x...", "look up this address"
-  - "is 0x... a contract or a wallet", "what token is 0x...", "what does this wallet hold"
-  - "check this address before I send", "is this address safe/active/funded"
-  - "what's the contract at 0x...", "is 0x... a proxy"
-metadata:
-  version: 1
+description: Profile a Base or EVM wallet or contract address with deterministic public-chain evidence. Use to distinguish EOA from contract, inspect native and curated token holdings, decode token or NFT metadata, detect EIP-1967 proxies, check activity, resolve a forward-confirmed Basename, or size up an address before another transaction. The output is evidence, not a safety guarantee.
 ---
 
-# Wallet / Address Enrichment (on-chain profile) via x402
+# Profile a wallet or contract
 
-Turn a bare Base/EVM `0x` address into a structured on-chain profile in one call. Public on-chain data only
-(Base-mainnet JSON-RPC), deterministic, **no auth, no API keys, no subscription — pay per request in USDC on Base.**
+Call:
 
-This is the crypto-native counterpart to company enrichment: built for agents that already hold USDC on Base and
-need to understand an address before they act on it.
+`GET https://agents.samedaydesk.com/wallet-enrich?address=<0x-address>`
 
-## Endpoint
+Require a 20-byte EVM address. Read the current operation, response contract,
+and price from `https://agents.samedaydesk.com/openapi.json`. Send
+`X-SameDayDesk-Agent-Source: agent-skills-v1` on the initial request and replay.
 
-`GET https://x402-url-extractor-production.up.railway.app/wallet-enrich?address=<0x...>`
+On HTTP 402, verify the complete resource, amount, `eip155:8453` network,
+canonical Base USDC asset, and recipient. Pay only with caller authorization
+through x402 v2 or native MPP `evm/charge`. Preserve the source header and
+reconcile the protocol receipt.
 
-(alias host: `https://pay.samedaydesk.com/wallet-enrich?address=<0x...>`)
-
-| Field | Value |
-|------|-------|
-| Method / param | `GET ?address=0x...` (a 40-hex EVM address) |
-| Price | **$0.02 USDC** (Base mainnet, `eip155:8453`) |
-| Auth | none — x402 pay-per-call |
-| Data | public on-chain only (Base RPC); deterministic |
-
-## How to pay (x402)
-
-1. `GET` the URL. You receive **HTTP 402** with the payment requirements (amount, asset = USDC on Base, payTo).
-2. Pay with any x402 client — e.g. `x402-fetch`, `x402-axios`, or Coinbase **AgentKit**'s x402 action — from a
-   wallet funded with a little USDC on Base. The client signs an EIP-3009 authorization; funds settle directly
-   on-chain to the service wallet (non-custodial).
-3. The client automatically replays the request with the `X-PAYMENT` header and you get the JSON result.
-
-Minimal example (TypeScript, `x402-fetch`):
-
-```ts
-import { wrapFetchWithPayment } from "x402-fetch";
-import { createWalletClient, http } from "viem";
-import { base } from "viem/chains";
-// walletClient must be funded with USDC on Base
-const fetchPaid = wrapFetchWithPayment(fetch, walletClient);
-const res = await fetchPaid(
-  "https://x402-url-extractor-production.up.railway.app/wallet-enrich?address=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-);
-const profile = await res.json();
-```
-
-## Output shape
-
-```json
-{
-  "ok": true,
-  "address": "0x2211d1d0020daea8039e46cf1367962070d77da9",
-  "basename": "jesse.base.eth",
-  "network": "base-mainnet (eip155:8453)",
-  "type": "contract",
-  "native": { "symbol": "ETH", "balance": "0.0098", "balanceWei": "..." },
-  "tokenHoldings": [ { "symbol": "USDC", "amount": "1000.0", "kind": "stable" } ],
-  "holdingsSummary": { "distinctTokens": 1, "stablecoinUnits": 1000, "hasStablecoins": true },
-  "contract": {
-    "standard": "ERC-20 (token)",
-    "token": { "symbol": "USDC", "name": "USD Coin", "decimals": 6, "totalSupply": "4157703919.56" }
-  },
-  "activity": { "outboundTxCount": 1, "hasActivity": true },
-  "profile": "token-contract:USDC"
-}
-```
-
-`profile` is a single label an agent can branch on: `eoa` variants (`empty-or-fresh-eoa`,
-`active-eoa`, `active-eoa-with-tokens`, `funded-eoa-with-stablecoins`) or contract variants
-(`token-contract:<SYMBOL>`, `nft-contract`, `proxy-contract`, `contract`).
-
-## Notes
-
-- `basename` is the address's **Base ENS name** (e.g. `jesse.base.eth`) when one exists, forward-confirmed
-  (the name must resolve back to the address), else `null` — so it's never wrong, just sometimes absent.
-- Input must be a `0x` + 40-hex address. Passing a Basename/ENS string as *input* is not yet resolved (coming).
-- Token holdings cover a curated set of major Base tokens; absence there does not prove a zero balance of
-  every token.
-- Use this instead of hand-rolling several RPC calls + ABI decoding — one paid call returns the decoded profile.
+Use `type`, `native`, `tokenHoldings`, `contract`, `activity`, `basename`, and
+`profile` as bounded evidence. Curated-token absence does not prove that every
+token balance is zero, and activity does not establish ownership or safety.
