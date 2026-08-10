@@ -23,6 +23,7 @@ npx skills add epistemedeus/x402-data-gateway-skills --skill wallet-enrich --yes
 
 | Skill | Capability family | Paid routes |
 | --- | --- | --- |
+| `samedaydesk-machine-commerce` | Catalog-level selection, payment safety, and receipt reconciliation | All thirteen paid routes |
 | `company-enrich` | Company, contact, infrastructure, and AI-readiness evidence | `/enrich` |
 | `wallet-enrich` | Base wallet and contract profiling | `/wallet-enrich` |
 | `web-extract` | Structured page extraction and LLM-ready Markdown | `/extract`, `/read` |
