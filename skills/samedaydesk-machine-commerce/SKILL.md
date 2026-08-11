@@ -1,6 +1,6 @@
 ---
 name: samedaydesk-machine-commerce
-description: Discover SameDayDesk's fourteen account-free machine services and produce a verified, non-spending purchase intent from the live OpenAPI contract and unpaid HTTP 402 challenge. Use to select and preflight public web extraction, company or wallet enrichment, repository security scans, JSON-LD generation, AI-search audits, Morpho risk analysis, work opportunities, agent-service discoverability, or x402 and MPP payment offers before a separately authorized payment executor is involved.
+description: Discover SameDayDesk's sixteen account-free machine services and produce a verified, non-spending purchase intent from the live OpenAPI contract and unpaid HTTP 402 challenge. Use to select and preflight public web extraction, company or wallet enrichment, repository security scans, JSON-LD generation, AI-search audits, Morpho risk analysis, work opportunities, agent-service discoverability, x402 or MPP payment offers, Base-USDC settlement proof, or Base and Ethereum transaction receipts before a separately authorized payment executor is involved.
 ---
 
 # Preflight SameDayDesk machine commerce
@@ -47,6 +47,12 @@ authority may consume the verified purchase intent later.
 - `/commerce/payment-offer-preflight` compares a target URL's x402 and MPP
   challenges, binding, expiry, and economics without using credentials,
   signing, paying, following redirects, or reading the response body.
+- `/commerce/settlement-proof` verifies one claimed canonical Base-USDC
+  transaction against its successful public receipt, expected recipient,
+  atomic amount, and optional payer.
+- `/chain/transaction-receipt` normalizes one Base or Ethereum receipt with
+  status, block time, gas, fee, decoded ERC-20 transfers, and canonical-USDC
+  transfer evidence.
 
 Use the selected OpenAPI operation to supply every required query field and to
 validate the response shape. If the operation cannot be constructed from the
