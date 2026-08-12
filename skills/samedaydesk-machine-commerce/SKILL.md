@@ -1,6 +1,6 @@
 ---
 name: samedaydesk-machine-commerce
-description: Discover SameDayDesk's sixteen account-free machine services and produce a verified, non-spending purchase intent from the live OpenAPI contract and unpaid HTTP 402 challenge. Use to select and preflight public web extraction, company or wallet enrichment, repository security scans, JSON-LD generation, AI-search audits, Morpho risk analysis, work opportunities, agent-service discoverability, x402 or MPP payment offers, Base-USDC settlement proof, or Base and Ethereum transaction receipts before a separately authorized payment executor is involved.
+description: Discover SameDayDesk's nineteen account-free machine services and produce a verified, non-spending purchase intent from the live OpenAPI contract and unpaid HTTP 402 challenge. Use to select and preflight public web extraction, company or wallet enrichment, repository security scans, JSON-LD generation, AI-search audits, Morpho risk analysis, work opportunities, agent-service discoverability, x402 or MPP payment offers, Base or Solana transaction evidence, or delegated-wallet policy conformance before a separately authorized payment executor is involved.
 ---
 
 # Preflight SameDayDesk machine commerce
@@ -53,6 +53,14 @@ authority may consume the verified purchase intent later.
 - `/chain/transaction-receipt` normalizes one Base or Ethereum receipt with
   status, block time, gas, fee, decoded ERC-20 transfers, and canonical-USDC
   transfer evidence.
+- `/chain/solana-transaction-receipt` normalizes one finalized Solana receipt
+  and optionally verifies exact SPL-token settlement fields.
+- `/security/wallet-policy-conformance` evaluates standardized exact-action
+  wallet-policy observations without accepting credentials or raw provider
+  payloads.
+- `/security/stateful-wallet-policy-conformance` evaluates standardized
+  cumulative-cap, extraction, concurrency, counter-reference, and application-
+  serialization observations.
 
 Use the selected OpenAPI operation to supply every required query field and to
 validate the response shape. If the operation cannot be constructed from the
