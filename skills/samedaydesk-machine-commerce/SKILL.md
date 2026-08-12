@@ -1,6 +1,6 @@
 ---
 name: samedaydesk-machine-commerce
-description: Discover SameDayDesk's nineteen account-free machine services and produce a verified, non-spending purchase intent from the live OpenAPI contract and unpaid HTTP 402 challenge. Use to select and preflight public web extraction, company or wallet enrichment, repository security scans, JSON-LD generation, AI-search audits, Morpho risk analysis, work opportunities, agent-service discoverability, x402 or MPP payment offers, Base or Solana transaction evidence, or delegated-wallet policy conformance before a separately authorized payment executor is involved.
+description: Discover SameDayDesk's twenty-one account-free machine services and produce a verified, non-spending purchase intent from the live OpenAPI contract and unpaid HTTP 402 challenge. Use to select and preflight public web extraction, company or wallet enrichment, repository security scans, JSON-LD generation, AI-search audits, Morpho risk analysis, work opportunities, agent-service discoverability, contract-qualified service search, seller integrity, x402 or MPP payment offers, Base or Solana transaction evidence, or delegated-wallet policy conformance before a separately authorized payment executor is involved.
 ---
 
 # Preflight SameDayDesk machine commerce
@@ -50,6 +50,12 @@ authority may consume the verified purchase intent later.
 - `/commerce/payment-offer-preflight` compares a target URL's x402 and MPP
   challenges, binding, expiry, and economics without using credentials,
   signing, paying, following redirects, or reading the response body.
+- `/commerce/seller-integrity-audit` checks one exact public paid GET or POST
+  seller declaration against buyer-required JSON paths and returns bounded
+  repair evidence without a target payment or seller POST.
+- `/commerce/contract-qualified-search` searches Agent402 and the official MPP
+  catalog for paid services that both match a capability intent and guarantee
+  buyer-required JSON response paths before authorization.
 - `/commerce/settlement-proof` verifies one claimed canonical Base-USDC
   transaction against its successful public receipt, expected recipient,
   atomic amount, and optional payer.
