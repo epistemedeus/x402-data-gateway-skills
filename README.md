@@ -1,7 +1,7 @@
 # SameDayDesk Agent Skills
 
 Installable skills that let an agent discover and call SameDayDesk's live
-machine-commerce gateway. The service exposes twenty-one deterministic HTTP
+machine-commerce gateway. The service exposes twenty-two deterministic HTTP
 actions, accepts x402 v2 or native MPP Payment authentication on the same URLs,
 and settles exact USDC on Base without an account, API key, or subscription.
 
@@ -23,7 +23,7 @@ npx skills add epistemedeus/x402-data-gateway-skills --skill wallet-enrich --yes
 
 | Skill | Capability family | Paid routes |
 | --- | --- | --- |
-| `samedaydesk-machine-commerce` | Credential-free catalog selection and verified purchase-intent preflight | All twenty-one paid routes |
+| `samedaydesk-machine-commerce` | Credential-free catalog selection and verified purchase-intent preflight | All twenty-two paid routes |
 | `company-enrich` | Company, contact, infrastructure, and AI-readiness evidence | `/enrich` |
 | `wallet-enrich` | Base wallet and contract profiling | `/wallet-enrich` |
 | `web-extract` | Structured page extraction and LLM-ready Markdown | `/extract`, `/read` |
@@ -35,6 +35,7 @@ npx skills add epistemedeus/x402-data-gateway-skills --skill wallet-enrich --yes
 | `agent-discoverability-audit` | Brand-blind rank, coverage, and stale exact-route pricing across machine-service catalogs | `/distribution/agent-discoverability-audit` |
 | `payment-offer-preflight` | Credential-free x402 and MPP challenge comparison before buyer authorization | `/commerce/payment-offer-preflight` |
 | `contract-qualified-search` | Search Agent402 and MPP by capability plus guaranteed output paths, or audit one known seller route | `/commerce/contract-qualified-search`, `/commerce/seller-integrity-audit` |
+| `agent-surface-budget-audit` | Measure MCP and OpenAPI agent-context burden and get progressive-discovery fixes | `/distribution/agent-surface-budget-audit` |
 | `settlement-proof` | Exact canonical Base USDC post-settlement verification | `/commerce/settlement-proof` |
 | `transaction-receipt` | Normalized Base or Ethereum receipt, fee, and decoded transfer evidence | `/chain/transaction-receipt` |
 | `wallet-policy-safety` | Exact-action and stateful delegated-wallet policy evidence | Two `/security/*wallet-policy-conformance` routes |

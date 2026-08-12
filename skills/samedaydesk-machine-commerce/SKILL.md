@@ -1,6 +1,6 @@
 ---
 name: samedaydesk-machine-commerce
-description: Discover SameDayDesk's twenty-one account-free machine services and produce a verified, non-spending purchase intent from the live OpenAPI contract and unpaid HTTP 402 challenge. Use to select and preflight public web extraction, company or wallet enrichment, repository security scans, JSON-LD generation, AI-search audits, Morpho risk analysis, work opportunities, agent-service discoverability, contract-qualified service search, seller integrity, x402 or MPP payment offers, Base or Solana transaction evidence, or delegated-wallet policy conformance before a separately authorized payment executor is involved.
+description: Discover SameDayDesk's twenty-two account-free machine services and produce a verified, non-spending purchase intent from the live OpenAPI contract and unpaid HTTP 402 challenge. Use to select and preflight public web extraction, company or wallet enrichment, repository security scans, JSON-LD generation, AI-search audits, Morpho risk analysis, work opportunities, agent-service discoverability, agent-surface context budgets, contract-qualified service search, seller integrity, x402 or MPP payment offers, Base or Solana transaction evidence, or delegated-wallet policy conformance before a separately authorized payment executor is involved.
 ---
 
 # Preflight SameDayDesk machine commerce
@@ -56,6 +56,10 @@ authority may consume the verified purchase intent later.
 - `/commerce/contract-qualified-search` searches Agent402 and the official MPP
   catalog for paid services that both match a capability intent and guarantee
   buyer-required JSON response paths before authorization.
+- `/distribution/agent-surface-budget-audit` measures one public service's
+  bounded MCP tools/list and OpenAPI discovery burden, ranks its heaviest tools
+  and operations, and returns progressive-discovery repairs without calling a
+  target tool or sending a target payment.
 - `/commerce/settlement-proof` verifies one claimed canonical Base-USDC
   transaction against its successful public receipt, expected recipient,
   atomic amount, and optional payer.
