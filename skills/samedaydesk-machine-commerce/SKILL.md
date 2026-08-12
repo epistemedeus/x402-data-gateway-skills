@@ -43,7 +43,10 @@ authority may consume the verified purchase intent later.
 - `/work/opportunity-preflight` evaluates whether an agent-work opportunity is
   worth attempting before a claim, bid, payment, or submission.
 - `/distribution/agent-discoverability-audit` measures brand-blind service rank
-  and coverage across machine-service catalogs.
+  and coverage across machine-service catalogs. With an exact route, optional
+  `expectedPriceUsd` also distinguishes matched, drifted, mixed, unknown, and
+  absent catalog-price states without treating the caller's expectation as
+  live terms.
 - `/commerce/payment-offer-preflight` compares a target URL's x402 and MPP
   challenges, binding, expiry, and economics without using credentials,
   signing, paying, following redirects, or reading the response body.

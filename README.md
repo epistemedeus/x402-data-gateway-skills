@@ -32,7 +32,7 @@ npx skills add epistemedeus/x402-data-gateway-skills --skill wallet-enrich --yes
 | `deep-audit` | Combined company and AI-search-readiness audit | `/deep-audit` |
 | `morpho-risk` | Morpho position, protection, market, and historical replay evidence | Four `/defi/morpho-*` routes |
 | `opportunity-preflight` | Funded agent-work economics and hard gates | `/work/opportunity-preflight` |
-| `agent-discoverability-audit` | Brand-blind rank and coverage across machine-service catalogs | `/distribution/agent-discoverability-audit` |
+| `agent-discoverability-audit` | Brand-blind rank, coverage, and stale exact-route pricing across machine-service catalogs | `/distribution/agent-discoverability-audit` |
 | `payment-offer-preflight` | Credential-free x402 and MPP challenge comparison before buyer authorization | `/commerce/payment-offer-preflight` |
 | `settlement-proof` | Exact canonical Base USDC post-settlement verification | `/commerce/settlement-proof` |
 | `transaction-receipt` | Normalized Base or Ethereum receipt, fee, and decoded transfer evidence | `/chain/transaction-receipt` |
