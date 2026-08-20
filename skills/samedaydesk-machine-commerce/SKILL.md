@@ -12,7 +12,7 @@ Use the canonical service origin:
 Read `https://agents.samedaydesk.com/openapi.json` before constructing a
 request. Treat the exact unpaid HTTP 402 challenge as the authority for the
 resource, current amount, network, asset, and recipient. Do not copy a price
-from this skill.
+from this skill. Runtime payment challenges are authoritative.
 
 This skill is a credential-free discovery and planning capability. End every
 run before payment. Do not access a wallet, read a private key, create or attach
@@ -22,62 +22,37 @@ authority may consume the verified purchase intent later.
 
 ## Choose the paid action
 
-- `/extract` turns a public page into structured JSON with text, metadata,
-  headings, links, and JSON-LD.
-- `/read` turns a public page into bounded LLM-ready Markdown.
-- `/scan` statically checks a public GitHub repository for supply-chain risk
-  without executing it.
-- `/schemaforge` generates evidence-bound Schema.org JSON-LD and a gap diff.
-- `/enrich` returns public-web and DNS company intelligence for a domain.
-- `/wallet-enrich` profiles a Base or EVM wallet or contract from public-chain
-  evidence.
-- `/deep-audit` combines company evidence, AI-search readiness, structured-data
-  gaps, and a fix list.
-- `/defi/morpho-position` reports Morpho borrower health and price-shock stress.
-- `/defi/morpho-protection` produces an unsigned protection plan and repair
-  amounts.
-- `/defi/morpho-market-underwrite` audits a Morpho market's parameters,
-  liquidity, concentration, health bands, bad debt, and history.
-- `/defi/morpho-preliquidation-replay` reconstructs one historical
-  PreLiquidation transaction and its incentive economics.
-- `/work/opportunity-preflight` evaluates whether an agent-work opportunity is
-  worth attempting before a claim, bid, payment, or submission.
-- `/distribution/agent-discoverability-audit` measures brand-blind service rank
-  and coverage across machine-service catalogs. With an exact route, optional
-  `expectedPriceUsd` also distinguishes matched, drifted, mixed, unknown, and
-  absent catalog-price states without treating the caller's expectation as
-  live terms.
-- `/commerce/payment-offer-preflight` compares a target URL's x402 and MPP
-  challenges, binding, expiry, and economics without using credentials,
-  signing, paying, following redirects, or reading the response body.
-- `/commerce/seller-integrity-audit` checks one exact public paid GET or POST
-  seller declaration against buyer-required JSON paths and returns bounded
-  repair evidence without a target payment or seller POST.
-- `/commerce/contract-qualified-search` searches Agent402 and the official MPP
-  catalog for paid services that both match a capability intent and guarantee
-  buyer-required JSON response paths before authorization.
-- `/distribution/agent-surface-budget-audit` measures one public service's
-  bounded MCP tools/list and OpenAPI discovery burden, ranks its heaviest tools
-  and operations, and returns progressive-discovery repairs without calling a
-  target tool or sending a target payment.
-- `/commerce/settlement-proof` verifies one claimed canonical Base-USDC
-  transaction against its successful public receipt, expected recipient,
-  atomic amount, and optional payer.
-- `/chain/transaction-receipt` normalizes one Base or Ethereum receipt with
-  status, block time, gas, fee, decoded ERC-20 transfers, and canonical-USDC
-  transfer evidence.
-- `/chain/solana-transaction-receipt` normalizes one finalized Solana receipt
-  and optionally verifies exact SPL-token settlement fields.
-- `/security/wallet-policy-conformance` evaluates standardized exact-action
-  wallet-policy observations without accepting credentials or raw provider
-  payloads.
-- `/security/stateful-wallet-policy-conformance` evaluates standardized
-  cumulative-cap, extraction, concurrency, counter-reference, and application-
-  serialization observations.
+- GET /extract. Example: https://agents.samedaydesk.com/extract?url=https%3A%2F%2Fexample.com
+- GET /read. Example: https://agents.samedaydesk.com/read?url=https%3A%2F%2Fexample.com
+- GET /scan. Example: https://agents.samedaydesk.com/scan?repo=owner%2Fname
+- GET /schemaforge. Example: https://agents.samedaydesk.com/schemaforge?city=Austin&site=https%3A%2F%2Fexample-clinic.com&vertical=med-spas
+- GET /enrich. Example: https://agents.samedaydesk.com/enrich?domain=stripe.com
+- GET /wallet-enrich. Example: https://agents.samedaydesk.com/wallet-enrich?address=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+- GET /deep-audit. Example: https://agents.samedaydesk.com/deep-audit?city=San+Francisco&domain=stripe.com&vertical=fintech
+- GET /defi/morpho-position. Example: https://agents.samedaydesk.com/defi/morpho-position?address=0x4352Cc849b33a936Ad93bB109aFDec1c89653b4f&shocks=-10%2C-20%2C-30
+- GET /defi/morpho-protection. Example: https://agents.samedaydesk.com/defi/morpho-protection?address=0x4352Cc849b33a936Ad93bB109aFDec1c89653b4f&executionBufferBps=25&protectAgainstShockPct=-10&targetHealthFactor=1.25
+- GET /defi/morpho-market-underwrite. Example: https://agents.samedaydesk.com/defi/morpho-market-underwrite?marketId=0xbd9754505799c229af1b85a02e4f5cda74603411ba7edb585025eefd7ef9e5f4
+- GET /defi/morpho-preliquidation-replay. Example: https://agents.samedaydesk.com/defi/morpho-preliquidation-replay?transactionHash=0xa8d73ec64db7a9e801ab78956133db0799e54e1a9c4a58231cd31ec3b90d9dc6
+- GET /work/opportunity-preflight. Example: https://agents.samedaydesk.com/work/opportunity-preflight?acceptance=discretionary&agentAccess=agent_allowed&competition=80&computeUsd=0.5&hourlyCostUsd=4&hours=0.25&mandatorySpendUsd=0&platform=taskmarket&reusableValueUsd=1&rewardUsd=10&selectionProbabilityPct=2&settlement=escrow&slots=1
+- GET /distribution/agent-discoverability-audit. Example: https://agents.samedaydesk.com/distribution/agent-discoverability-audit?expectedPriceUsd=0.005&intent=extract+a+public+web+page+into+structured+JSON+metadata+headings+links+and+JSON-LD&origin=https%3A%2F%2Fagents.samedaydesk.com&payTo=0x8904dF3DE6DFEe6a7C8cc38619d2f17806213Cee&route=%2Fextract&runtimeUrl=https%3A%2F%2Fagents.samedaydesk.com%2Fextract%3Furl%3Dhttps%253A%252F%252Fexample.com
+- GET /commerce/payment-offer-preflight. Example: https://agents.samedaydesk.com/commerce/payment-offer-preflight?url=https%3A%2F%2Fagents.samedaydesk.com%2Fdefi%2Fmorpho-position%3Faddress%3D0x8ee9c15c3e5332cbc6ef39a2bb036c63c6549b6e
+- GET /commerce/settlement-proof. Example: https://agents.samedaydesk.com/commerce/settlement-proof?amountAtomic=5000&payer=0x990CC4f469dfe854c16C601c7B8eE6534B267f17&recipient=0x8904dF3DE6DFEe6a7C8cc38619d2f17806213Cee&transactionHash=0xcfcbb367fecf27052db9ca855e5146e99cacbce1cab94f20f9f95a74170a8987
+- GET /chain/transaction-receipt. Example: https://agents.samedaydesk.com/chain/transaction-receipt?network=base&transactionHash=0xcfcbb367fecf27052db9ca855e5146e99cacbce1cab94f20f9f95a74170a8987
+- GET /chain/solana-transaction-receipt. Example: https://agents.samedaydesk.com/chain/solana-transaction-receipt?mint=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&signature=3CjY38avdggKZbKfu2BmFYN4MUTiiNX27c8dHzPW79PrAx3huB9Pa6AfwW6sT4biax3y22z8toyLzmjtCc2QGNZn
+- POST /security/wallet-policy-conformance. JSON body example (do not transmit): {"profileId":"privy-solana-lab","provider":"Privy","network":"solana:mainnet","protocol":"x402","observations":[{"case":"intended","actual":"allowed","denialClass":"none","code":"signed"},{"case":"wrong_operation","actual":"denied","denialClass":"policy","code":"policy_violation"},{"case":"duplicate_approved_action","actual":"allowed","denialClass":"none","code":"signed"}]}
+- POST /security/stateful-wallet-policy-conformance. JSON body example (do not transmit): {"profileId":"privy-base-sepolia-stateful-cap","provider":"Privy","network":"eip155:11155111","protocol":"x402","observations":[{"case":"first_within_cap","actual":"allowed","enforcementClass":"none","code":"signed"},{"case":"sequential_exceeds_cap","actual":"denied","enforcementClass":"policy","code":"policy_violation"},{"case":"unrecognized_calldata","actual":"allowed","enforcementClass":"none","code":"signed"},{"case":"concurrent_exceeds_cap","actual":"allowed","enforcementClass":"none","code":"oversubscribed"}]}
+- GET /commerce/seller-integrity-audit. Example: https://agents.samedaydesk.com/commerce/seller-integrity-audit?method=GET&origin=https%3A%2F%2Fagents.samedaydesk.com&requireBazaar=true&requiredPaths=decision%2Coffers&route=%2Fcommerce%2Fpayment-offer-preflight
+- GET /commerce/contract-qualified-search. Example: https://agents.samedaydesk.com/commerce/contract-qualified-search?limit=5&maxPriceDisplayUnits=0.1&query=service+domain+ownership+code+provenance&requiredPaths=data.sourceRepository
+- GET /distribution/agent-surface-budget-audit. Example: https://agents.samedaydesk.com/distribution/agent-surface-budget-audit?mcpBudgetBytes=65536&mcpPath=%2Fmcp&openApiBudgetBytes=524288&openApiPath=%2Fopenapi.json&origin=https%3A%2F%2Fagents.samedaydesk.com&surfaceMode=both
+- GET /gateway/commerce/payment-offer-preflight. Same payment-offer preflight product through Circle Gateway x402 Nanopayments, not a second catalog action. Example: https://agents.samedaydesk.com/gateway/commerce/payment-offer-preflight?url=https%3A%2F%2Fagents.samedaydesk.com%2Fdefi%2Fmorpho-position%3Faddress%3D0x8ee9c15c3e5332cbc6ef39a2bb036c63c6549b6e
 
-Use the selected OpenAPI operation to supply every required query field and to
-validate the response shape. If the operation cannot be constructed from the
-caller's actual inputs, stop before payment.
+GET lines already include a bounded seller-authored callable example with every
+required non-secret query input. POST lines keep JSON schema/body examples and
+must not be transmitted from this document. The Circle Gateway path is the same
+payment-offer preflight product, not a second catalog action.
+
+If the selected GET cannot be constructed from the caller's actual inputs, stop
+before payment. Re-read live OpenAPI before paying.
 
 ## Produce a verified purchase intent
 
