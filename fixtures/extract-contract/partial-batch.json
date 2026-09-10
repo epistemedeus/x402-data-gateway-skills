@@ -1,0 +1,165 @@
+{
+  "synthetic": true,
+  "sourcePin": "4910f83bd2be1e38667f1a3cfa23c70fcff6b0c1",
+  "producer": "executeExtractBatch",
+  "envelope": {
+    "ok": false,
+    "product": "samedaydesk-extract-batch",
+    "schemaVersion": "samedaydesk.extract-batch.v0",
+    "quote": {
+      "amountAtomic": "10000",
+      "displayUsdc": "0.01",
+      "meaning": "Introductory flat 0.01 USDC batch quote for a bounded 1-5 URL attempt. Not a per-URL success promise."
+    },
+    "jobId": "437fd323fa39c0912b719939c791c525b7ddf22bc84b38b857214d5924e81348",
+    "jobStatus": "completed_with_unknown",
+    "stopReason": null,
+    "partial": true,
+    "sources": [
+      {
+        "id": "item-001",
+        "source": "https://a.example/",
+        "status": "success",
+        "data": {
+          "title": "Fixture",
+          "text": "Text"
+        },
+        "notes": [],
+        "error": null,
+        "finalUrl": "https://a.example/",
+        "httpStatus": 200,
+        "provenance": {
+          "transport": "live",
+          "maxBodyBytes": 400000,
+          "requestedAt": "2026-09-10T02:49:24.526Z",
+          "source": "https://a.example/",
+          "redirects": [],
+          "finalUrl": "https://a.example/",
+          "httpStatus": 200,
+          "contentType": "text/html; charset=utf-8",
+          "byteLength": 39,
+          "charset": "utf-8",
+          "charsetSource": "content-type",
+          "bodyTruncated": false,
+          "completedAt": "2026-09-10T02:49:24.527Z",
+          "capture": {
+            "method": "http-get-no-javascript",
+            "javascriptExecuted": false,
+            "maxBodyBytes": 400000,
+            "textExcerptLimitChars": 1200,
+            "markdownLimitChars": null,
+            "bodyBytes": 39,
+            "bodyTruncated": false,
+            "textTruncated": false,
+            "charset": "utf-8",
+            "charsetSource": "content-type"
+          }
+        }
+      },
+      {
+        "id": "item-002",
+        "source": "https://b.example/",
+        "status": "failure",
+        "data": {
+          "title": "Fixture",
+          "text": "Text"
+        },
+        "notes": [],
+        "error": {
+          "code": "http_404",
+          "message": "source refused: HTTP 404"
+        },
+        "finalUrl": "https://b.example/",
+        "httpStatus": 404,
+        "provenance": {
+          "transport": "live",
+          "maxBodyBytes": 400000,
+          "requestedAt": "2026-09-10T02:49:24.529Z",
+          "source": "https://b.example/",
+          "redirects": [],
+          "finalUrl": "https://b.example/",
+          "httpStatus": 404,
+          "contentType": "text/html; charset=utf-8",
+          "byteLength": 39,
+          "charset": "utf-8",
+          "charsetSource": "content-type",
+          "bodyTruncated": false,
+          "completedAt": "2026-09-10T02:49:24.530Z",
+          "capture": {
+            "method": "http-get-no-javascript",
+            "javascriptExecuted": false,
+            "maxBodyBytes": 400000,
+            "textExcerptLimitChars": 1200,
+            "markdownLimitChars": null,
+            "bodyBytes": 39,
+            "bodyTruncated": false,
+            "textTruncated": false,
+            "charset": "utf-8",
+            "charsetSource": "content-type"
+          }
+        }
+      },
+      {
+        "id": "item-003",
+        "source": "https://c.example/",
+        "status": "unknown",
+        "data": null,
+        "notes": [],
+        "error": {
+          "code": "fetch_error",
+          "message": "synthetic lost source response"
+        },
+        "finalUrl": "https://c.example/",
+        "httpStatus": null,
+        "provenance": {
+          "transport": "live",
+          "maxBodyBytes": 400000,
+          "requestedAt": "2026-09-10T02:49:24.531Z",
+          "source": "https://c.example/",
+          "redirects": [],
+          "finalUrl": "https://c.example/",
+          "byteLength": 0,
+          "completedAt": "2026-09-10T02:49:24.532Z"
+        }
+      },
+      {
+        "id": "item-004",
+        "source": "https://a.example/",
+        "status": "skipped_duplicate",
+        "data": null,
+        "notes": [],
+        "error": null,
+        "finalUrl": null,
+        "httpStatus": null,
+        "provenance": null
+      }
+    ],
+    "accounting": {
+      "requests": 3,
+      "bytes": 400078,
+      "wallMs": 11,
+      "retries": 0,
+      "succeeded": 1,
+      "partial": 0,
+      "failed": 1,
+      "unknown": 1,
+      "skippedDuplicate": 1
+    },
+    "costInputs": {
+      "admittedBodyBytes": 400078,
+      "requests": 3,
+      "wallMs": 11,
+      "hostingCosts": "unknown",
+      "modelCosts": "none",
+      "monetaryMargin": null,
+      "note": "accounting.bytes is uncompressed admitted application body bytes, including unresolved reservations, not socket wire billing"
+    },
+    "charged": true,
+    "boundary": {
+      "guaranteedUrlSuccess": false,
+      "introductoryPrice": true,
+      "sourceFetchBeforeAuthorization": false,
+      "automaticRetries": false
+    }
+  }
+}

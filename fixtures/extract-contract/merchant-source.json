@@ -1,0 +1,81 @@
+{
+  "pin": "4910f83bd2be1e38667f1a3cfa23c70fcff6b0c1",
+  "files": [
+    {
+      "path": "discovery-contract.mjs",
+      "sha": "ec096f9f67add683d26fbdf58e3c9911f500b90f"
+    },
+    {
+      "path": "extract-capture.mjs",
+      "sha": "b287eb8746b0ffd57dcc18a86275432295320d0f"
+    },
+    {
+      "path": "idempotency-replay.mjs",
+      "sha": "ca64944aff846e5e88ff807c1fdde02aae43abc2"
+    },
+    {
+      "path": "server.js",
+      "sha": "55b38fe3273e35cc2b3f27813353311d4b81ee06"
+    },
+    {
+      "path": "extract.semantics.test.mjs",
+      "sha": "71fa16a07d1902fd010a081e5580f053b40eadc6"
+    },
+    {
+      "path": "extract.mjs",
+      "sha": "467f431a265d5a0811741d1b873fb90632c856b8"
+    },
+    {
+      "path": "mcp-output-schema-extract.test.mjs",
+      "sha": "ed7c6a974f738b34c03079c5cbc232754e7d4964"
+    },
+    {
+      "path": "package.json",
+      "sha": "b13fe7adada8ccce2b2b057efdcd4acf5a1d62ed"
+    },
+    {
+      "path": "service-version.mjs",
+      "sha": "e4e37b614af4f2feff42871a592c79b844b862eb"
+    },
+    {
+      "path": "bazaar-resource-metadata.mjs",
+      "sha": "563ed875aee145916cf75cc276d886370d080939"
+    },
+    {
+      "path": "extract-batch-config.mjs",
+      "sha": "bf0bf17002c6a6e964b07ab5cd02812e73dd705a"
+    },
+    {
+      "path": "extract-batch.mjs",
+      "sha": "3d6dc9fa35f478cad760dffa290d0e7de2f34d4b"
+    },
+    {
+      "path": "extract-batch-c1/url-guard.mjs",
+      "sha": "cd6f4a0a9ac1c2ead689075ce4550dc579ccb56b"
+    },
+    {
+      "path": "extract-batch-c1/batch.mjs",
+      "sha": "d951f9be3da07b98708828a4da07593c7d914671"
+    },
+    {
+      "path": "extract-batch-c1/index.mjs",
+      "sha": "16e30e3c0440905827144e680613cb5cf9e45975"
+    },
+    {
+      "path": "extract-batch-c1/extract.mjs",
+      "sha": "203a55a0ec1cf8c1132d27e31b1b1ae9f03ac991"
+    },
+    {
+      "path": "extract-batch-c1/checkpoint.mjs",
+      "sha": "bbadca2ab33505ccc1c6382b361736bf568c0b03"
+    },
+    {
+      "path": "extract-batch-c1/public-fetch.mjs",
+      "sha": "8eadcd92ffb0dd04303dfabd268241847bc82da1"
+    },
+    {
+      "path": "extract-batch-c1/transport.mjs",
+      "sha": "83b86c358039be9254a75d8f185aa122b3ddddb0"
+    }
+  ]
+}
