@@ -1,0 +1,34 @@
+{
+  "synthetic": true,
+  "sourcePin": "4910f83bd2be1e38667f1a3cfa23c70fcff6b0c1",
+  "producer": "readMarkdown",
+  "envelope": {
+    "ok": true,
+    "requestedUrl": "https://fixture.example/requested",
+    "finalUrl": "https://fixture.example/final",
+    "url": "https://fixture.example/final",
+    "status": 403,
+    "sourceOk": false,
+    "error": {
+      "code": "http_403",
+      "message": "source refused: HTTP 403"
+    },
+    "title": "",
+    "markdown": "Forbidden",
+    "wordCount": 1,
+    "truncated": false,
+    "capture": {
+      "method": "http-get-no-javascript",
+      "javascriptExecuted": false,
+      "maxBodyBytes": 3000000,
+      "textExcerptLimitChars": null,
+      "markdownLimitChars": 40000,
+      "bodyBytes": 22,
+      "bodyTruncated": false,
+      "textTruncated": false,
+      "charset": "utf-8",
+      "charsetSource": "content-type"
+    },
+    "fetchedAt": "2026-09-10T02:49:24.520Z"
+  }
+}

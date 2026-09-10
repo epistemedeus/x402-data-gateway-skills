@@ -1,6 +1,6 @@
 ---
 name: samedaydesk-machine-commerce
-description: Discover SameDayDesk's twenty-two account-free machine services and produce a verified, non-spending purchase intent from the live OpenAPI contract and unpaid HTTP 402 challenge. Use to select and preflight public web extraction, company or wallet enrichment, repository security scans, JSON-LD generation, AI-search audits, Morpho risk analysis, work opportunities, agent-service discoverability, agent-surface context budgets, contract-qualified service search, seller integrity, x402 or MPP payment offers, Base or Solana transaction evidence, or delegated-wallet policy conformance before a separately authorized payment executor is involved.
+description: Discover SameDayDesk's live account-free machine services (twenty-three paid HTTP actions in the 2026-09-10 version 1.23.46 `/api/actions` readback; re-verify live) and produce a verified, non-spending purchase intent from the live OpenAPI contract and unpaid HTTP 402 challenge. Use to select and preflight public web extraction, company or wallet enrichment, repository security scans, JSON-LD generation, AI-search audits, Morpho risk analysis, work opportunities, agent-service discoverability, agent-surface context budgets, contract-qualified service search, seller integrity, x402 or MPP payment offers, Base or Solana transaction evidence, or delegated-wallet policy conformance before a separately authorized payment executor is involved.
 ---
 
 # Preflight SameDayDesk machine commerce
@@ -23,8 +23,14 @@ authority may consume the verified purchase intent later.
 ## Choose the paid action
 
 - `/extract` turns a public page into structured JSON with text, metadata,
-  headings, links, and JSON-LD.
-- `/read` turns a public page into bounded LLM-ready Markdown.
+  headings, links, and JSON-LD. Envelope `ok` labels the produced record, not verified settlement or source
+  completeness; check `status`, `sourceOk`, `error`, `requestedUrl`, `finalUrl`,
+  and `capture`.
+- `/extract/batch` extracts 1–5 caller-supplied public HTTPS URLs with explicit
+  fields; results may be truthful `partial` rows. Do not fan out silent paid GETs
+  or repeatedly charge to repair partials.
+- `/read` returns a JSON record containing bounded LLM-ready Markdown. Missing discussion
+  text is not proof of absence; capture is no-JS HTTP with size/excerpt limits.
 - `/scan` statically checks a public GitHub repository for supply-chain risk
   without executing it.
 - `/schemaforge` generates evidence-bound Schema.org JSON-LD and a gap diff.
@@ -92,7 +98,7 @@ On HTTP 402:
 3. verify the current amount and recipient from the live challenge;
 4. select one compatible protocol offer, x402 v2 or native MPP `evm/charge`;
 5. return a purchase intent containing the method, resolved URL, operation,
-   protocol, amount, network, asset, recipient, challenge expiry, and output
+   exact POST body when applicable, protocol, amount, network, asset, recipient, challenge expiry, and output
    expectations;
 6. state `credentialsUsed: false`, `paymentSigned: false`, and
    `paymentSent: false` in the result;
@@ -109,3 +115,5 @@ and it is not a receipt or a claim that the paid service ran. Repository scans
 are not execution approval, DeFi outputs remain unsigned, and discovery ranks,
 audit grades, or enrichment fields do not guarantee safety, future performance,
 demand, or revenue.
+
+For extract batch, preserve `sources[].source`, row `status` and `provenance.capture`; do not apply the single-record `sourceOk` schema to batch rows. See the web-extract skill for partial/unknown and duplicate-row semantics.

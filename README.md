@@ -1,9 +1,14 @@
 # SameDayDesk Agent Skills
 
 Installable skills that let an agent discover and call SameDayDesk's live
-machine-commerce gateway. The service exposes twenty-two deterministic HTTP
-actions, accepts x402 v2 or native MPP Payment authentication on the same URLs,
-and settles exact USDC on Base without an account, API key, or subscription.
+machine-commerce gateway. The 2026-09-10 `GET /api/actions` readback for version 1.23.46 listed twenty-three
+deterministic paid HTTP actions (including `POST /extract/batch`), accepts x402
+v2 or native MPP Payment authentication on the same URLs, and settles exact USDC
+on Base without an account, API key, or subscription. Re-read the live catalog
+before trusting any cached count. MCP (Model Context Protocol) `tools/list` is a separate inventory (S77 reported
+twenty-three tools and thirteen typed `outputSchema` values; inventory counts
+are not evidence of native model execution); do not
+assume HTTP actions and MCP tools are the same population from a shared label.
 
 Canonical gateway: `https://agents.samedaydesk.com`
 
@@ -23,10 +28,10 @@ npx skills add epistemedeus/x402-data-gateway-skills --skill wallet-enrich --yes
 
 | Skill | Capability family | Paid routes |
 | --- | --- | --- |
-| `samedaydesk-machine-commerce` | Credential-free catalog selection and verified purchase-intent preflight | All twenty-two paid routes |
+| `samedaydesk-machine-commerce` | Credential-free catalog selection and verified purchase-intent preflight | All live paid HTTP routes from `/api/actions` (twenty-three at last check) |
 | `company-enrich` | Company, contact, infrastructure, and AI-readiness evidence | `/enrich` |
 | `wallet-enrich` | Base wallet and contract profiling | `/wallet-enrich` |
-| `web-extract` | Structured page extraction and LLM-ready Markdown | `/extract`, `/read` |
+| `web-extract` | Structured page extraction and LLM-ready Markdown | `/extract`, `/extract/batch`, `/read` |
 | `repo-security-scan` | Static pre-install repository risk evidence | `/scan` |
 | `schema-generate` | JSON-LD generation and structured-data gap analysis | `/schemaforge` |
 | `deep-audit` | Combined company and AI-search-readiness audit | `/deep-audit` |
@@ -46,7 +51,8 @@ Do not trust a cached price or payment example. Before any separate executor pay
 
 1. Read `https://agents.samedaydesk.com/api/actions` or the relevant operation
    in `https://agents.samedaydesk.com/openapi.json`.
-2. Send the complete GET request with
+2. Use the selected operation’s exact method, URL, query and JSON body, including
+   POST for `/extract/batch`. Send only the initial unpaid request with
    `X-SameDayDesk-Agent-Source: agent-skills-v1`.
 3. Validate the live HTTP 402 resource, amount, `eip155:8453` network,
    canonical Base USDC asset, and recipient.
@@ -76,3 +82,43 @@ Discovery surfaces:
 - Compact skill contract: `https://agents.samedaydesk.com/skill.md`
 - Action catalog: `https://agents.samedaydesk.com/api/actions`
 - MCP transport: `POST https://agents.samedaydesk.com/mcp`
+
+## Deterministic consumer validation
+
+The historical filename `consumers/heavy-extract-preflight.mjs` names a Node
+script, not a native Grok/Heavy model. It reads local skill guidance and sends
+one credential-free request for the fixed example.com target. HTTP 402 proves
+only that a challenge was observed, not verified payment terms or source execution.
+No model was invoked, no skill installation was tested here, and no paid replay
+is available. Environment credentials, custom origins and custom targets are ignored.
+
+```bash
+node --test tests/*.test.mjs
+node consumers/heavy-extract-preflight.mjs --help
+```
+
+Optional public network probe (one unpaid request, no automatic retry):
+
+```bash
+node consumers/heavy-extract-preflight.mjs
+```
+
+`--direct-preview` adds one fixed example.com read, with no redirects and a bounded
+UTF-8-only preview. It is not a complete page or an equivalent extraction service.
+`--out NEW_FILE` writes a new local report and refuses overwrite.
+
+The pure consumers in `consumers/extract-record.mjs` interpret delivered records;
+they neither fetch nor pay. Their `usableCandidate` is not buyer acceptance,
+complete coverage, a payment receipt, or execution authority. `chargedClaim`
+retains the batch field as a claim, never as payment verification.
+
+The committed fixtures were generated offline by the exact merchant source;
+see `fixtures/extract-contract/README.md`. Optional source replay requires an
+existing exact merchant checkout with its own dependencies, no installation:
+
+```bash
+EXTRACT_MERCHANT_SOURCE_DIR=/path/to/exact-merchant-checkout node --test tests/*.test.mjs
+```
+
+Without that path, only the optional source-replay test is explicitly skipped.
+Native model selection, installation and execution remain a separate gate.
