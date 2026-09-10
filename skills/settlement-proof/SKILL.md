@@ -58,3 +58,5 @@ correctness beyond the exact on-chain transfer this result verifies.
 Verify that the returned boundary states the tool read only public Base receipt
 and log data, read no private merchant ledger, accessed no wallet, modified no
 transaction, and authorized no execution.
+
+A verified decision is evidence about one claimed settlement, not proof that the caller should pay for another product call or treat the merchant ledger as authoritative.

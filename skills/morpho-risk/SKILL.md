@@ -29,3 +29,5 @@ Preserve source timestamps, verification flags, decision checks, and boundary
 fields. Re-read current direct RPC state and simulate separately before any
 signature or capital action. Protection templates are unsigned and must remain
 unsigned unless a separate caller policy authorizes execution.
+
+Treat every numeric field as point-in-time public evidence, not an investment recommendation, solvency guarantee, or instruction to open, close, or resize a position.
