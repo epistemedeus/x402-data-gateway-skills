@@ -122,3 +122,13 @@ EXTRACT_MERCHANT_SOURCE_DIR=/path/to/exact-merchant-checkout node --test tests/*
 
 Without that path, only the optional source-replay test is explicitly skipped.
 Native model selection, installation and execution remain a separate gate.
+
+## Offline buyer recipes
+
+With Node 22, install each checkout's locked dependencies using
+`npm ci --ignore-scripts`, set `S88_MERCHANT_SOURCE_DIR` to the merchant checkout
+at `4910f83bd2be1e38667f1a3cfa23c70fcff6b0c1`, then run
+`npm run test:recipes`. See `tests/recipes/README.md` for exact scope.
+These are direct merchant-function fixture tests, not installed model-consumer,
+paid delivery, or live financial evidence. The runner blocks network fallthrough
+and verifies the imported merchant source bytes.

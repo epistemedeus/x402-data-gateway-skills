@@ -1,0 +1,155 @@
+{
+  "skillsPin": "2c57e275bbb57421d08c4a270ba6ab5237ff2ec8",
+  "merchantPin": "4910f83bd2be1e38667f1a3cfa23c70fcff6b0c1",
+  "canonicalHostGuidance": "https://agents.samedaydesk.com",
+  "merchantUpdateProcedure": [
+    "Checkout epistemedeus/x402-url-extractor at the desired release commit.",
+    "Export S88_MERCHANT_SOURCE_DIR to that checkout.",
+    "Update the immutable merchantPin and merchant-source.json blob identities from the exact reviewed Git tree, including relative imports; do not regenerate trust pins from unreviewed local files.",
+    "Re-run: node --test tests/recipes/cases/*.test.mjs",
+    "Refresh live /api/actions and /openapi.json readbacks in RESULT; do not freeze catalog prices in skill text.",
+    "If exported function or route names changed, update recipe imports and skill route lines only."
+  ],
+  "s81Refreshed": [
+    "web-extract",
+    "samedaydesk-machine-commerce"
+  ],
+  "families": [
+    {
+      "skill": "agent-discoverability-audit",
+      "status": "candidate",
+      "cell": "reserve"
+    },
+    {
+      "skill": "agent-surface-budget-audit",
+      "status": "candidate",
+      "cell": "reserve"
+    },
+    {
+      "skill": "company-enrich",
+      "merchantModule": "enrich.mjs",
+      "exports": [
+        "enrich",
+        "keywordSignals"
+      ],
+      "route": "GET /enrich",
+      "status": "build",
+      "cell": "c-company-enrich"
+    },
+    {
+      "skill": "contract-qualified-search",
+      "merchantModule": "contract-qualified-search.mjs",
+      "exports": [
+        "contractQualifiedSearch",
+        "normalizeContractQualifiedSearchInput"
+      ],
+      "route": "GET /commerce/contract-qualified-search",
+      "status": "build",
+      "cell": "c-contract-qualified-search"
+    },
+    {
+      "skill": "deep-audit",
+      "status": "candidate",
+      "cell": "reserve"
+    },
+    {
+      "skill": "morpho-risk",
+      "status": "candidate",
+      "cell": "reserve"
+    },
+    {
+      "skill": "opportunity-preflight",
+      "status": "candidate",
+      "cell": "reserve"
+    },
+    {
+      "skill": "payment-offer-preflight",
+      "merchantModule": "payment-offer-preflight.mjs",
+      "exports": [
+        "paymentOfferPreflight",
+        "normalizePaymentTarget"
+      ],
+      "route": "GET /commerce/payment-offer-preflight",
+      "status": "build",
+      "cell": "c-payment-offer-preflight"
+    },
+    {
+      "skill": "repo-security-scan",
+      "merchantModule": "scan.mjs",
+      "exports": [
+        "parseRepo",
+        "scanRepo",
+        "scanRepoMcpOutputSchema"
+      ],
+      "route": "GET /scan",
+      "status": "build",
+      "cell": "c-repo-security-scan"
+    },
+    {
+      "skill": "samedaydesk-machine-commerce",
+      "status": "non_changing_audit",
+      "note": "S81 refreshed; thin regression only"
+    },
+    {
+      "skill": "schema-generate",
+      "merchantModule": "schemaforge.mjs",
+      "exports": [
+        "schemaforge",
+        "buildBundle",
+        "diffAgainstLive"
+      ],
+      "route": "GET /schemaforge",
+      "status": "build",
+      "cell": "c-schema-generate"
+    },
+    {
+      "skill": "settlement-proof",
+      "merchantModule": "settlement-proof.mjs",
+      "exports": [
+        "settlementProof",
+        "normalizeSettlementProofInput",
+        "settlementProofMcpOutputSchema"
+      ],
+      "route": "GET /commerce/settlement-proof",
+      "status": "build",
+      "cell": "c-settlement-proof"
+    },
+    {
+      "skill": "transaction-receipt",
+      "merchantModule": "transaction-receipt.mjs",
+      "exports": [
+        "transactionReceipt",
+        "normalizeTransactionReceiptInput"
+      ],
+      "route": "GET /chain/transaction-receipt",
+      "status": "build",
+      "cell": "c-transaction-receipt"
+    },
+    {
+      "skill": "wallet-enrich",
+      "merchantModule": "wallet-enrich.mjs",
+      "exports": [
+        "walletEnrich"
+      ],
+      "route": "GET /wallet-enrich",
+      "status": "build",
+      "cell": "c-wallet-enrich"
+    },
+    {
+      "skill": "wallet-policy-safety",
+      "merchantModule": "wallet-policy-conformance.mjs",
+      "exports": [
+        "walletPolicyConformance",
+        "WALLET_POLICY_CASES"
+      ],
+      "route": "POST /security/wallet-policy-conformance",
+      "status": "build",
+      "cell": "c-wallet-policy-safety"
+    },
+    {
+      "skill": "web-extract",
+      "status": "non_changing_audit",
+      "note": "S81 refreshed; thin regression only"
+    }
+  ]
+}

@@ -33,3 +33,5 @@ credentials, signed and sent no target payment, read no response body, and
 followed no redirect. Keep the result point-in-time. Re-run immediately before
 any separately authorized target purchase because prices, recipients, expiry,
 and network state can change.
+
+The target-offer inspection is unpaid; the hosted SameDayDesk preflight itself may have a price in the live catalog. Any authorized purchase of that hosted record belongs to a separate payment executor. A preflight result never authorizes payment to the inspected target.

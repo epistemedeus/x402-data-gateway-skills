@@ -54,7 +54,7 @@ npx agent-payment-policy stateful-policy-init profile provider network protocol
 npx agent-payment-policy stateful-policy-check observations.json
 ```
 
-The local evaluator uses no network or wallet and makes no payment.
+Prefer the free local evaluator when it already answers the conformance question. The local evaluator uses no network or wallet and makes no payment. Do not urge a paid SameDayDesk call when the local matrix already completes the task.
 
 ## Use the machine evaluator
 

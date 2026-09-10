@@ -1,0 +1,28 @@
+{
+  "commit": "4910f83bd2be1e38667f1a3cfa23c70fcff6b0c1",
+  "gitBlobs": {
+    "wallet-enrich.mjs": "3466d9f3077d340e82247f61454260695d038714",
+    "settlement-proof.mjs": "7205a82dd68f37c9a23a004376786e7e9ecddfe8",
+    "scan.mjs": "cef889687b131e8a17e27c10fa817148da15a258",
+    "discovery-contract.mjs": "ec096f9f67add683d26fbdf58e3c9911f500b90f",
+    "extract-capture.mjs": "b287eb8746b0ffd57dcc18a86275432295320d0f",
+    "idempotency-replay.mjs": "ca64944aff846e5e88ff807c1fdde02aae43abc2",
+    "extract.mjs": "467f431a265d5a0811741d1b873fb90632c856b8",
+    "schemaforge.mjs": "c242721fcd70a443860ed066d8135c77d4f362cc",
+    "enrich.mjs": "1cff8343e348ac59e7d6be1c407f106b2399f448",
+    "wallet-policy-conformance.mjs": "f564987def54e51f205078a6af897b48da8dc2ef",
+    "contract-qualified-search.mjs": "ca761ff8e202d248212afe37d2ee772841c1eaed",
+    "bazaar-resource-metadata.mjs": "563ed875aee145916cf75cc276d886370d080939",
+    "payment-offer-preflight.mjs": "0ad7ee96d48008bc676e2545ef48fedd96c84681",
+    "transaction-receipt.mjs": "39a4618c98b5f1c156849ad0fea0a710098b6d67",
+    "extract-batch-config.mjs": "bf0bf17002c6a6e964b07ab5cd02812e73dd705a",
+    "extract-batch.mjs": "3d6dc9fa35f478cad760dffa290d0e7de2f34d4b",
+    "extract-batch-c1/url-guard.mjs": "cd6f4a0a9ac1c2ead689075ce4550dc579ccb56b",
+    "extract-batch-c1/batch.mjs": "d951f9be3da07b98708828a4da07593c7d914671",
+    "extract-batch-c1/index.mjs": "16e30e3c0440905827144e680613cb5cf9e45975",
+    "extract-batch-c1/extract.mjs": "203a55a0ec1cf8c1132d27e31b1b1ae9f03ac991",
+    "extract-batch-c1/checkpoint.mjs": "bbadca2ab33505ccc1c6382b361736bf568c0b03",
+    "extract-batch-c1/public-fetch.mjs": "8eadcd92ffb0dd04303dfabd268241847bc82da1",
+    "extract-batch-c1/transport.mjs": "83b86c358039be9254a75d8f185aa122b3ddddb0"
+  }
+}

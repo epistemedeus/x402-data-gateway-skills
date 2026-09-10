@@ -1,0 +1,16 @@
+{
+  "name": "x402-data-gateway-skills",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "test:recipes": "node tests/recipes/run.mjs",
+    "test:all": "npm run test && npm run test:recipes"
+  },
+  "devDependencies": {
+    "viem": "2.55.11"
+  }
+}
