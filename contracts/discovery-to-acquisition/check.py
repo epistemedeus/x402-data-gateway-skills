@@ -123,10 +123,11 @@ def rank_queries(hermes_search, entries: list[dict], queries: list[str]) -> dict
 def claim_errors(receipt: dict, claim: dict, our_identifiers: set[str]) -> list[str]:
     errors = []
     rows = receipt["received"]["rows"]
-    selected = any(row.get("ourSkillInFirst10") for row in rows)
+    selected = False
     for row in rows:
         identifiers = [item.get("identifier", "") for item in row.get("results", [])[:10]]
-        present = any(identifier in our_identifiers or identifier.endswith("/received-useful-work") for identifier in identifiers)
+        present = any(identifier in our_identifiers for identifier in identifiers)
+        selected = selected or present
         if row.get("ourSkillInFirst10") and not present:
             errors.append(f"{row.get('query')}: first10 flag without our identifier")
         if present and not row.get("ourSkillInFirst10"):
@@ -261,6 +262,22 @@ def main() -> None:
     if not any("first10 flag" in error for error in flipped_errors):
         fail("seeded first10 flag without our identifier was accepted")
     seeded.append("first10 flag without our identifier")
+
+    wrong_owner = json.loads(json.dumps(receipt))
+    wrong_owner["received"]["rows"][2]["ourSkillInFirst10"] = True
+    wrong_owner["received"]["rows"][2]["results"] = [
+        {"identifier": "github/another-owner/another-repo/received-useful-work"}
+    ]
+    wrong_errors = claim_errors(wrong_owner, {"taskFirstSelected": True}, our_identifiers)
+    if not any("first10 flag" in error for error in wrong_errors):
+        fail("same-named skill from another owner was counted as our selection")
+    seeded.append("same-named skill from another owner")
+
+    valid_selection = json.loads(json.dumps(receipt))
+    valid_selection["received"]["rows"][2]["ourSkillInFirst10"] = True
+    valid_selection["received"]["rows"][2]["results"] = [{"identifier": ours["identifier"]}]
+    if claim_errors(valid_selection, {"taskFirstSelected": True}, our_identifiers):
+        fail("exact declared identifier was not accepted as selection")
 
     from tools.skills_hub_search import _index_miss_fallback_sources, _select_active_sources
 
