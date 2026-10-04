@@ -1,0 +1,206 @@
+{
+  "home": "/home/ubuntu/root-hermes-query1004-40qgxQ",
+  "exit": 0,
+  "error": null,
+  "observedAt": "2026-10-04T06:22:39.392Z",
+  "received": {
+    "officialCommit": "2f80ae0a6a91932b1808a53f9c55f8b3f313d6cc",
+    "publicSourceCommit": "4359fd51a578b365b1e1863f580fc078549346e8",
+    "indexGeneratedAt": "2026-10-03T20:17:45.875637+00:00",
+    "rows": [
+      {
+        "query": "x402 integration repair",
+        "elapsedMs": 9276,
+        "sourceCounts": {
+          "url": 0,
+          "hermes-index": 0,
+          "browse-sh": 0,
+          "official": 0,
+          "well-known": 0,
+          "lobehub": 0,
+          "skills-sh": 50
+        },
+        "timedOutSources": [
+          "clawhub"
+        ],
+        "results": [
+          {
+            "name": "debian-linux-triage",
+            "identifier": "skills-sh/github/awesome-copilot/debian-linux-triage",
+            "source": "skills.sh",
+            "trust": "community"
+          },
+          {
+            "name": "fedora-linux-triage",
+            "identifier": "skills-sh/github/awesome-copilot/fedora-linux-triage",
+            "source": "skills.sh",
+            "trust": "community"
+          },
+          {
+            "name": "fix-errors",
+            "identifier": "skills-sh/warpdotdev/common-skills/fix-errors",
+            "source": "skills.sh",
+            "trust": "community"
+          },
+          {
+            "name": "okx-x402-payment",
+            "identifier": "skills-sh/okx/onchainos-skills/okx-x402-payment",
+            "source": "skills.sh",
+            "trust": "community"
+          },
+          {
+            "name": "integration-error-observability",
+            "identifier": "skills-sh/samber/developer-platform-skills/integration-error-observability",
+            "source": "skills.sh",
+            "trust": "community"
+          },
+          {
+            "name": "codegraph-ast-grep",
+            "identifier": "skills-sh/stark-ai-de/agent-skills/codegraph-ast-grep",
+            "source": "skills.sh",
+            "trust": "community"
+          },
+          {
+            "name": "migrating-dbt-core-to-fusion",
+            "identifier": "skills-sh/dbt-labs/dbt-agent-skills/migrating-dbt-core-to-fusion",
+            "source": "skills.sh",
+            "trust": "community"
+          },
+          {
+            "name": "om-integration-tests",
+            "identifier": "skills-sh/open-mercato/skills/om-integration-tests",
+            "source": "skills.sh",
+            "trust": "community"
+          },
+          {
+            "name": "managing-integrations",
+            "identifier": "skills-sh/celigo/ai/managing-integrations",
+            "source": "skills.sh",
+            "trust": "community"
+          },
+          {
+            "name": "api-integration-surface-strategy",
+            "identifier": "skills-sh/samber/developer-platform-skills/api-integration-surface-strategy",
+            "source": "skills.sh",
+            "trust": "community"
+          }
+        ],
+        "ourSkillInFirst10": false
+      },
+      {
+        "query": "tool input compatibility",
+        "elapsedMs": 8380,
+        "sourceCounts": {
+          "url": 0,
+          "browse-sh": 0,
+          "hermes-index": 0,
+          "official": 0,
+          "well-known": 0,
+          "lobehub": 0,
+          "skills-sh": 47
+        },
+        "timedOutSources": [
+          "clawhub"
+        ],
+        "results": [
+          {
+            "name": "webapp-testing",
+            "identifier": "skills-sh/anthropics/skills/webapp-testing",
+            "source": "skills.sh",
+            "trust": "trusted"
+          },
+          {
+            "name": "playwright",
+            "identifier": "skills-sh/openai/skills/playwright",
+            "source": "skills.sh",
+            "trust": "trusted"
+          },
+          {
+            "name": "web-design-guidelines",
+            "identifier": "skills-sh/vercel-labs/agent-skills/web-design-guidelines",
+            "source": "skills.sh",
+            "trust": "community"
+          },
+          {
+            "name": "playwright-cli",
+            "identifier": "skills-sh/microsoft/playwright-cli/playwright-cli",
+            "source": "skills.sh",
+            "trust": "community"
+          },
+          {
+            "name": "lark-vc",
+            "identifier": "skills-sh/larksuite/cli/lark-vc",
+            "source": "skills.sh",
+            "trust": "community"
+          },
+          {
+            "name": "ui-ux-pro-max",
+            "identifier": "skills-sh/nextlevelbuilder/ui-ux-pro-max-skill/ui-ux-pro-max",
+            "source": "skills.sh",
+            "trust": "community"
+          },
+          {
+            "name": "industrial-brutalist-ui",
+            "identifier": "skills-sh/leonxlnx/taste-skill/industrial-brutalist-ui",
+            "source": "skills.sh",
+            "trust": "community"
+          },
+          {
+            "name": "stitch-design-taste",
+            "identifier": "skills-sh/leonxlnx/taste-skill/stitch-design-taste",
+            "source": "skills.sh",
+            "trust": "community"
+          },
+          {
+            "name": "requesting-code-review",
+            "identifier": "skills-sh/obra/superpowers/requesting-code-review",
+            "source": "skills.sh",
+            "trust": "community"
+          },
+          {
+            "name": "lark-note",
+            "identifier": "skills-sh/larksuite/cli/lark-note",
+            "source": "skills.sh",
+            "trust": "community"
+          }
+        ],
+        "ourSkillInFirst10": false
+      },
+      {
+        "query": "task distribution",
+        "elapsedMs": 284,
+        "sourceCounts": {
+          "url": 0,
+          "browse-sh": 0,
+          "hermes-index": 3,
+          "official": 0
+        },
+        "timedOutSources": [],
+        "results": [
+          {
+            "name": "Agent Coordinator",
+            "identifier": "agent-coordinator",
+            "source": "clawhub",
+            "trust": "community"
+          },
+          {
+            "name": "Lightweight Team Orchestration",
+            "identifier": "lightweight-team-orchestration",
+            "source": "clawhub",
+            "trust": "community"
+          },
+          {
+            "name": "Pilot Role Assign",
+            "identifier": "pilot-role-assign",
+            "source": "clawhub",
+            "trust": "community"
+          }
+        ],
+        "ourSkillInFirst10": false
+      }
+    ],
+    "outsideCustomer": false,
+    "modelCall": false,
+    "newPayment": false
+  }
+}
