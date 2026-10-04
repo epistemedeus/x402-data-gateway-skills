@@ -1,0 +1,199 @@
+{
+  "schema": "x402-data-gateway-skills.received-useful-work-mirror.v1",
+  "role": "generated-mirror-provenance",
+  "separatedFromSkillBundle": true,
+  "skill": "received-useful-work",
+  "version": "0.1.1",
+  "license": "MIT",
+  "bundle": "skills/received-useful-work",
+  "source": {
+    "repository": "epistemedeus/neomorphic-io",
+    "revision": "6029b2c2cbcdd1b258bd98333e4e11596bf5c7da",
+    "path": "public/.well-known/skills/received-useful-work",
+    "excluded": "Root281 publication projection is not part of this export"
+  },
+  "members": [
+    {
+      "path": "LICENSE",
+      "mode": "100644",
+      "bytes": 1071,
+      "sha256": "044d7291c37a2ead106ea4b4c26f713e63b7834637ed634da640f74e8cbe4625",
+      "sourceBlob": "e7ae1c934b7f046db87cff2702b8b5b4f5974cf9"
+    },
+    {
+      "path": "SKILL.md",
+      "mode": "100644",
+      "bytes": 12318,
+      "sha256": "82b1845a90b066562c13e7c68b11806c4315a6c1990bda1327193714eab15d1f",
+      "sourceBlob": "e2293bde61910d612699d27c09e82522d28ad3d7"
+    },
+    {
+      "path": "references/LICENSE.txt",
+      "mode": "100644",
+      "bytes": 1071,
+      "sha256": "044d7291c37a2ead106ea4b4c26f713e63b7834637ed634da640f74e8cbe4625",
+      "sourceBlob": "e7ae1c934b7f046db87cff2702b8b5b4f5974cf9"
+    },
+    {
+      "path": "references/caller-input-contract.json",
+      "mode": "100644",
+      "bytes": 7961,
+      "sha256": "74bf7af779b7d069a321be97259c8fc5907b2f4c27ba1f2cbeed894f7d28bac0",
+      "sourceBlob": "a1906e7f417e54bac05e577f10f2613bea465d7b"
+    },
+    {
+      "path": "references/library-delivery.json",
+      "mode": "100644",
+      "bytes": 4166,
+      "sha256": "d77f7c6f70ca4b1adbf54bd57c4bc2345b18bc0e2cd87b4a2163de6d8941b55d",
+      "sourceBlob": "5adf553f8d431971e22cfef87e735e209dcdef22"
+    },
+    {
+      "path": "references/pins.json",
+      "mode": "100644",
+      "bytes": 12231,
+      "sha256": "285a82315127b346c1c937ff1e253d1b6bab69cfe06657da2109c8846bceb678",
+      "sourceBlob": "b2c653839fc8bd1e512c39ec12e01c7f19f938b6"
+    },
+    {
+      "path": "references/requests/compatibility-query.json",
+      "mode": "100644",
+      "bytes": 309,
+      "sha256": "de44f32e91c67126378a0b01b3db708dba18cc6d37170edd7ee4dca4e9514526",
+      "sourceBlob": "03459a87e6d06979ea11f637f56a3dd26071b1de"
+    },
+    {
+      "path": "references/requests/grantless-retained-read.json",
+      "mode": "100644",
+      "bytes": 294,
+      "sha256": "14aa01f788a3839b107fe16acb89129a1106ef823aa81c3f703f44dae8daf256",
+      "sourceBlob": "15cd3d6a8d39df80a4100df1c5c9cc8231631514"
+    },
+    {
+      "path": "references/requests/maintained-observation.json",
+      "mode": "100644",
+      "bytes": 327,
+      "sha256": "4f87ab6b34844710ef3fde0c87ff0b6d3b0e53742bf12b2d7c64ab3ecdf2d732",
+      "sourceBlob": "26e8ffcb67ac07d7fa73105176091e7b6c267797"
+    },
+    {
+      "path": "references/requests/no-spend-composition.json",
+      "mode": "100644",
+      "bytes": 345,
+      "sha256": "6e6a3045cccd39be72c07bcc6595ff603fb1904dd8b6380559e1cabffdf35176",
+      "sourceBlob": "877876e7f0815d5bf60fdc769bae5709c83333a3"
+    },
+    {
+      "path": "references/requests/seeded-stale-authority.json",
+      "mode": "100644",
+      "bytes": 416,
+      "sha256": "dc57d74bcc3cb3413635528b9b919f8816409e8b4e298efb452fdf1f16ebe5e4",
+      "sourceBlob": "8b4e48d56384abab3e6f9e850fda641c47971f9c"
+    },
+    {
+      "path": "references/requests/walletless-trial.json",
+      "mode": "100644",
+      "bytes": 391,
+      "sha256": "82afa7ccbf54c539c033621b48d63e314ff1f43a2475a6dcb347480af6b6ed20",
+      "sourceBlob": "aeb6219342e4ddb23f26c4d4cdc88910ab113a0c"
+    },
+    {
+      "path": "references/task-distribution-input-contract.json",
+      "mode": "100644",
+      "bytes": 1680,
+      "sha256": "2ed949530dc180565145925a4a2e75e131e6ac19fe9491142673299a01127119",
+      "sourceBlob": "080113454d650df5d217fe9acbc165456dcb91a7"
+    },
+    {
+      "path": "references/task-distribution-source-notice.txt",
+      "mode": "100644",
+      "bytes": 1116,
+      "sha256": "ebd0263c1d99a4c36a5dff2d9100dfc57eb2ac41e4974eb0ea72f0de1e8a385b",
+      "sourceBlob": "e55fe043fbe9924021d14d2b6a92f168258c984d"
+    },
+    {
+      "path": "scripts/delivery-contracts/contracts.mjs",
+      "mode": "100644",
+      "bytes": 7785,
+      "sha256": "d3a8ea9c23e76e570d83ca3013cc1778f401df1da8a340a95886b3eb920d7102",
+      "sourceBlob": "1e2c71d3b3d504d6f0b643d5d04e9bed81d0c3fb"
+    },
+    {
+      "path": "scripts/delivery-contracts/durable.mjs",
+      "mode": "100644",
+      "bytes": 3754,
+      "sha256": "6011efd48964b0dac86d629ad7d0e752e4cdcda45d213a88a64e32caede905c6",
+      "sourceBlob": "82426629c400f6162dfabe99a35d57a8db236323"
+    },
+    {
+      "path": "scripts/delivery-contracts/manifest.mjs",
+      "mode": "100644",
+      "bytes": 2816,
+      "sha256": "079e5564df5eac099af94aee039c2c919baa0df27014135fc668d9cb2e589e10",
+      "sourceBlob": "9f2d403f24adf8703adf664ccad7ee2e62d0cb57"
+    },
+    {
+      "path": "scripts/dispatch.mjs",
+      "mode": "100755",
+      "bytes": 87395,
+      "sha256": "4a397ab67979fa7d88aca6dba1c491b627904185de3e9034511ef4c49708df8b",
+      "sourceBlob": "cc220549e7043de00aa663518f0e3171079c1cdf"
+    },
+    {
+      "path": "scripts/library-delivery.mjs",
+      "mode": "100644",
+      "bytes": 9432,
+      "sha256": "9f08fde48418c55ef5ce8c6dd42e53e58454462c20ec2aab536e97091184901c",
+      "sourceBlob": "aa057926b40920cf0ee27bf2306be1d1c0cfad4f"
+    },
+    {
+      "path": "scripts/task-distribution/archive.mjs",
+      "mode": "100644",
+      "bytes": 2509,
+      "sha256": "6f800bc1db61e24df6a6d6fdd875430c43f274dc21bf33edf552754f39fd8e0b",
+      "sourceBlob": "d6f0945b5603c5ccf6f9ce0ebaed181a4291e002"
+    },
+    {
+      "path": "scripts/task-distribution/cli.mjs",
+      "mode": "100644",
+      "bytes": 2502,
+      "sha256": "43476a1f56d6e42ad09f56ce3ebe6003c64d7a0ab0523c197158a0e5575cebb4",
+      "sourceBlob": "6c24fd92a5f63cc201e128d0cf9168fdc9e39aa6"
+    },
+    {
+      "path": "scripts/task-distribution/delivery-contracts/LICENSE",
+      "mode": "100644",
+      "bytes": 1071,
+      "sha256": "044d7291c37a2ead106ea4b4c26f713e63b7834637ed634da640f74e8cbe4625",
+      "sourceBlob": "e7ae1c934b7f046db87cff2702b8b5b4f5974cf9"
+    },
+    {
+      "path": "scripts/task-distribution/delivery-contracts/contracts.mjs",
+      "mode": "100644",
+      "bytes": 7785,
+      "sha256": "d3a8ea9c23e76e570d83ca3013cc1778f401df1da8a340a95886b3eb920d7102",
+      "sourceBlob": "1e2c71d3b3d504d6f0b643d5d04e9bed81d0c3fb"
+    },
+    {
+      "path": "scripts/task-distribution/delivery-contracts/durable.mjs",
+      "mode": "100644",
+      "bytes": 5087,
+      "sha256": "8cd7df75a1ec7f8fa07534aa51d5429fc989a4e5bd29641d00752cce7d1a7024",
+      "sourceBlob": "7f7b4c9c28abdf1c1b1632ffbef01a5fafbb6866"
+    },
+    {
+      "path": "scripts/task-distribution/distribution.mjs",
+      "mode": "100644",
+      "bytes": 11662,
+      "sha256": "578d4702a22a028e74902f4f20a3d8d78d7613c39c99aaffa02de8949010d5c3",
+      "sourceBlob": "f42693c9b8b7b1e88c7fc06118764fa692d48858"
+    },
+    {
+      "path": "scripts/task-distribution/source.mjs",
+      "mode": "100644",
+      "bytes": 5523,
+      "sha256": "1bc00de957948a39daa5b13a68394f86ced0e8b64dc3c7c12c20d96780a1effa",
+      "sourceBlob": "1ba78084e89f72dae9d5b4063f5f4e4e6a41f66b"
+    }
+  ]
+}
