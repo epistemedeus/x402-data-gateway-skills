@@ -1,0 +1,52 @@
+{
+  "schema": "discovery-to-acquisition.v1",
+  "skill": "received-useful-work",
+  "hermesCommit": "2f80ae0a6a91932b1808a53f9c55f8b3f313d6cc",
+  "publicSourceCommit": "4359fd51a578b365b1e1863f580fc078549346e8",
+  "indexUrl": "https://hermes-agent.nousresearch.com/docs/api/skills-index.json",
+  "queries": [
+    "x402 integration repair",
+    "tool input compatibility",
+    "task distribution"
+  ],
+  "ourIdentifiers": [
+    "received-useful-work",
+    "epistemedeus/x402-data-gateway-skills/skills/received-useful-work"
+  ],
+  "listingFixture": "fixtures/clawhub-listing-item.json",
+  "receiptFixture": "fixtures/native-task-query-replay.json",
+  "registryPathsFixture": "fixtures/clawhub-0.1.1-paths.json",
+  "submission": "submission.json",
+  "knownSourceDir": "skills/received-useful-work",
+  "skillMarkdown": "skills/received-useful-work/SKILL.md",
+  "knownSourceInstall": "hermes skills install epistemedeus/x402-data-gateway-skills/skills/received-useful-work --yes",
+  "separateObservations": [
+    "taskFirstSelection",
+    "knownSourceInstall",
+    "callerUsefulness",
+    "payment"
+  ],
+  "standinsFromReceipt": [
+    {
+      "name": "Agent Coordinator",
+      "identifier": "agent-coordinator",
+      "source": "clawhub",
+      "trust_level": "community",
+      "description": "task distribution"
+    },
+    {
+      "name": "Lightweight Team Orchestration",
+      "identifier": "lightweight-team-orchestration",
+      "source": "clawhub",
+      "trust_level": "community",
+      "description": "task distribution"
+    },
+    {
+      "name": "Pilot Role Assign",
+      "identifier": "pilot-role-assign",
+      "source": "clawhub",
+      "trust_level": "community",
+      "description": "task distribution"
+    }
+  ]
+}

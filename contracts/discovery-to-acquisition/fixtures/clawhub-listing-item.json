@@ -1,0 +1,31 @@
+{
+  "ownerHandle": "epistemedeus",
+  "slug": "received-useful-work",
+  "displayName": "Received useful work",
+  "summary": "Discover received public libraries and run caller-supplied inputs for x402 integration repair, tool input compatibility, and task distribution. scripts/task-distribution/cli.mjs classifies a supplied seller integration as free_sufficient or missing_field_not_paid_demand and sends no payment. scripts/dispatch.mjs qualifies compatibility-query for a tool input compatibility decision on the candidate envelope. A description match does not complete the task.",
+  "description": null,
+  "topics": [],
+  "tags": {
+    "latest": "0.1.1"
+  },
+  "stats": {
+    "comments": 0,
+    "downloads": 83,
+    "installs": 0,
+    "stars": 0,
+    "versions": 2
+  },
+  "createdAt": 1791066552814,
+  "updatedAt": 1791086073034,
+  "latestVersion": {
+    "version": "0.1.1",
+    "createdAt": 1791085869699,
+    "changelog": "Registry successor 0.1.1 from Neo280 6029b2c2. Canonical pack stays MIT. 0.1.0 is unchanged.",
+    "license": "MIT-0"
+  },
+  "metadata": {
+    "setup": [],
+    "os": null,
+    "systems": null
+  }
+}

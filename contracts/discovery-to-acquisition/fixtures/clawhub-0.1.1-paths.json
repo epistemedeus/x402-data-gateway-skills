@@ -1,0 +1,49 @@
+{
+  "observedFrom": "GET https://clawhub.ai/api/v1/skills/received-useful-work/versions/0.1.1?owner=epistemedeus",
+  "version": "0.1.1",
+  "license": "MIT-0",
+  "paths": [
+    "LICENSE",
+    "SKILL.md",
+    "references/LICENSE.txt",
+    "references/caller-input-contract.json",
+    "references/library-delivery.json",
+    "references/pins.json",
+    "references/requests/compatibility-query.json",
+    "references/requests/grantless-retained-read.json",
+    "references/requests/maintained-observation.json",
+    "references/requests/no-spend-composition.json",
+    "references/requests/seeded-stale-authority.json",
+    "references/requests/walletless-trial.json",
+    "references/task-distribution-input-contract.json",
+    "references/task-distribution-source-notice.txt",
+    "scripts/delivery-contracts/contracts.mjs",
+    "scripts/dispatch.mjs",
+    "scripts/library-delivery.mjs",
+    "scripts/task-distribution/archive.mjs",
+    "scripts/task-distribution/cli.mjs",
+    "scripts/task-distribution/delivery-contracts/LICENSE",
+    "scripts/task-distribution/delivery-contracts/contracts.mjs",
+    "scripts/task-distribution/delivery-contracts/durable.mjs",
+    "scripts/task-distribution/distribution.mjs",
+    "scripts/task-distribution/source.mjs",
+    "skill-card.md"
+  ],
+  "security": {
+    "status": "clean",
+    "hasWarnings": true,
+    "sha256hash": "9bed522dc9d738873d3818d0ef0d12db9f7ab509ebb31dde7ff60243ed5ef978",
+    "skillspector": {
+      "status": "suspicious",
+      "recommendation": "DO_NOT_INSTALL",
+      "issueCount": 27
+    },
+    "llm": {
+      "status": "clean",
+      "verdict": "benign"
+    },
+    "vt": {
+      "status": "clean"
+    }
+  }
+}
