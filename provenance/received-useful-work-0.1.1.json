@@ -23,8 +23,8 @@
     {
       "path": "SKILL.md",
       "mode": "100644",
-      "bytes": 14144,
-      "sha256": "d7431fe58cdba0d40e5cf545387bff005ff3143ef0247439d1c491866e9b6055",
+      "bytes": 14309,
+      "sha256": "ea45442ed3e6ede376fa631202ef9e9c61c400015545c477254f9c83479a1458",
       "sourceBlob": "e2293bde61910d612699d27c09e82522d28ad3d7"
     },
     {
@@ -44,8 +44,8 @@
     {
       "path": "references/library-delivery.json",
       "mode": "100644",
-      "bytes": 6221,
-      "sha256": "4393e572170ae7a395f4422f858e4bab0c6c9f848eae489bc2066d28cdf692fc",
+      "bytes": 6261,
+      "sha256": "e9df76728e1224ff508533ca4fb42e90b326a30cbf63d39b48a5efa8e399b8da",
       "sourceBlob": "5adf553f8d431971e22cfef87e735e209dcdef22"
     },
     {
@@ -142,8 +142,8 @@
     {
       "path": "scripts/library-delivery.mjs",
       "mode": "100644",
-      "bytes": 9456,
-      "sha256": "98d60e0679539dceebe6e4cfa4e0b308a26ffa02dfd40853acae3e8778234174",
+      "bytes": 9898,
+      "sha256": "efda10bbfd869904023aa93d0d80c6bd36296a122d29b237503d41eda506148d",
       "sourceBlob": "aa057926b40920cf0ee27bf2306be1d1c0cfad4f"
     },
     {
@@ -205,23 +205,27 @@
         "path": "SKILL.md",
         "baseSha256": "82b1845a90b066562c13e7c68b11806c4315a6c1990bda1327193714eab15d1f",
         "baseBytes": 12318,
-        "sha256": "d7431fe58cdba0d40e5cf545387bff005ff3143ef0247439d1c491866e9b6055",
-        "bytes": 14144
+        "sha256": "ea45442ed3e6ede376fa631202ef9e9c61c400015545c477254f9c83479a1458",
+        "bytes": 14309
       },
       {
         "path": "references/library-delivery.json",
         "baseSha256": "d77f7c6f70ca4b1adbf54bd57c4bc2345b18bc0e2cd87b4a2163de6d8941b55d",
         "baseBytes": 4166,
-        "sha256": "4393e572170ae7a395f4422f858e4bab0c6c9f848eae489bc2066d28cdf692fc",
-        "bytes": 6221
+        "sha256": "e9df76728e1224ff508533ca4fb42e90b326a30cbf63d39b48a5efa8e399b8da",
+        "bytes": 6261
       },
       {
         "path": "scripts/library-delivery.mjs",
         "baseSha256": "9f08fde48418c55ef5ce8c6dd42e53e58454462c20ec2aab536e97091184901c",
         "baseBytes": 9432,
-        "sha256": "98d60e0679539dceebe6e4cfa4e0b308a26ffa02dfd40853acae3e8778234174",
-        "bytes": 9456
+        "sha256": "efda10bbfd869904023aa93d0d80c6bd36296a122d29b237503d41eda506148d",
+        "bytes": 9898
       }
-    ]
+    ],
+    "receiving": {
+      "sourceHead": "9869b8bc26343c6c37b2b679cde397b17f93673c",
+      "correction": "Recheck current hosted availability before acquiring immutable frozen bytes; refuse withdrawal and improve task-query description. No payment authority or useful-demand inference."
+    }
   }
 }

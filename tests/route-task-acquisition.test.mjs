@@ -108,6 +108,7 @@ async function publicRoot(dir, { archive = null } = {}) {
   const leaf = path.join(dir, 'downloads/route-liquidity-read/0.1.0');
   await mkdir(leaf, { recursive: true });
   const body = `${JSON.stringify(descriptor())}\n`;
+  await writeFile(path.join(dir, 'downloads/route-liquidity-read/current.json'), JSON.stringify({ ...descriptor(), publicationStatus: 'hosted_library_received', libraryLaunched: true, hostedAcquisitionVerified: true, paidServiceLaunch: false }));
   await writeFile(path.join(leaf, 'descriptor.json'), body);
   await writeFile(path.join(leaf, 'machine-entry.json'), body);
   if (archive !== null) await writeFile(path.join(leaf, 'route-liquidity-read-0.1.0.tar.gz'), archive);
@@ -155,6 +156,26 @@ test('the existing delivery operation refuses an unknown library, a tampered arc
   }
 });
 
+test('current withdrawal or unreceived hosting refuses even with unchanged frozen pins', async () => {
+  const home = await mkdtemp(path.join(tmpdir(), 'route-task-withdrawn-'));
+  const env = cleanEnv(home, path.join(home, 'npm-cache'));
+  try {
+    for (const status of ['withdrawn', 'staged_unreceived']) {
+      const source = await publicRoot(path.join(home, status));
+      await writeFile(path.join(source, 'downloads/route-liquidity-read/current.json'), JSON.stringify({
+        ...descriptor(), publicationStatus: status, libraryLaunched: false, paidServiceLaunch: false,
+      }));
+      const result = await acquireCli(['acquire', '--library', 'route-liquidity-read', '--public-root', source,
+        '--work', path.join(home, status + '-work'), '--timeout-ms', '5000', '--max-bytes', '200000'], env);
+      assert.equal(result.code, 2);
+      const body = JSON.parse(result.stdout);
+      assert.equal(body.reason, 'current_library_unavailable');
+      assert.equal(body.executed, false);
+      assert.equal(body.useful, null);
+    }
+  } finally { await rm(home, { recursive: true, force: true }); }
+});
+
 test('a delivery allowance that has expired refuses the next read', () => {
   const allowance = budget(100, 4096, 4096);
   return new Promise((resolve, reject) => {
@@ -200,7 +221,8 @@ test('live acquire uses the pinned comparator and keeps payment closed', async (
     assert.equal(body.settlement, null);
     assert.equal(body.paymentAuthority, 'none');
     assert.equal(body.hostedAcquisitionVerified, false);
-    assert.equal(body.stagedCandidate, true);
+    assert.equal(body.stagedCandidate, false);
+    assert.equal(body.currentPublicationStatus, 'hosted_library_received');
     assert.equal(body.sourceCoverage, 'anonymous_https');
     assert.equal(body.sha256, ARCHIVE);
     assert.equal(body.bytes, 75422);

@@ -43,6 +43,9 @@ export async function acquireLibrary(id, { publicRoot = null, origin = ORIGIN, w
   let publication, entry, acquiredPin;
   if (declared.staged === true) {
     publication = JSON.parse(await receive(declared.publicationCurrent, { publicRoot, origin }, allowance, 65536));
+    if (declared.publicationStatus && (publication.publicationStatus !== declared.publicationStatus ||
+        publication.libraryLaunched !== true || publication.hostedAcquisitionVerified !== true ||
+        publication.paymentAuthority !== 'none' || publication.paidServiceLaunch !== false)) throw fail('current_library_unavailable');
     if (publication.packageName !== id || publication.version !== declared.publicationVersion || publication.archive !== declared.publicationArchive ||
         publication.sha256 !== declared.publicationSha256 || publication.bytes !== declared.publicationBytes) throw fail('current_requires_source_review');
     entry = JSON.parse(await receive(declared.machineEntry, { publicRoot, origin }, allowance, 65536));
@@ -79,7 +82,7 @@ export async function acquireLibrary(id, { publicRoot = null, origin = ORIGIN, w
       join(work, 'acquired'), null, id, deadline, allowance.output, 'caller');
     const result = { schema: 'neomorphic.received-library-acquisition.v1', id, version: entry.version, archive: acquiredPin.archive,
       sha256: acquiredPin.sha256, bytes: acquiredPin.bytes, sourceCoverage: publicRoot ? 'caller-supplied-local-public-tree' : 'anonymous_https',
-      hostedAcquisitionVerified: false, publicationVersion: publication.version, stagedCandidate: declared.staged === true,
+      hostedAcquisitionVerified: false, publicationVersion: publication.version, stagedCandidate: declared.staged === true && publication.libraryLaunched !== true, currentPublicationStatus: publication.publicationStatus || null,
       executed: false, useful: null, settlement: null, paymentAuthority: 'none',
       packageDir: acquired.packageDir, command: ['node', join(acquired.packageDir, declared.consumer)],
       dependencies: acquired.dependencies.map(item => ({ id: item.id, root: item.dir, environment: item.role })),

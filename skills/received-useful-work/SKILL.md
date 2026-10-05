@@ -1,6 +1,6 @@
 ---
 name: received-useful-work
-description: Discover received public libraries and run caller-supplied inputs for x402 integration repair, tool input compatibility, and task distribution. scripts/task-distribution/cli.mjs classifies a supplied seller integration as free_sufficient or missing_field_not_paid_demand and sends no payment. scripts/dispatch.mjs qualifies compatibility-query for a tool input compatibility decision on the candidate envelope. A description match does not complete the task.
+description: Discover received public libraries and run caller-supplied inputs for x402 integration repair, tool input compatibility, task distribution, and two-route substitution. scripts/task-distribution/cli.mjs classifies a supplied seller integration as free_sufficient or missing_field_not_paid_demand and sends no payment. scripts/dispatch.mjs qualifies compatibility-query for a tool input compatibility decision on the candidate envelope. A description match does not complete the task.
 license: MIT
 compatibility: Requires Node.js >=22.22.2, tar, and npm. Public reads are GET only, use the caller's timeout and body budget, and send no credential, signature, purchase, or note. No payment header is sent.
 metadata:
@@ -99,13 +99,14 @@ authority. Seller task referrals use the separate command below.
 
 A two-route substitution question uses that same acquire command for
 `route-liquidity-read`. There is no new operation and no second comparator.
-The pin is the staged public archive
+The pin is the public immutable archive
 `/downloads/route-liquidity-read/0.1.0/route-liquidity-read-0.1.0.tar.gz`
 (75422 bytes, sha256
 `a447722a865d0743abda5399b884497d9bce0ab7660eae39c57e10fcbad15094`).
-The descriptor and the machine entry are that staged document.
-`hostedAcquisitionVerified` stays false. Old staged metadata is not a
-paid-service launch. The command inside the archive is `bin/compare.mjs`.
+Acquisition first rechecks `/downloads/route-liquidity-read/current.json`.
+A withdrawn or unreceived publication is refused even if frozen bytes still exist.
+The frozen descriptor retains its original observations. A received library is not
+a paid service or proof that your task was useful. The command inside the archive is `bin/compare.mjs`.
 It calls the bundled MIT route-lock `decide()`. No private Neo checkout is
 required. The route-lock closure is already in the archive at
 `closure/route-lock-0.1.0.tgz`.

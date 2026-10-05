@@ -143,6 +143,8 @@ test('members and pins match the separated mirror provenance', () => {
   ]);
   const route = delivery.entries.at(-1);
   assert.equal(route.staged, true);
+  assert.equal(route.publicationCurrent, '/downloads/route-liquidity-read/current.json');
+  assert.equal(route.publicationStatus, 'hosted_library_received');
   assert.equal(route.hostedAcquisitionVerified, false);
   assert.equal(route.privateGitSource, 'unavailable');
   assert.equal(route.sha256, 'a447722a865d0743abda5399b884497d9bce0ab7660eae39c57e10fcbad15094');

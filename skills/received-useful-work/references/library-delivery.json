@@ -87,8 +87,8 @@
     },
     {
       "id": "route-liquidity-read",
-      "current": "/downloads/route-liquidity-read/0.1.0/descriptor.json",
-      "publicationCurrent": "/downloads/route-liquidity-read/0.1.0/descriptor.json",
+      "current": "/downloads/route-liquidity-read/current.json",
+      "publicationCurrent": "/downloads/route-liquidity-read/current.json",
       "publicationVersion": "0.1.0",
       "publicationArchive": "/downloads/route-liquidity-read/0.1.0/route-liquidity-read-0.1.0.tar.gz",
       "publicationSha256": "a447722a865d0743abda5399b884497d9bce0ab7660eae39c57e10fcbad15094",
@@ -116,7 +116,8 @@
         "lockSha256": "eed6f8c3e417faed7bb70151c96acffc0ed6ee57d30fea7138b7dea18cba0666",
         "insideArchive": "closure/route-lock-0.1.0.tgz"
       },
-      "callerSetup": "Install the bundled MIT route-lock 0.1.0 closure with npm ci --ignore-scripts --no-audit --no-fund --prefix vendor/route-lock inside packageDir. Then run the returned command with --input and your own request. Read stdout. Exit 0 is a completed comparison and still has authorization.granted false. --pay, --settle, --sign, --reserve, --publish, --register, and --deploy are refused. A liquidity claim is refused. Staged bytes are not a paid launch and not hosted-acquisition proof."
+      "callerSetup": "Install the bundled MIT route-lock 0.1.0 closure with npm ci --ignore-scripts --no-audit --no-fund --prefix vendor/route-lock inside packageDir. Then run the returned command with --input and your own request. Read stdout. Exit 0 is a completed comparison and still has authorization.granted false. --pay, --settle, --sign, --reserve, --publish, --register, and --deploy are refused. A liquidity claim is refused. An acquired library is not a paid service or proof of caller usefulness.",
+      "publicationStatus": "hosted_library_received"
     }
   ],
   "composition": "task-economics qualification does not establish seller task compatibility, maintenance authority or payment"
