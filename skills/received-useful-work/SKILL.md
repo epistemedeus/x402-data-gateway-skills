@@ -1,6 +1,6 @@
 ---
 name: received-useful-work
-description: Discover received public libraries and run caller-supplied inputs for x402 integration repair, tool input compatibility, and task distribution. scripts/task-distribution/cli.mjs classifies a supplied seller integration as free_sufficient or missing_field_not_paid_demand and sends no payment. scripts/dispatch.mjs qualifies compatibility-query for a tool input compatibility decision on the candidate envelope. A description match does not complete the task.
+description: Discover received public libraries and run caller-supplied inputs for x402 integration repair, tool input compatibility, task distribution, and two-route substitution. scripts/task-distribution/cli.mjs classifies a supplied seller integration as free_sufficient or missing_field_not_paid_demand and sends no payment. scripts/dispatch.mjs qualifies compatibility-query for a tool input compatibility decision on the candidate envelope. A description match does not complete the task.
 license: MIT
 compatibility: Requires Node.js >=22.22.2, tar, and npm. Public reads are GET only, use the caller's timeout and body budget, and send no credential, signature, purchase, or note. No payment header is sent.
 metadata:
@@ -75,7 +75,7 @@ A missing `standard402` field, or a declaration by itself, does not create a pai
 
 ## Current reusable delivery
 
-`scripts/library-delivery.mjs discover` reads the four current library pins in
+`scripts/library-delivery.mjs discover` reads the five current library pins in
 `references/library-delivery.json`. Acquire one exact library and its declared
 dependencies into a fresh caller directory:
 
@@ -96,6 +96,42 @@ production enrollment. Receive/reuse reads current permission and exact artifact
 bytes again, including correction or withdrawal after execution. The optional
 referral records caller-asserted usefulness; it carries no payment or execution
 authority. Seller task referrals use the separate command below.
+
+A two-route substitution question uses that same acquire command for
+`route-liquidity-read`. There is no new operation and no second comparator.
+The pin is the public immutable archive
+`/downloads/route-liquidity-read/0.1.0/route-liquidity-read-0.1.0.tar.gz`
+(75422 bytes, sha256
+`a447722a865d0743abda5399b884497d9bce0ab7660eae39c57e10fcbad15094`).
+Acquisition first rechecks `/downloads/route-liquidity-read/current.json`.
+A withdrawn or unreceived publication is refused even if frozen bytes still exist.
+The frozen descriptor retains its original observations. A received library is not
+a paid service or proof that your task was useful. The command inside the archive is `bin/compare.mjs`.
+It calls the bundled MIT route-lock `decide()`. No private Neo checkout is
+required. The route-lock closure is already in the archive at
+`closure/route-lock-0.1.0.tgz`.
+
+`node scripts/library-delivery.mjs acquire --library route-liquidity-read --work CALLER-WORK --timeout-ms 20000 --max-bytes 200000`
+
+`CALLER-WORK` is a path this command creates. Do not create it first.
+
+Inside the acquired package, install that closure and pass your own request.
+One deadline covers the acquire. Bound the install and the compare child the
+same way. Read the compare stdout. Exit 0 means the comparison finished. It
+does not grant authorization, reserve funds, or mark the caller's task useful.
+
+`npm ci --ignore-scripts --no-audit --no-fund --prefix vendor/route-lock`
+
+`node bin/compare.mjs --input examples/terms-differ.json`
+
+`node scripts/cold-invoke.mjs`
+
+`--pay`, `--settle`, `--sign`, `--reserve`, `--publish`, `--register`, and
+`--deploy` exit 2. A liquidity claim exits 2. Missing, stale, future,
+malformed, unavailable, and schema-unknown evidence exit 3. A body that is
+shaped like a challenge but arrived as HTTP 500 stays status 500 and is
+`evidence_rejected`. It is not a 402 and not a substitute. The examples in
+the archive are supplied QA. They are not outside use.
 
 The task-specific repair extension uses the owning seller descriptor and exact
 MIT bytes. Root336 owns that separate publication; an unavailable seller stays
