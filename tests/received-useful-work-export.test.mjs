@@ -102,7 +102,17 @@ test('members and pins match the separated mirror provenance', () => {
   assert.equal(actual.length, 26);
   rejectDrift(provenance.members, actual);
   const byPath = new Map(provenance.members.map((item) => [item.path, item]));
-  assert.equal(byPath.get('SKILL.md').sha256, '82b1845a90b066562c13e7c68b11806c4315a6c1990bda1327193714eab15d1f');
+  assert.equal(provenance.amendment.job, 'ROOT-1005-ROUTE-TASK-ACQUISITION');
+  assert.equal(provenance.amendment.baseRevision, sourceRevision);
+  const amended = new Map(provenance.amendment.changed.map((item) => [item.path, item]));
+  assert.deepEqual([...amended.keys()].sort(), [
+    'SKILL.md',
+    'references/library-delivery.json',
+    'scripts/library-delivery.mjs',
+  ]);
+  assert.equal(amended.get('SKILL.md').baseSha256, '82b1845a90b066562c13e7c68b11806c4315a6c1990bda1327193714eab15d1f');
+  assert.equal(byPath.get('SKILL.md').sha256, amended.get('SKILL.md').sha256);
+  assert.notEqual(byPath.get('SKILL.md').sha256, amended.get('SKILL.md').baseSha256);
   assert.equal(byPath.get('references/pins.json').sha256, sha256(fs.readFileSync(new URL('references/pins.json', bundleUrl))));
   assert.equal(byPath.get('scripts/dispatch.mjs').mode, '100755');
   const pins = JSON.parse(fs.readFileSync(new URL('references/pins.json', bundleUrl), 'utf8'));
@@ -110,7 +120,13 @@ test('members and pins match the separated mirror provenance', () => {
   assert.equal(pins.version, '0.1.1');
   assert.equal(pins.paymentAuthority, 'none');
   assert.equal(pins.installedCommand, 'scripts/dispatch.mjs');
-  assert.ok(Array.isArray(pins.functions) && pins.functions.length > 0);
+  assert.deepEqual(pins.functions.map((fn) => fn.id), [
+    'walletless-trial',
+    'grantless-retained-read',
+    'no-spend-composition',
+    'maintained-observation',
+    'compatibility-query',
+  ]);
   for (const fn of pins.functions) {
     assert.match(fn.archive, /^\/downloads\/[a-z0-9./-]+$/);
     assert.match(fn.sha256, /^[0-9a-f]{64}$/);
@@ -118,6 +134,21 @@ test('members and pins match the separated mirror provenance', () => {
   }
   const delivery = JSON.parse(fs.readFileSync(new URL('references/library-delivery.json', bundleUrl), 'utf8'));
   assert.equal(delivery.schema, 'neomorphic.received-library-delivery.v1');
+  assert.deepEqual(delivery.entries.map((entry) => entry.id), [
+    'maintained-useful-delivery',
+    'task-economics-delivery',
+    'task-distribution',
+    'evidence-referral-consumer',
+    'route-liquidity-read',
+  ]);
+  const route = delivery.entries.at(-1);
+  assert.equal(route.staged, true);
+  assert.equal(route.hostedAcquisitionVerified, false);
+  assert.equal(route.privateGitSource, 'unavailable');
+  assert.equal(route.sha256, 'a447722a865d0743abda5399b884497d9bce0ab7660eae39c57e10fcbad15094');
+  assert.equal(route.bytes, 75422);
+  assert.equal(route.consumer, 'bin/compare.mjs');
+  assert.deepEqual(route.dependencies, []);
   for (const entry of delivery.entries) {
     if (entry.sha256) {
       assert.match(entry.sha256, /^[0-9a-f]{64}$/);

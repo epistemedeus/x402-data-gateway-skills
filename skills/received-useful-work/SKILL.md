@@ -75,7 +75,7 @@ A missing `standard402` field, or a declaration by itself, does not create a pai
 
 ## Current reusable delivery
 
-`scripts/library-delivery.mjs discover` reads the four current library pins in
+`scripts/library-delivery.mjs discover` reads the five current library pins in
 `references/library-delivery.json`. Acquire one exact library and its declared
 dependencies into a fresh caller directory:
 
@@ -96,6 +96,41 @@ production enrollment. Receive/reuse reads current permission and exact artifact
 bytes again, including correction or withdrawal after execution. The optional
 referral records caller-asserted usefulness; it carries no payment or execution
 authority. Seller task referrals use the separate command below.
+
+A two-route substitution question uses that same acquire command for
+`route-liquidity-read`. There is no new operation and no second comparator.
+The pin is the staged public archive
+`/downloads/route-liquidity-read/0.1.0/route-liquidity-read-0.1.0.tar.gz`
+(75422 bytes, sha256
+`a447722a865d0743abda5399b884497d9bce0ab7660eae39c57e10fcbad15094`).
+The descriptor and the machine entry are that staged document.
+`hostedAcquisitionVerified` stays false. Old staged metadata is not a
+paid-service launch. The command inside the archive is `bin/compare.mjs`.
+It calls the bundled MIT route-lock `decide()`. No private Neo checkout is
+required. The route-lock closure is already in the archive at
+`closure/route-lock-0.1.0.tgz`.
+
+`node scripts/library-delivery.mjs acquire --library route-liquidity-read --work CALLER-WORK --timeout-ms 20000 --max-bytes 200000`
+
+`CALLER-WORK` is a path this command creates. Do not create it first.
+
+Inside the acquired package, install that closure and pass your own request.
+One deadline covers the acquire. Bound the install and the compare child the
+same way. Read the compare stdout. Exit 0 means the comparison finished. It
+does not grant authorization, reserve funds, or mark the caller's task useful.
+
+`npm ci --ignore-scripts --no-audit --no-fund --prefix vendor/route-lock`
+
+`node bin/compare.mjs --input examples/terms-differ.json`
+
+`node scripts/cold-invoke.mjs`
+
+`--pay`, `--settle`, `--sign`, `--reserve`, `--publish`, `--register`, and
+`--deploy` exit 2. A liquidity claim exits 2. Missing, stale, future,
+malformed, unavailable, and schema-unknown evidence exit 3. A body that is
+shaped like a challenge but arrived as HTTP 500 stays status 500 and is
+`evidence_rejected`. It is not a 402 and not a substitute. The examples in
+the archive are supplied QA. They are not outside use.
 
 The task-specific repair extension uses the owning seller descriptor and exact
 MIT bytes. Root336 owns that separate publication; an unavailable seller stays

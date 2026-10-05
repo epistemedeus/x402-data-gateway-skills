@@ -23,8 +23,8 @@
     {
       "path": "SKILL.md",
       "mode": "100644",
-      "bytes": 12318,
-      "sha256": "82b1845a90b066562c13e7c68b11806c4315a6c1990bda1327193714eab15d1f",
+      "bytes": 14144,
+      "sha256": "d7431fe58cdba0d40e5cf545387bff005ff3143ef0247439d1c491866e9b6055",
       "sourceBlob": "e2293bde61910d612699d27c09e82522d28ad3d7"
     },
     {
@@ -44,8 +44,8 @@
     {
       "path": "references/library-delivery.json",
       "mode": "100644",
-      "bytes": 4166,
-      "sha256": "d77f7c6f70ca4b1adbf54bd57c4bc2345b18bc0e2cd87b4a2163de6d8941b55d",
+      "bytes": 6221,
+      "sha256": "4393e572170ae7a395f4422f858e4bab0c6c9f848eae489bc2066d28cdf692fc",
       "sourceBlob": "5adf553f8d431971e22cfef87e735e209dcdef22"
     },
     {
@@ -142,8 +142,8 @@
     {
       "path": "scripts/library-delivery.mjs",
       "mode": "100644",
-      "bytes": 9432,
-      "sha256": "9f08fde48418c55ef5ce8c6dd42e53e58454462c20ec2aab536e97091184901c",
+      "bytes": 9456,
+      "sha256": "98d60e0679539dceebe6e4cfa4e0b308a26ffa02dfd40853acae3e8778234174",
       "sourceBlob": "aa057926b40920cf0ee27bf2306be1d1c0cfad4f"
     },
     {
@@ -195,5 +195,33 @@
       "sha256": "1bc00de957948a39daa5b13a68394f86ced0e8b64dc3c7c12c20d96780a1effa",
       "sourceBlob": "1ba78084e89f72dae9d5b4063f5f4e4e6a41f66b"
     }
-  ]
+  ],
+  "amendment": {
+    "job": "ROOT-1005-ROUTE-TASK-ACQUISITION",
+    "baseRevision": "6029b2c2cbcdd1b258bd98333e4e11596bf5c7da",
+    "note": "Staged route-liquidity-read pin on the existing library-delivery acquire operation. No new comparator, catalog, wallet, or registry.",
+    "changed": [
+      {
+        "path": "SKILL.md",
+        "baseSha256": "82b1845a90b066562c13e7c68b11806c4315a6c1990bda1327193714eab15d1f",
+        "baseBytes": 12318,
+        "sha256": "d7431fe58cdba0d40e5cf545387bff005ff3143ef0247439d1c491866e9b6055",
+        "bytes": 14144
+      },
+      {
+        "path": "references/library-delivery.json",
+        "baseSha256": "d77f7c6f70ca4b1adbf54bd57c4bc2345b18bc0e2cd87b4a2163de6d8941b55d",
+        "baseBytes": 4166,
+        "sha256": "4393e572170ae7a395f4422f858e4bab0c6c9f848eae489bc2066d28cdf692fc",
+        "bytes": 6221
+      },
+      {
+        "path": "scripts/library-delivery.mjs",
+        "baseSha256": "9f08fde48418c55ef5ce8c6dd42e53e58454462c20ec2aab536e97091184901c",
+        "baseBytes": 9432,
+        "sha256": "98d60e0679539dceebe6e4cfa4e0b308a26ffa02dfd40853acae3e8778234174",
+        "bytes": 9456
+      }
+    ]
+  }
 }

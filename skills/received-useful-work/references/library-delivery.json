@@ -84,6 +84,39 @@
       "sha256": "77e278cd1567d0c739abb750aeffba33970712e928793770044d5c0cf90fc8b9",
       "bytes": 24845,
       "dependencies": []
+    },
+    {
+      "id": "route-liquidity-read",
+      "current": "/downloads/route-liquidity-read/0.1.0/descriptor.json",
+      "publicationCurrent": "/downloads/route-liquidity-read/0.1.0/descriptor.json",
+      "publicationVersion": "0.1.0",
+      "publicationArchive": "/downloads/route-liquidity-read/0.1.0/route-liquidity-read-0.1.0.tar.gz",
+      "publicationSha256": "a447722a865d0743abda5399b884497d9bce0ab7660eae39c57e10fcbad15094",
+      "publicationBytes": 75422,
+      "staged": true,
+      "hostedAcquisitionVerified": false,
+      "version": "0.1.0",
+      "source": "public-descriptor:/downloads/route-liquidity-read/0.1.0/descriptor.json",
+      "implementationCommit": "84291ec4abc9b873820a0fd2006987f159668080",
+      "privateGitSource": "unavailable",
+      "consumer": "bin/compare.mjs",
+      "top": "route-liquidity-read-0.1.0",
+      "prior": null,
+      "machineEntry": "/downloads/route-liquidity-read/0.1.0/machine-entry.json",
+      "archive": "/downloads/route-liquidity-read/0.1.0/route-liquidity-read-0.1.0.tar.gz",
+      "sha256": "a447722a865d0743abda5399b884497d9bce0ab7660eae39c57e10fcbad15094",
+      "bytes": 75422,
+      "dependencies": [],
+      "routeLock": {
+        "name": "route-lock",
+        "version": "0.1.0",
+        "license": "MIT",
+        "sha256": "6f1b59e96eb4e6b222a0f5ac4db6cc9375a0f703e642b841f4c7de4bfa570cbf",
+        "bytes": 20149,
+        "lockSha256": "eed6f8c3e417faed7bb70151c96acffc0ed6ee57d30fea7138b7dea18cba0666",
+        "insideArchive": "closure/route-lock-0.1.0.tgz"
+      },
+      "callerSetup": "Install the bundled MIT route-lock 0.1.0 closure with npm ci --ignore-scripts --no-audit --no-fund --prefix vendor/route-lock inside packageDir. Then run the returned command with --input and your own request. Read stdout. Exit 0 is a completed comparison and still has authorization.granted false. --pay, --settle, --sign, --reserve, --publish, --register, and --deploy are refused. A liquidity claim is refused. Staged bytes are not a paid launch and not hosted-acquisition proof."
     }
   ],
   "composition": "task-economics qualification does not establish seller task compatibility, maintenance authority or payment"

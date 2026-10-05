@@ -83,7 +83,7 @@ export async function acquireLibrary(id, { publicRoot = null, origin = ORIGIN, w
       executed: false, useful: null, settlement: null, paymentAuthority: 'none',
       packageDir: acquired.packageDir, command: ['node', join(acquired.packageDir, declared.consumer)],
       dependencies: acquired.dependencies.map(item => ({ id: item.id, root: item.dir, environment: item.role })),
-      nextAction: 'Supply your own task to the acquired command. Acquisition is separate from execution and usefulness.' };
+      nextAction: declared.callerSetup || 'Supply your own task to the acquired command. Acquisition is separate from execution and usefulness.' };
     allowance.left(); allowance.output.charge(JSON.stringify(result) + '\n');
     return result;
   } finally { await allowance.wait(rm(cache, { recursive: true, force: true })); }
