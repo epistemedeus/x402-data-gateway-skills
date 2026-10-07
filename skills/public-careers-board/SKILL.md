@@ -33,15 +33,15 @@ A missing board returns `missing_input` and does not load a bundled company. An 
 node scripts/cli.mjs run --board BOARD
 ```
 
-`--out PATH` writes one new file. An existing path, a symlink, a directory, or a path inside this skill is refused and left unchanged. `--seed FILE` is an explicitly supplied control. The result says `seeded: true` and `sourceCoverage: supplied_seed`. A seed does not fill in a missing board.
+`--out PATH` writes the one result line for every classification and refusal. An existing path, a symlink, a directory, or a path inside this skill is refused and left unchanged. `--seed FILE` is an explicitly supplied control. The result says `seeded: true` and `sourceCoverage: supplied_seed`. A seed does not fill in a missing board. A seed `padTo` is a safe integer checked against the shared byte budget before any buffer is allocated.
 
-`--timeout-ms` defaults to 15000 and must be 100 through 30000. That one deadline covers the read. `--max-bytes` defaults to 1000000 and must be 1024 through 1048576. `--output-bytes` uses the same bounds. A timeout, oversized body, or oversized result is a refusal, not an empty or complete board.
+`--timeout-ms` defaults to 15000 and must be 100 through 30000. That one deadline covers pin verification and the source read. When it fires, the command aborts and cancels the owned fetch. `--max-bytes` defaults to 1000000 and must be 1024 through 1048576. It is one budget for every response body in the observation, including later pages. Pinned recipe files are hash-checked under the same deadline and are not counted in that response budget. `--output-bytes` uses the same bounds and limits every result line. A line over that limit is a short `oversized_output` refusal and does not echo the caller input. A timeout, oversized body, or oversized result is a refusal, not an empty or complete board.
 
 ## Honest coverage
 
-Exit 0 is a classified result: `missing_input`, `unknown_board`, `wrong_source`, or `observation`. An observation keeps the recipe's `rows` and `coverage`. `coverage.status` `source_failure` stays a source failure, with `emptyBoard` false and `complete` false. `partial` keeps the rows already read. `empty_board` is an empty board. `complete_for_declared_total` and `complete_for_returned_listed_set` are the recipe's complete statuses. `useful` stays null. The caller decides usefulness.
+Exit 0 is a classified result: `missing_input`, `unknown_board`, `wrong_source`, or `observation`. An observation keeps the recipe's `rows` and `coverage`. `coverage.status` `source_failure` stays a source failure, with `emptyBoard` false and `complete` false. `partial` keeps the rows already read and stays partial. An empty board has top-level `emptyBoard` true and `complete` false. That includes recipe status `empty_board` and an Ashby `jobs` array that is empty (`coverage.emptyBoard` true), even when the recipe status is `complete_for_returned_listed_set`. A non-empty listed set stays complete. `useful` stays null. The caller decides usefulness.
 
-Exit 2 refuses payment flags, a Node.js runtime below 22.22.2, a tampered recipe, an oversized or timed-out acquisition, an oversized result, a bad seed, or an ambiguous overwrite. The pinned recipe is `references/pins.json`. A hash mismatch is not executed.
+Exit 2 refuses payment flags, a Node.js runtime below 22.22.2, a tampered recipe, an oversized or timed-out acquisition, an oversized result, a bad seed, or an ambiguous overwrite. The pinned recipe is `references/pins.json`. The command runs a private snapshot of those verified bytes and deletes it afterward, including when the run fails. A hash mismatch is not executed. An unknown board or a wrong source returns before that snapshot is imported.
 
 `recipe/boards.mjs` is the upstream file. Do not run it as the installed command. Its own CLI writes an evidence file and reads every board. This command reads only the board the caller named.
 

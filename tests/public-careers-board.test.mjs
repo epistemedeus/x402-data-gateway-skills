@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtemp, readFile, rm, writeFile, symlink, lstat } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
+import { mkdtemp, mkdir, readFile, rm, writeFile, symlink, lstat, access } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,28 +27,45 @@ async function installedCopy() {
   return { dir, dest, cli: path.join(dest, 'scripts/cli.mjs') };
 }
 
-function run(cli, args, timeoutMs = 10000) {
+function run(cli, args, timeoutMs = 10000, extra = {}) {
   return new Promise((resolve) => {
-    const child = spawn(process.execPath, [cli, ...args], {
+    const child = spawn(process.execPath, [...(extra.nodeArgs || []), cli, ...args], {
       cwd: path.dirname(path.dirname(cli)),
-      env: { PATH: process.env.PATH, LANG: 'C', LC_ALL: 'C' },
+      env: { PATH: process.env.PATH, LANG: 'C', LC_ALL: 'C', ...(extra.env || {}) },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let stdout = '';
     let stderr = '';
+    let peakKb = 0;
+    const sample = setInterval(() => {
+      try {
+        const text = readFileSyncStatus(child.pid);
+        const match = /VmHWM:\s+(\d+)/.exec(text);
+        if (match) peakKb = Math.max(peakKb, Number(match[1]));
+      } catch { /* exited */ }
+    }, 15);
     const stop = (signal) => { try { child.kill(signal); } catch { /* already gone */ } };
     const timer = setTimeout(() => stop('SIGTERM'), timeoutMs);
     const killer = setTimeout(() => stop('SIGKILL'), timeoutMs + 1000);
+    const started = Date.now();
     child.stdout.on('data', (chunk) => { stdout += chunk; });
     child.stderr.on('data', (chunk) => { stderr += chunk; });
     child.on('close', (code, signal) => {
+      clearInterval(sample);
       clearTimeout(timer);
       clearTimeout(killer);
       let body = null;
       try { body = JSON.parse(stdout); } catch { /* refusal or crash */ }
-      resolve({ code, signal, stdout, stderr, body });
+      resolve({
+        code, signal, stdout, stderr, body, pid: child.pid,
+        ms: Date.now() - started, peakKb, stdoutBytes: Buffer.byteLength(stdout),
+      });
     });
   });
+}
+
+function readFileSyncStatus(pid) {
+  return readFileSync(`/proc/${pid}/status`, 'utf8');
 }
 
 async function writeSeed(dir, responses) {
@@ -278,5 +296,259 @@ test('installed copy still passes the pinned public recipe tests', async () => {
     });
     assert.equal(result.code, 0, result.stdout);
     assert.match(result.stdout, /# fail 0/);
+  } finally { await rm(copy.dir, { recursive: true, force: true }); }
+});
+
+test('empty Ashby jobs stay an empty board and partial stays partial', async () => {
+  const copy = await installedCopy();
+  try {
+    const emptySeed = await writeSeed(copy.dir, [{ httpStatus: 200, body: { jobs: [] } }]);
+    const empty = await run(copy.cli, ['run', '--board', 'liveramp', '--seed', emptySeed]);
+    assert.equal(empty.code, 0, empty.stdout);
+    assert.equal(empty.body.coverage.status, 'complete_for_returned_listed_set');
+    assert.equal(empty.body.coverage.emptyBoard, true);
+    assert.equal(empty.body.boardClaim, 'empty');
+    assert.equal(empty.body.emptyBoard, true);
+    assert.equal(empty.body.complete, false);
+    assert.equal(empty.body.rows.length, 0);
+
+    const hiddenSeed = await writeSeed(copy.dir, [{
+      httpStatus: 200,
+      body: {
+        jobs: [{
+          title: 'Hidden Role',
+          isListed: false,
+          location: 'Remote',
+          jobUrl: 'https://jobs.ashbyhq.com/liveramp-inc/hidden',
+        }],
+      },
+    }]);
+    const hidden = await run(copy.cli, ['run', '--board', 'liveramp-inc', '--seed', hiddenSeed]);
+    assert.equal(hidden.code, 0, hidden.stdout);
+    assert.equal(hidden.body.coverage.emptyBoard, false);
+    assert.equal(hidden.body.coverage.listedSetEmpty, true);
+    assert.equal(hidden.body.boardClaim, 'complete');
+    assert.equal(hidden.body.emptyBoard, false);
+    assert.equal(hidden.body.complete, true);
+
+    const partialSeed = await writeSeed(copy.dir, [{
+      httpStatus: 200,
+      body: { jobs: [{ title: 'Needs a flag' }] },
+    }]);
+    const partial = await run(copy.cli, ['run', '--board', 'liverampashby', '--seed', partialSeed]);
+    assert.equal(partial.code, 0, partial.stdout);
+    assert.equal(partial.body.boardClaim, 'partial');
+    assert.equal(partial.body.emptyBoard, false);
+    assert.equal(partial.body.complete, false);
+  } finally { await rm(copy.dir, { recursive: true, force: true }); }
+});
+
+test('two supplied responses share one 1024-byte budget', async () => {
+  const copy = await installedCopy();
+  try {
+    const firstBody = { total: 2, jobPostings: [{ title: 'Role', externalPath: '/job/A/1', locationsText: 'Remote' }] };
+    const firstBytes = Buffer.byteLength(JSON.stringify(firstBody));
+    const padTo = 1023;
+    assert.ok(firstBytes <= 1024 && padTo <= 1024 && firstBytes + padTo > 1024);
+    const seed = await writeSeed(copy.dir, [
+      { httpStatus: 200, body: firstBody },
+      { httpStatus: 200, padTo },
+    ]);
+    const result = await run(copy.cli, ['run', '--board', 'acxiom', '--seed', seed, '--max-bytes', '1024', '--timeout-ms', '4000']);
+    assert.equal(result.code, 2, result.stdout);
+    assert.equal(result.signal, null);
+    assert.equal(result.body.reason, 'oversized_source');
+    assert.equal(result.body.rows, null);
+    assert.equal(result.body.result, 'refused');
+    assert.equal(result.stdout.includes('Role'), false);
+  } finally { await rm(copy.dir, { recursive: true, force: true }); }
+});
+
+test('a drip response is cancelled when the deadline fires', async () => {
+  const copy = await installedCopy();
+  try {
+    const seed = await writeSeed(copy.dir, [{ drip: true, dripBytes: 16, dripIntervalMs: 20 }]);
+    const result = await run(copy.cli, ['run', '--board', 'liveramp', '--seed', seed, '--timeout-ms', '400'], 2500);
+    assert.equal(result.code, 2, result.stdout);
+    assert.equal(result.signal, null, result.signal || 'killed');
+    assert.ok(result.ms < 2000, String(result.ms));
+    assert.ok(result.body.reason === 'timeout' || result.body.reason === 'deadline', result.body?.reason);
+    assert.equal(result.body.rows, null);
+    assert.throws(() => process.kill(result.pid, 0));
+  } finally { await rm(copy.dir, { recursive: true, force: true }); }
+});
+
+test('every result honors the output bound and --out', async () => {
+  const copy = await installedCopy();
+  try {
+    const board = 'B'.repeat(6000);
+    const fresh = path.join(copy.dir, 'bounded.json');
+    const result = await run(copy.cli, ['run', '--board', board, '--output-bytes', '1024', '--out', fresh]);
+    assert.equal(result.code, 2, result.stdout);
+    assert.equal(result.body.reason, 'oversized_output');
+    assert.equal(result.body.rows, null);
+    assert.equal(result.body.board, null);
+    assert.equal(result.stdout.includes(board.slice(0, 20)), false);
+    assert.ok(result.stdoutBytes <= 1024, String(result.stdoutBytes));
+    const saved = await readFile(fresh, 'utf8');
+    assert.equal(saved.includes(board.slice(0, 20)), false);
+    assert.ok(Buffer.byteLength(saved) <= 1024);
+    assert.equal(JSON.parse(saved).reason, 'oversized_output');
+
+    const sentinel = path.join(copy.dir, 'keep.json');
+    await writeFile(sentinel, 'KEEP');
+    const blocked = await run(copy.cli, ['run', '--board', 'notion', '--output-bytes', '2048', '--out', sentinel]);
+    assert.equal(blocked.code, 2);
+    assert.equal(blocked.body.reason, 'overwrite_refused');
+    assert.equal(await readFile(sentinel, 'utf8'), 'KEEP');
+
+    const short = path.join(copy.dir, 'short.json');
+    const unknown = await run(copy.cli, ['run', '--board', 'notion', '--output-bytes', '2048', '--out', short]);
+    assert.equal(unknown.code, 0, unknown.stdout);
+    assert.equal(unknown.body.result, 'unknown_board');
+    assert.equal(unknown.body.board, 'notion');
+    assert.equal(JSON.parse(await readFile(short, 'utf8')).board, 'notion');
+  } finally { await rm(copy.dir, { recursive: true, force: true }); }
+});
+
+test('padTo is rejected before an unbounded allocation', async () => {
+  const copy = await installedCopy();
+  try {
+    const bounded = await writeSeed(copy.dir, [{ httpStatus: 200, padTo: 4096 }]);
+    const small = await run(copy.cli, ['run', '--board', 'liveramp', '--seed', bounded, '--max-bytes', '1024', '--timeout-ms', '2000'], 4000);
+    assert.equal(small.code, 2, small.stdout);
+    assert.equal(small.body.reason, 'oversized_source');
+    assert.equal(small.body.rows, null);
+    assert.ok(small.ms < 2000, String(small.ms));
+
+    const negative = await writeSeed(copy.dir, [{ httpStatus: 200, padTo: -1 }]);
+    const bad = await run(copy.cli, ['run', '--board', 'liveramp', '--seed', negative, '--max-bytes', '1048576']);
+    assert.equal(bad.code, 2, bad.stdout);
+    assert.equal(bad.body.reason, 'seed_rejected');
+
+    const huge = await writeSeed(copy.dir, [{ httpStatus: 200, padTo: Number.MAX_SAFE_INTEGER }]);
+    const giant = await run(copy.cli, ['run', '--board', 'liveramp', '--seed', huge, '--max-bytes', '1024', '--timeout-ms', '2000'], 4000);
+    assert.equal(giant.code, 2, giant.stdout);
+    assert.equal(giant.signal, null);
+    assert.equal(giant.body.reason, 'oversized_source');
+    assert.equal(giant.body.rows, null);
+    assert.ok(giant.ms < 1000, String(giant.ms));
+    assert.ok(giant.peakKb === 0 || giant.peakKb < 250000, String(giant.peakKb));
+
+    const terabyte = await writeSeed(copy.dir, [{ httpStatus: 200, padTo: 1_000_000_000_000 }]);
+    const tb = await run(copy.cli, ['run', '--board', 'acxiom', '--seed', terabyte, '--max-bytes', '2048', '--timeout-ms', '2000'], 4000);
+    assert.equal(tb.code, 2, tb.stdout);
+    assert.equal(tb.body.reason, 'oversized_source');
+    assert.ok(tb.ms < 1000, String(tb.ms));
+    assert.ok(tb.peakKb === 0 || tb.peakKb < 250000, String(tb.peakKb));
+  } finally { await rm(copy.dir, { recursive: true, force: true }); }
+});
+
+test('execution is bound to the verified recipe bytes', async () => {
+  const copy = await installedCopy();
+  try {
+    const hookDir = path.join(copy.dir, 'hook');
+    await mkdir(hookDir);
+    const log = path.join(copy.dir, 'loads.txt');
+    const marker = path.join(copy.dir, 'executed.txt');
+    await writeFile(path.join(hookDir, 'register.mjs'), "import { register } from 'node:module';\nregister('./hook.mjs', import.meta.url);\n");
+    await writeFile(path.join(hookDir, 'hook.mjs'), `
+export async function load(url, context, nextLoad) {
+  if (url.endsWith('/recipe/boards.mjs')) {
+    const fs = await import('node:fs');
+    fs.appendFileSync(process.env.LOAD_LOG, url + '\\n');
+    await new Promise((resolve) => setTimeout(resolve, 400));
+  }
+  return nextLoad(url, context);
+}
+`);
+    const swapped = `import { writeFileSync } from 'node:fs';
+writeFileSync(${JSON.stringify(marker)}, 'executed');
+export const BOARDS = {
+  acxiom: {
+    endpoint: 'https://acxiomllc.wd5.myworkdayjobs.com/wday/cxs/acxiomllc/AcxiomUSA/jobs',
+    boardUrl: 'https://acxiomllc.wd5.myworkdayjobs.com/en-US/AcxiomUSA',
+  },
+  liverampAshby: {
+    endpoint: 'https://api.ashbyhq.com/posting-api/job-board/liveramp-inc',
+    boardUrl: 'https://jobs.ashbyhq.com/liveramp-inc',
+  },
+};
+export async function fetchAcxiom() {
+  return { rows: [{ title: 'SWAPPED' }], coverage: { status: 'complete_for_declared_total', emptyBoard: false, requests: [{ url: 'https://acxiomllc.wd5.myworkdayjobs.com/wday/cxs/acxiomllc/AcxiomUSA/jobs', error: null }] } };
+}
+export async function fetchAshby() { return fetchAcxiom(); }
+`;
+    const boards = path.join(copy.dest, 'recipe/boards.mjs');
+    const originalBoards = await readFile(boards);
+    const seed = await writeSeed(copy.dir, [{
+      httpStatus: 200,
+      body: { total: 1, jobPostings: [{ title: 'Acxiom Only Role', externalPath: '/job/A/Acxiom_1', locationsText: 'Remote' }] },
+    }]);
+    const extra = {
+      nodeArgs: ['--import', path.join(hookDir, 'register.mjs')],
+      env: { LOAD_LOG: log },
+    };
+    const running = run(copy.cli, ['run', '--board', 'acxiom', '--seed', seed, '--timeout-ms', '5000'], 8000, extra);
+    const started = Date.now();
+    let seen = '';
+    while (Date.now() - started < 2000) {
+      seen = await readFile(log, 'utf8').catch(() => '');
+      if (seen.includes('boards.mjs')) break;
+      await new Promise((resolve) => setTimeout(resolve, 15));
+    }
+    await writeFile(boards, swapped);
+    const result = await running;
+    assert.equal(result.code, 0, result.stdout);
+    assert.equal(result.body.rows[0].title, 'Acxiom Only Role');
+    assert.equal(result.stdout.includes('SWAPPED'), false);
+    const loads = await readFile(log, 'utf8');
+    assert.match(loads, /careers-snap-/);
+    assert.equal(loads.includes(`${copy.dest}/recipe/boards.mjs`), false);
+    await assert.rejects(access(marker));
+    const snapUrl = loads.trim().split('\n')[0];
+    const snapDir = path.dirname(path.dirname(new URL(snapUrl).pathname));
+    await assert.rejects(access(snapDir));
+    await writeFile(boards, originalBoards);
+
+    await writeFile(log, '');
+    const wrong = await run(copy.cli, ['run', '--board', 'liveramp', '--source', 'workday', '--timeout-ms', '3000'], 5000, extra);
+    assert.equal(wrong.code, 0, wrong.stdout);
+    assert.equal(wrong.body.result, 'wrong_source');
+    assert.equal(await readFile(log, 'utf8'), '');
+    await assert.rejects(access(marker));
+
+    const unknown = await run(copy.cli, ['run', '--board', 'notion', '--timeout-ms', '3000'], 5000, extra);
+    assert.equal(unknown.code, 0, unknown.stdout);
+    assert.equal(unknown.body.result, 'unknown_board');
+    assert.equal(await readFile(log, 'utf8'), '');
+  } finally { await rm(copy.dir, { recursive: true, force: true }); }
+});
+
+test('the same supplied seed selects the same observation twice', async () => {
+  const copy = await installedCopy();
+  try {
+    const seed = await writeSeed(copy.dir, [{ httpStatus: 200, body: { jobs: [liverampJob] } }]);
+    const args = ['run', '--board', 'liveramp', '--source', 'ashby', '--seed', seed];
+    const first = await run(copy.cli, args);
+    const second = await run(copy.cli, args);
+    assert.equal(first.code, 0, first.stdout);
+    assert.equal(second.code, 0, second.stdout);
+    const stable = (body) => ({
+      result: body.result,
+      board: body.board,
+      reader: body.reader,
+      title: body.rows[0].title,
+      url: body.rows[0].url,
+      status: body.coverage.status,
+      claim: body.boardClaim,
+      emptyBoard: body.emptyBoard,
+      complete: body.complete,
+      seeded: body.seeded,
+      paymentSent: body.paymentSent,
+      charged: body.charged,
+    });
+    assert.deepEqual(stable(first.body), stable(second.body));
+    assert.equal(first.body.rows[0].title, 'LiveRamp Only Role');
   } finally { await rm(copy.dir, { recursive: true, force: true }); }
 });
