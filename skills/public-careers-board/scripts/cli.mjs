@@ -103,7 +103,7 @@ function sourceBudget(maxBytes, signal) {
 }
 
 async function readRegular(filePath, maxBytes, clock) {
-  const opening = open(filePath, constants.O_RDONLY | constants.O_NOFOLLOW);
+  const opening = open(filePath, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
   let file;
   try { file = await clock.wait(opening); }
   catch (error) {
@@ -127,7 +127,7 @@ async function readRegular(filePath, maxBytes, clock) {
 }
 
 async function readExact(filePath, expected) {
-  const file = await open(filePath, constants.O_RDONLY | constants.O_NOFOLLOW);
+  const file = await open(filePath, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
   try {
     const info = await file.stat();
     if (!info.isFile() || info.size !== expected.length) throw fail('tampered_source');
