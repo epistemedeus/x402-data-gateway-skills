@@ -1,0 +1,15 @@
+The three recipe files under recipe/ are exact bytes of the free public recipe
+https://agents.samedaydesk.com/recipes/careers-board-cold
+gist a8f74ed84b4ece624209be1dab745a30
+revision 7d01bfb09c530430933dec1f07c5c0b8517cffa8.
+
+Those bytes match epistemedeus/x402-url-extractor at
+2fde825d6f6ede84ee3d959e5ccf0f99c35eca8c
+recipes/careers-board/{boards.mjs,boards.public.test.mjs,PUBLIC-RECIPE.md}.
+
+The merchant repository license is MIT, Copyright (c) 2026 SameDayDesk.
+recipe/LICENSE is that notice. The recipe files were not rewritten.
+scripts/cli.mjs is a separate MIT client, Copyright (c) 2026 Neomorphic LLC.
+It calls fetchAcxiom and fetchAshby. It is not a second scraper.
+
+A hash mismatch is a tampered recipe and is not executed.

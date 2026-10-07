@@ -1,0 +1,67 @@
+---
+name: public-careers-board
+description: Fetch current public jobs from a company careers board with explicit source and completeness coverage. Supply one supported board, Acxiom Workday or LiveRamp Ashby, to scripts/cli.mjs. The command calls the maintained free recipe exports and returns that board's rows and coverage. A source failure is not an empty or complete board. No wallet, signup, API key, or payment.
+license: MIT
+compatibility: Requires Node.js >=22.22.2. Reads only the pinned Acxiom Workday and LiveRamp Ashby endpoints, with one deadline, a raw byte cap, and manual redirects. Sends no credential, signature, or purchase.
+metadata:
+  author: neomorphic
+  version: "0.1.0"
+  hermes:
+    tags: [careers, jobs, coverage, no-spend]
+  openclaw:
+    requires:
+      bins:
+        - node
+---
+
+# Public careers board
+
+Use this when the caller asks for current public jobs from one company careers board and needs the source and coverage stated. The installed command is `scripts/cli.mjs`. A description match does not select this skill, does not run the task, and does not show that an agent chose it.
+
+The default route is free and caller-owned. It does not require a wallet, signup, private API key, or task upload. It does not call `GET /data/careers-board`. That optional paid route is a separate product. Re-read its live challenge before any other executor considers it. Do not copy a price from this file. `--pay`, `--settle`, `--sign`, `--wallet`, and `--purchase` are refused before a source read.
+
+## Caller input
+
+Choose one supported board. Aliases are exact:
+
+- Acxiom Workday: `acxiom`, `acxiomllc` (calls `fetchAcxiom`)
+- LiveRamp Ashby: `liveramp`, `liveramp-inc`, `liverampashby`, `liveramp-ashby` (calls `fetchAshby`)
+
+A missing board returns `missing_input` and does not load a bundled company. An unknown board returns `unknown_board`. A `--source` that is not that board's supported reader returns `wrong_source`. LiveRamp's previous Workday endpoint is the wrong source for LiveRamp. No other origin is fetched. Redirects are not followed.
+
+```sh
+node scripts/cli.mjs run --board BOARD
+```
+
+`--out PATH` writes one new file. An existing path, a symlink, a directory, or a path inside this skill is refused and left unchanged. `--seed FILE` is an explicitly supplied control. The result says `seeded: true` and `sourceCoverage: supplied_seed`. A seed does not fill in a missing board.
+
+`--timeout-ms` defaults to 15000 and must be 100 through 30000. That one deadline covers the read. `--max-bytes` defaults to 1000000 and must be 1024 through 1048576. `--output-bytes` uses the same bounds. A timeout, oversized body, or oversized result is a refusal, not an empty or complete board.
+
+## Honest coverage
+
+Exit 0 is a classified result: `missing_input`, `unknown_board`, `wrong_source`, or `observation`. An observation keeps the recipe's `rows` and `coverage`. `coverage.status` `source_failure` stays a source failure, with `emptyBoard` false and `complete` false. `partial` keeps the rows already read. `empty_board` is an empty board. `complete_for_declared_total` and `complete_for_returned_listed_set` are the recipe's complete statuses. `useful` stays null. The caller decides usefulness.
+
+Exit 2 refuses payment flags, a Node.js runtime below 22.22.2, a tampered recipe, an oversized or timed-out acquisition, an oversized result, a bad seed, or an ambiguous overwrite. The pinned recipe is `references/pins.json`. A hash mismatch is not executed.
+
+`recipe/boards.mjs` is the upstream file. Do not run it as the installed command. Its own CLI writes an evidence file and reads every board. This command reads only the board the caller named.
+
+## Install
+
+The enrolled native route, when the official Hermes receiver is present, is:
+
+```sh
+hermes skills install epistemedeus/x402-data-gateway-skills/skills/public-careers-board --yes
+```
+
+Run the command from the installed copy. It does not read a builder checkout or a credential environment. This document does not claim that the public index already lists the skill.
+
+## Bundle files
+
+`LICENSE`
+`references/pins.json`
+`references/source-notice.txt`
+`recipe/LICENSE`
+`recipe/PUBLIC-RECIPE.md`
+`recipe/boards.mjs`
+`recipe/boards.public.test.mjs`
+`scripts/cli.mjs`
