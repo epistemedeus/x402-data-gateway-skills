@@ -65,7 +65,7 @@ function rejectDrift(expected, actual) {
 
 test('catalog skills stay in place beside the additive export', () => {
   const names = fs.readdirSync(new URL('skills/', root)).sort();
-  assert.deepEqual(names, [...catalog, 'received-useful-work'].sort());
+  assert.deepEqual(names, [...catalog, 'public-careers-board', 'received-useful-work'].sort());
   for (const name of catalog) {
     assert.equal(fs.existsSync(new URL(`skills/${name}/SKILL.md`, root)), true, name);
   }

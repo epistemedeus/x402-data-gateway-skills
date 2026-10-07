@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
 const root=new URL('../',import.meta.url);
 test('all installed skill files retain discoverable names and descriptions',()=>{
- const names=fs.readdirSync(new URL('skills/',root));assert.equal(names.length,17);
+ const names=fs.readdirSync(new URL('skills/',root));assert.equal(names.length,18);
  for(const name of names){const s=fs.readFileSync(new URL(`skills/${name}/SKILL.md`,root),'utf8');
   const front=s.match(/^---\n([\s\S]+?)\n---\n/);assert.ok(front,name);
   assert.match(front[1],new RegExp('(?:^|\\n)name: '+name+'(?:\\n|$)'));

@@ -44,6 +44,7 @@ npx skills add epistemedeus/x402-data-gateway-skills --skill wallet-enrich --yes
 | `settlement-proof` | Exact canonical Base USDC post-settlement verification | `/commerce/settlement-proof` |
 | `transaction-receipt` | Normalized Base or Ethereum receipt, fee, and decoded transfer evidence | `/chain/transaction-receipt` |
 | `wallet-policy-safety` | Exact-action and stateful delegated-wallet policy evidence | Two `/security/*wallet-policy-conformance` routes |
+| `public-careers-board` | One caller-supplied public careers board, with source and coverage, from the free recipe | None. The command does not call the paid route. |
 
 ## Live contract first
 
