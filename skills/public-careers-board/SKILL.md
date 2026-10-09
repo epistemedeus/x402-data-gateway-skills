@@ -1,11 +1,11 @@
 ---
 name: public-careers-board
-description: Fetch current public jobs from one supported company board and report coverage. Supply Acxiom Workday, LiveRamp Ashby, or Magnite Workday to scripts/cli.mjs. Magnite is read only after its official careers handoff confirms the declared Workday board. Role selection stays outside the fetch. A source failure is not an empty or complete board. No wallet, signup, API key, or payment.
+description: "Fetch current public job openings from one supported company careers board and report coverage. The rows are job listings of the board's current public vacancies: title, location, and the board's job URL, with source and fetch time. Supply Acxiom Workday, LiveRamp Ashby, or Magnite Workday to scripts/cli.mjs. Magnite is read only after its official careers handoff confirms the declared Workday board. Role selection stays outside the fetch. A source failure is not an empty or complete board. No wallet, signup, API key, or payment."
 license: MIT
 compatibility: Requires Node.js >=22.22.2. Acxiom and LiveRamp use the pinned recipe endpoints. Magnite uses a separate declared source and the pinned normalizeWorkday function. One deadline, a raw byte cap, and manual redirects. The pinned recipe bytes stay unchanged. Sends no credential, signature, or purchase.
 metadata:
   author: neomorphic
-  version: "0.1.1"
+  version: "0.1.2"
   hermes:
     tags: [careers, jobs, coverage, no-spend]
   openclaw:
@@ -16,7 +16,7 @@ metadata:
 
 # Public careers board
 
-Use this when the caller asks for current public jobs from one company careers board and needs the source and coverage stated. The installed command is `scripts/cli.mjs`. A description match does not select this skill, does not run the task, and does not show that an agent chose it.
+Use this when the caller asks for current public job openings from one supported company careers board and needs the source and coverage stated. The installed command is `scripts/cli.mjs`. A description match does not select this skill, does not run the task, and does not show that an agent chose it.
 
 The default route is free and caller-owned. It does not require a wallet, signup, private API key, or task upload. It does not call `GET /data/careers-board`. That optional paid route is a separate product. Re-read its live challenge before any other executor considers it. Do not copy a price from this file. `--pay`, `--settle`, `--sign`, `--wallet`, and `--purchase` are refused before a source read.
 
@@ -30,7 +30,7 @@ Choose one supported board. Aliases are exact:
 
 A missing board returns `missing_input` and does not load a bundled company. An unknown board returns `unknown_board`. A `--source` that is not that board's supported reader returns `wrong_source`. LiveRamp's previous Workday endpoint is the wrong source for LiveRamp. Magnite accepts its declared jobs endpoint or the token `magnite-workday`. The generic `workday` token stays Acxiom's, and `https://api.smartrecruiters.com/v1/companies/Magnite/postings` is the wrong source for Magnite. No caller-supplied origin is fetched. Redirects are not followed.
 
-The pinned recipe revision remains `7d01bfb09c530430933dec1f07c5c0b8517cffa8`.
+This 0.1.2 source is a candidate. It is not a published release. The pinned recipe revision remains `7d01bfb09c530430933dec1f07c5c0b8517cffa8`.
 
 Magnite checks three facts before any jobs POST. The careers host robots crawl delay must fit inside the one deadline, or the result is `not_fetched` and the careers page is not fetched. Every visible Search Jobs link on `https://www.magnite.com/careers/` must canonicalize to `https://osv-rubicon.wd5.myworkdayjobs.com/MagniteCareers`, or the result is `source_moved`. The Workday shell must name tenant `osv_rubicon` and site `MagniteCareers`. The hostname label `osv-rubicon` is not the tenant. A mismatch is `identity_mismatch`. A 3xx response from a declared URL is `not_fetched` with reason `unexpected_redirect`. The redirect is not followed. Those results have `emptyBoard` false and do not call the jobs endpoint. A Workday body with `total: 0` and no postings is an empty board for that source. The SmartRecruiters URL is a different source and is not that empty board. The jobs POST always uses the declared endpoint `https://osv-rubicon.wd5.myworkdayjobs.com/wday/cxs/osv_rubicon/MagniteCareers/jobs` and the body `{ appliedFacets: {}, limit: 20, offset, searchText: "" }`. `coverage.roleFilter` stays null. Row `fetchedAt` is the time immediately before that POST, after the crawl delay. A later page that says `total: 0` while it still lists new jobs is not the end of the board. At most four pages are read, then a past-end probe when the declared total is reached. A later page is not requested once that cap is hit. `/refreshFacet/` is never requested.
 
