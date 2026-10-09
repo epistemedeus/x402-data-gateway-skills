@@ -1,0 +1,60 @@
+{
+  "schema": "public-careers-board.release-candidate.v1",
+  "role": "metadata-candidate-provenance",
+  "separatedFromSkillBundle": true,
+  "skill": "public-careers-board",
+  "baseCommit": "7331298752048294e330463a72df336766f48d6f",
+  "clawhubCli": "0.23.3",
+  "fingerprintAlgorithm": "sha256 of sorted path:sha256 lines joined by newline, matching clawhub 0.23.3 buildSkillFingerprint",
+  "archiveAlgorithm": "git archive --format=tar --mtime=<archiveMtime> <commit>:skills/public-careers-board | gzip -n, stored as base64",
+  "published": false,
+  "predecessors": [
+    {
+      "version": "0.1.0",
+      "commit": "1fb31ed2814e84d5678f88278e6b9262110cdbab",
+      "fileCount": 9,
+      "fingerprint": "1438f01260365fecaa818241a29563b5300e7bbe8ad686261f6d42799de55d46",
+      "archive": "provenance/archives/public-careers-board-0.1.0.tar.gz.b64",
+      "archiveSha256": "f79e3574ab27738e03a093524f066e03017d84741e2db0774ef94b9cc2a7ca0b",
+      "archiveBytes": 18180,
+      "skillMarkdownSha256": "e2ef74d2fb27e1ccc0254cf1216cce62fccc6cd34af7a970b0d566adc43956db",
+      "archiveMtime": "2026-10-07T16:41:27-07:00",
+      "archiveEncoding": "base64"
+    },
+    {
+      "version": "0.1.1",
+      "commit": "7331298752048294e330463a72df336766f48d6f",
+      "fileCount": 13,
+      "fingerprint": "ad500aaa699578ee5ddbb98b5b761aae196005b48384ac7140059c55aeaf5fc3",
+      "archive": "provenance/archives/public-careers-board-0.1.1.tar.gz.b64",
+      "archiveSha256": "73855a1ae984bc9406bfbc3d9d167754c9a61c6b3cbb22a5259017b0d374ccc6",
+      "archiveBytes": 28410,
+      "skillMarkdownSha256": "b85e210688e447e7f2ae1ba7a1b3eb74f16abffd67b6c837c8c0cdf3dec1cd2c",
+      "archiveMtime": "2026-10-09T05:10:10-07:00",
+      "archiveEncoding": "base64"
+    }
+  ],
+  "candidate": {
+    "version": "0.1.2",
+    "published": false,
+    "archive": "provenance/archives/public-careers-board-0.1.2-candidate.tar.gz.b64",
+    "archiveSha256": "4ab3ceefaab4d015c6b8ad04fffc2592a9b8161db60e862f8b81d0d7579e62ab",
+    "archiveBytes": 28475,
+    "fileCount": 13,
+    "fingerprint": "d46596baaf240d7213e7b4d3a0623418644919d73c3388d0bb5efad91512e46a",
+    "skillMarkdownSha256": "d5c5b528f296b46ea37dad9cf635751e5102acbf2b1898366cfa4e361086194f",
+    "description": "Fetch current public job openings from one supported company careers board and report coverage. The rows are job listings of the board's current public vacancies: title, location, and the board's job URL, with source and fetch time. Supply Acxiom Workday, LiveRamp Ashby, or Magnite Workday to scripts/cli.mjs. Magnite is read only after its official careers handoff confirms the declared Workday board. Role selection stays outside the fetch. A source failure is not an empty or complete board. No wallet, signup, API key, or payment.",
+    "tags": [
+      "careers",
+      "jobs",
+      "coverage",
+      "no-spend"
+    ],
+    "changedPaths": [
+      "SKILL.md"
+    ],
+    "archiveMtime": "2026-10-09T20:23:35+00:00",
+    "sourceCommit": "484ff23a063c9bffc755ee63ee2d297bad8939ce",
+    "archiveEncoding": "base64"
+  }
+}
