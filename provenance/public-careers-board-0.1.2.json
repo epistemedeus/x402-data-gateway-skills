@@ -54,7 +54,8 @@
       "SKILL.md"
     ],
     "archiveMtime": "2026-10-09T20:23:35+00:00",
-    "sourceCommit": "484ff23a063c9bffc755ee63ee2d297bad8939ce",
+    "sourceCommit": "d65b8688c2ba72a965c12520c20bd4c20852469d",
+    "localMetadataCommit": "484ff23a063c9bffc755ee63ee2d297bad8939ce",
     "archiveEncoding": "base64"
   }
 }
