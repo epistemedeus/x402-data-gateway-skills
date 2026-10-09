@@ -1,11 +1,11 @@
 ---
 name: public-careers-board
-description: Fetch current public jobs from one supported company board and report coverage. Supply Acxiom Workday, LiveRamp Ashby, or Magnite Workday to scripts/cli.mjs. Magnite is read only after its official careers handoff confirms the declared Workday board. Role selection stays outside the fetch. A source failure is not an empty or complete board. No wallet, signup, API key, or payment.
+description: "Fetch current public job openings from one supported company careers board and report coverage. The rows are job listings of the board's current public vacancies: title, location, and the board's job URL, with source and fetch time. Supply Acxiom Workday, LiveRamp Ashby, or Magnite Workday to scripts/cli.mjs. Magnite is read only after its official careers handoff confirms the declared Workday board. Role selection stays outside the fetch. A source failure is not an empty or complete board. No wallet, signup, API key, or payment."
 license: MIT
 compatibility: Requires Node.js >=22.22.2. Acxiom and LiveRamp use the pinned recipe endpoints. Magnite uses a separate declared source and the pinned normalizeWorkday function. One deadline, a raw byte cap, and manual redirects. The pinned recipe bytes stay unchanged. Sends no credential, signature, or purchase.
 metadata:
   author: neomorphic
-  version: "0.1.1"
+  version: "0.1.2"
   hermes:
     tags: [careers, jobs, coverage, no-spend]
   openclaw:
@@ -16,7 +16,7 @@ metadata:
 
 # Public careers board
 
-Use this when the caller asks for current public jobs from one company careers board and needs the source and coverage stated. The installed command is `scripts/cli.mjs`. A description match does not select this skill, does not run the task, and does not show that an agent chose it.
+Use this when the caller asks for current public job openings from one supported company careers board and needs the source and coverage stated. The installed command is `scripts/cli.mjs`. A description match does not select this skill, does not run the task, and does not show that an agent chose it.
 
 The default route is free and caller-owned. It does not require a wallet, signup, private API key, or task upload. It does not call `GET /data/careers-board`. That optional paid route is a separate product. Re-read its live challenge before any other executor considers it. Do not copy a price from this file. `--pay`, `--settle`, `--sign`, `--wallet`, and `--purchase` are refused before a source read.
 
