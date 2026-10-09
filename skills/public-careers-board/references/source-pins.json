@@ -20,8 +20,8 @@
   "files": [
     {
       "path": "sources/magnite.mjs",
-      "bytes": 24051,
-      "sha256": "fae4b5af85b8eaf05801a91f38cf04653daf9e53188ac81358eb361863da1e70"
+      "bytes": 24095,
+      "sha256": "cd81eedff4119e656b55a74b8bf9684827c41855fc70f835270effc40b41f073"
     },
     {
       "path": "sources/predicates.mjs",

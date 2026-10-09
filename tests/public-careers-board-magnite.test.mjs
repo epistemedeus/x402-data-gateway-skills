@@ -207,7 +207,9 @@ test('later total zero still counts, the first page is not the board, and roleFi
     1: { total: 0, jobPostings: [job('Account Executive, Agency Sales, UK', 'Account-Executive_R-01368')] },
     2: { total: 2, jobPostings: [job('Office Manager', 'Office-Manager_R-01429')] },
   };
-  const { result, calls, sleeps } = await readBoard(baseRoutes({
+  let sleptAt = null;
+  const sleeps = [];
+  const { calls, fetchImpl } = world(baseRoutes({
     [MAGNITE.robotsUrl]: () => textResponse(ROBOTS_TEN),
     [MAGNITE.endpoint]: (init) => {
       assert.equal(init.redirect, 'manual');
@@ -220,7 +222,20 @@ test('later total zero still counts, the first page is not the board, and roleFi
       return jsonResponse(postings[payload.offset]);
     },
   }));
+  const result = await fetchMagnite({
+    normalizeWorkday,
+    fetchedAt: '2000-01-01T00:00:00.000Z',
+    timeoutMs: 30000,
+    maxBytes: 1_000_000,
+    fetchImpl,
+    sleep: async (ms) => {
+      sleeps.push(ms);
+      sleptAt = new Date().toISOString();
+    },
+  });
   assert.deepEqual(sleeps, [10000]);
+  assert.ok(result.rows[0].fetchedAt >= sleptAt);
+  assert.notEqual(result.rows[0].fetchedAt, '2000-01-01T00:00:00.000Z');
   assert.equal(result.kind, 'observation');
   assert.equal(result.coverage.status, 'complete_for_declared_total');
   assert.equal(result.coverage.laterPageTotalUnreliable, true);

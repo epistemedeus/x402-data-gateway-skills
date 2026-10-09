@@ -641,6 +641,7 @@ export async function fetchMagnite(options = {}) {
     );
   }
 
+  const rowFetchedAt = new Date().toISOString();
   const load = async (offset) => {
     const left = remaining();
     if (left <= 0) {
@@ -698,7 +699,7 @@ export async function fetchMagnite(options = {}) {
   }, {
     boardUrl: MAGNITE.boardUrl,
     source: MAGNITE.endpoint,
-    fetchedAt: options.fetchedAt,
+    fetchedAt: rowFetchedAt,
   });
   normalized.coverage.requests = requests;
   normalized.coverage.limit = MAGNITE.limit;
