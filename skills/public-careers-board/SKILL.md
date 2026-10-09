@@ -1,11 +1,11 @@
 ---
 name: public-careers-board
-description: Fetch current public jobs from a company careers board with explicit source and completeness coverage. Supply one supported board, Acxiom Workday or LiveRamp Ashby, to scripts/cli.mjs. The command calls the maintained free recipe exports and returns that board's rows and coverage. A source failure is not an empty or complete board. No wallet, signup, API key, or payment.
+description: Fetch current public jobs from one supported company board and report coverage. Supply Acxiom Workday, LiveRamp Ashby, or Magnite Workday to scripts/cli.mjs. Magnite is read only after its official careers handoff confirms the declared Workday board. Role selection stays outside the fetch. A source failure is not an empty or complete board. No wallet, signup, API key, or payment.
 license: MIT
-compatibility: Requires Node.js >=22.22.2. Reads only the pinned Acxiom Workday and LiveRamp Ashby endpoints, with one deadline, a raw byte cap, and manual redirects. Sends no credential, signature, or purchase.
+compatibility: Requires Node.js >=22.22.2. Acxiom and LiveRamp use the pinned recipe endpoints. Magnite uses a separate declared source and the pinned normalizeWorkday function. One deadline, a raw byte cap, and manual redirects. The pinned recipe bytes stay unchanged. Sends no credential, signature, or purchase.
 metadata:
   author: neomorphic
-  version: "0.1.0"
+  version: "0.1.1"
   hermes:
     tags: [careers, jobs, coverage, no-spend]
   openclaw:
@@ -26,8 +26,21 @@ Choose one supported board. Aliases are exact:
 
 - Acxiom Workday: `acxiom`, `acxiomllc` (calls `fetchAcxiom`)
 - LiveRamp Ashby: `liveramp`, `liveramp-inc`, `liverampashby`, `liveramp-ashby` (calls `fetchAshby`)
+- Magnite Workday: `magnite`, `magnite-careers` (calls `fetchMagnite`)
 
-A missing board returns `missing_input` and does not load a bundled company. An unknown board returns `unknown_board`. A `--source` that is not that board's supported reader returns `wrong_source`. LiveRamp's previous Workday endpoint is the wrong source for LiveRamp. No other origin is fetched. Redirects are not followed.
+A missing board returns `missing_input` and does not load a bundled company. An unknown board returns `unknown_board`. A `--source` that is not that board's supported reader returns `wrong_source`. LiveRamp's previous Workday endpoint is the wrong source for LiveRamp. Magnite accepts its declared jobs endpoint or the token `magnite-workday`. The generic `workday` token stays Acxiom's, and `https://api.smartrecruiters.com/v1/companies/Magnite/postings` is the wrong source for Magnite. No caller-supplied origin is fetched. Redirects are not followed.
+
+This 0.1.1 source is a candidate. It is not a published release. The pinned recipe revision remains `7d01bfb09c530430933dec1f07c5c0b8517cffa8`.
+
+Magnite checks three facts before any jobs POST. The careers host robots crawl delay must fit the one deadline, or the result is `not_fetched`. Every visible Search Jobs link on `https://www.magnite.com/careers/` must canonicalize to `https://osv-rubicon.wd5.myworkdayjobs.com/MagniteCareers`, or the result is `source_moved`. The Workday shell must name tenant `osv_rubicon` and site `MagniteCareers`. The hostname label `osv-rubicon` is not the tenant. A mismatch is `identity_mismatch`. Those results have `emptyBoard` false and do not call the jobs endpoint. The jobs POST body is `{ appliedFacets: {}, limit: 20, offset, searchText: "" }`. `coverage.roleFilter` stays null. A later page that says `total: 0` while it still lists new jobs is not the end of the board. At most four pages are read, then a past-end probe when the declared total is reached. `/refreshFacet/` is never requested.
+
+The default `--timeout-ms` is 15000. The retained Magnite robots file publishes `Crawl-delay: 10`. Pass `--timeout-ms 30000` when that delay plus the board read must fit. Role selection is a separate command and is not applied by `run`:
+
+```sh
+node scripts/predicates.mjs observation.json
+```
+
+`appliedPredicate` stays null. `semantic_role_family` and `department_inference` stay unknown.
 
 ```sh
 node scripts/cli.mjs run --board BOARD
@@ -64,4 +77,8 @@ Run the command from the installed copy. It does not read a builder checkout or 
 `recipe/PUBLIC-RECIPE.md`
 `recipe/boards.mjs`
 `recipe/boards.public.test.mjs`
+`references/source-pins.json`
+`sources/magnite.mjs`
+`sources/predicates.mjs`
 `scripts/cli.mjs`
+`scripts/predicates.mjs`

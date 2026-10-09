@@ -20,6 +20,8 @@ const READERS = {
   'liveramp-inc': { id: 'liveramp', reader: 'fetchAshby', sourceKind: 'ashby', boardKey: 'liverampAshby' },
   liverampashby: { id: 'liveramp', reader: 'fetchAshby', sourceKind: 'ashby', boardKey: 'liverampAshby' },
   'liveramp-ashby': { id: 'liveramp', reader: 'fetchAshby', sourceKind: 'ashby', boardKey: 'liverampAshby' },
+  magnite: { id: 'magnite', reader: 'fetchMagnite', sourceKind: 'magnite-workday', boardKey: 'magnite' },
+  'magnite-careers': { id: 'magnite', reader: 'fetchMagnite', sourceKind: 'magnite-workday', boardKey: 'magnite' },
 };
 const SEED_FILE_CAP = 65536;
 
@@ -181,7 +183,7 @@ function parseArgs(argv) {
 function sourceMatches(source, sourceKind, endpoint) {
   const token = source.trim();
   const lower = token.toLowerCase();
-  if (lower === 'workday' || lower === 'ashby') return lower === sourceKind;
+  if (lower === 'workday' || lower === 'ashby' || lower === 'magnite-workday') return lower === sourceKind;
   let url;
   try { url = new URL(token); }
   catch { return false; }
@@ -450,24 +452,84 @@ function classifyTransport(observation) {
   return requests;
 }
 
-async function runSnapshot(files, fn) {
+async function writeSnapshotFile(dir, rel, bytes, prefix) {
+  if (typeof rel !== 'string' || rel.includes('..') || !rel.startsWith(prefix)) throw fail('tampered_source');
+  const dest = join(dir, rel);
+  const relCheck = relative(dir, dest);
+  if (relCheck.startsWith('..') || isAbsolute(relCheck)) throw fail('tampered_source');
+  const handle = await open(dest, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600);
+  try { await handle.writeFile(bytes); }
+  finally { await handle.close(); }
+  await readExact(dest, bytes);
+}
+
+function httpsLiteral(value) {
+  let url;
+  try { url = new URL(value); }
+  catch { throw fail('tampered_source'); }
+  if (url.protocol !== 'https:' || url.username || url.password || url.hash) throw fail('tampered_source');
+  return url;
+}
+
+async function verifyMagniteSource(clock, recipeBytes) {
+  const pinBytes = await readRegular(resolve(root, 'references/source-pins.json'), 65536, clock);
+  let pin;
+  try { pin = JSON.parse(pinBytes.toString('utf8')); }
+  catch { throw fail('tampered_source'); }
+  if (pin?.schema !== 'public-careers-board.source-pins.v1' || pin.parent?.reusedExport !== 'normalizeWorkday') {
+    throw fail('tampered_source');
+  }
+  const recipeSha = createHash('sha256').update(recipeBytes).digest('hex');
+  if (pin.parent.recipeSha256 !== recipeSha) throw fail('tampered_source');
+  const source = pin.source;
+  if (!source || typeof source.tenant !== 'string' || typeof source.siteId !== 'string' || source.tenant === source.hostnameLabel) {
+    throw fail('tampered_source');
+  }
+  const board = httpsLiteral(source.boardUrl);
+  const endpoint = httpsLiteral(source.endpoint);
+  httpsLiteral(source.careersPage);
+  httpsLiteral(source.robotsUrl);
+  if (board.host !== endpoint.host) throw fail('tampered_source');
+  const built = `${board.origin}/wday/cxs/${source.tenant}/${source.siteId}/jobs`;
+  if (built !== source.endpoint || source.endpoint.includes(`/${source.hostnameLabel}/`)) throw fail('tampered_source');
+  if (!Array.isArray(pin.files)) throw fail('tampered_source');
+  const item = pin.files.find((entry) => entry?.path === 'sources/magnite.mjs');
+  if (!item || !Number.isSafeInteger(item.bytes) || item.bytes < 0 || item.bytes > 1048576 || typeof item.sha256 !== 'string') {
+    throw fail('tampered_source');
+  }
+  const bytes = await readRegular(resolve(root, item.path), item.bytes, clock);
+  const digest = createHash('sha256').update(bytes).digest('hex');
+  if (bytes.length !== item.bytes || digest !== item.sha256) throw fail('tampered_source');
+  return {
+    bytes,
+    spec: {
+      boardUrl: source.boardUrl,
+      endpoint: source.endpoint,
+      careersPage: source.careersPage,
+      robotsUrl: source.robotsUrl,
+    },
+  };
+}
+
+async function runSnapshot(files, fn, extraFiles = null) {
   const dir = await mkdtemp(join(tmpdir(), `careers-snap-${process.pid}-`));
   try {
     await chmod(dir, 0o700);
     const recipeDir = join(dir, 'recipe');
     await mkdir(recipeDir, { mode: 0o700 });
     await chmod(recipeDir, 0o700);
-    for (const [rel, bytes] of files) {
-      if (typeof rel !== 'string' || rel.includes('..') || !rel.startsWith('recipe/')) throw fail('tampered_source');
-      const dest = join(dir, rel);
-      const relCheck = relative(dir, dest);
-      if (relCheck.startsWith('..') || isAbsolute(relCheck)) throw fail('tampered_source');
-      const handle = await open(dest, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600);
-      try { await handle.writeFile(bytes); }
-      finally { await handle.close(); }
-      await readExact(dest, bytes);
+    for (const [rel, bytes] of files) await writeSnapshotFile(dir, rel, bytes, 'recipe/');
+    if (extraFiles) {
+      const sourceDir = join(dir, 'sources');
+      await mkdir(sourceDir, { mode: 0o700 });
+      await chmod(sourceDir, 0o700);
+      for (const [rel, bytes] of extraFiles) await writeSnapshotFile(dir, rel, bytes, 'sources/');
     }
     const mod = await import(pathToFileURL(join(dir, 'recipe/boards.mjs')).href);
+    if (extraFiles) {
+      const sourceMod = await import(pathToFileURL(join(dir, 'sources/magnite.mjs')).href);
+      return await fn(mod, sourceMod);
+    }
     return await fn(mod);
   } finally {
     await rm(dir, { recursive: true, force: true });
@@ -529,7 +591,7 @@ export async function execute(argv) {
         source: null,
         rows: null,
         coverage: null,
-        nextAction: 'Pass --board with one supported id: acxiom, acxiomllc, liveramp, liveramp-inc, liverampashby, or liveramp-ashby.',
+        nextAction: 'Pass --board with one supported id: acxiom, acxiomllc, liveramp, liveramp-inc, liverampashby, liveramp-ashby, magnite, or magnite-careers.',
       }), opts, outputBytes, started);
     }
     const reader = READERS[board];
@@ -547,7 +609,13 @@ export async function execute(argv) {
     }
     const recipeSource = files.get('recipe/boards.mjs');
     const specs = literalsFromRecipe(recipeSource);
-    const spec = specs[reader.boardKey];
+    let spec = specs[reader.boardKey];
+    let magniteBytes = null;
+    if (reader.reader === 'fetchMagnite') {
+      const loaded = await verifyMagniteSource(clock, recipeSource);
+      spec = loaded.spec;
+      magniteBytes = loaded.bytes;
+    }
     if (!spec?.endpoint || !spec?.boardUrl) throw fail('tampered_source');
     if (opts['--source'] && !sourceMatches(opts['--source'], reader.sourceKind, spec.endpoint)) {
       return await finish(0, base({
@@ -558,7 +626,9 @@ export async function execute(argv) {
         source: null,
         rows: null,
         coverage: null,
-        nextAction: 'That source is not the supported reader. Acxiom uses Workday. LiveRamp uses Ashby. No other origin is fetched.',
+        nextAction: reader.reader === 'fetchMagnite'
+          ? 'Magnite reads only its declared Workday endpoint after the official careers handoff. A generic workday token and the SmartRecruiters host are not that source.'
+          : 'That source is not the supported reader. Acxiom uses Workday. LiveRamp uses Ashby. No other origin is fetched.',
       }), opts, outputBytes, started);
     }
     assertImportsPinned(recipeSource, files);
@@ -569,20 +639,64 @@ export async function execute(argv) {
     const fetchImpl = limitingFetch(responses ? seedFetch(responses, budget) : globalThis.fetch.bind(globalThis), budget);
     const fetchedAt = new Date().toISOString();
     const ctx = { boardUrl: spec.boardUrl, source: spec.endpoint, fetchedAt };
-    const observation = await runSnapshot(files, async (mod) => {
-      const live = mod.BOARDS?.[reader.boardKey];
-      if (typeof mod[reader.reader] !== 'function' || live?.endpoint !== spec.endpoint || live?.boardUrl !== spec.boardUrl) {
-        throw fail('tampered_source');
-      }
-      return mod[reader.reader](ctx, { timeoutMs: clock.left(), maxBytes, fetchImpl });
-    });
+    const observation = reader.reader === 'fetchMagnite'
+      ? await runSnapshot(files, async (mod, sourceMod) => {
+        if (typeof mod.normalizeWorkday !== 'function' || typeof sourceMod.fetchMagnite !== 'function') throw fail('tampered_source');
+        const declared = sourceMod.MAGNITE;
+        if (declared?.endpoint !== spec.endpoint || declared?.boardUrl !== spec.boardUrl || declared?.careersPage !== spec.careersPage || declared?.robotsUrl !== spec.robotsUrl) {
+          throw fail('tampered_source');
+        }
+        if (declared.tenant === declared.hostnameLabel || sourceMod.endpointUsingHostnameLabel() === declared.endpoint) {
+          throw fail('tampered_source');
+        }
+        return sourceMod.fetchMagnite({
+          normalizeWorkday: mod.normalizeWorkday,
+          fetchedAt,
+          timeoutMs: clock.left(),
+          maxBytes,
+          fetchImpl,
+          signal: clock.signal,
+        });
+      }, new Map([['sources/magnite.mjs', magniteBytes]]))
+      : await runSnapshot(files, async (mod) => {
+        const live = mod.BOARDS?.[reader.boardKey];
+        if (typeof mod[reader.reader] !== 'function' || live?.endpoint !== spec.endpoint || live?.boardUrl !== spec.boardUrl) {
+          throw fail('tampered_source');
+        }
+        return mod[reader.reader](ctx, { timeoutMs: clock.left(), maxBytes, fetchImpl });
+      });
     if (budget.exceeded()) throw fail('oversized_source');
     if (clock.signal.aborted) throw fail('deadline');
-    const requests = classifyTransport(observation);
+    const requestList = observation?.kind === 'classified' ? observation.requests : observation?.coverage?.requests;
+    const requests = classifyTransport({ coverage: { requests: requestList } });
+    const allowedHosts = new Set([new URL(spec.endpoint).host]);
+    if (spec.careersPage) allowedHosts.add(new URL(spec.careersPage).host);
+    if (spec.robotsUrl) allowedHosts.add(new URL(spec.robotsUrl).host);
     if (requests.some((entry) => {
-      try { return new URL(entry.url).host !== new URL(spec.endpoint).host; }
+      try { return !allowedHosts.has(new URL(entry.url).host); }
       catch { return true; }
     })) throw fail('unexpected_origin');
+    if (observation?.kind === 'classified') {
+      return await finish(0, base({
+        result: observation.result,
+        reason: observation.reason,
+        board: reader.id,
+        reader: reader.reader,
+        source: spec.endpoint,
+        seeded: Boolean(opts['--seed']),
+        sourceCoverage: opts['--seed'] ? 'supplied_seed' : 'live_public_https',
+        recipeRevision: pins.revision,
+        rows: null,
+        coverage: null,
+        boardClaim: observation.result,
+        emptyBoard: false,
+        complete: false,
+        handoff: observation.handoff ?? null,
+        identity: observation.identity ?? null,
+        requests,
+        nextAction: observation.nextAction,
+      }), opts, outputBytes, started);
+    }
     const rows = Array.isArray(observation.rows) ? observation.rows : [];
     const claim = boardClaim(observation.coverage);
     return await finish(0, base({
