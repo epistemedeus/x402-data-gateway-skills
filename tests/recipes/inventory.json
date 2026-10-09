@@ -74,6 +74,25 @@
       "cell": "c-payment-offer-preflight"
     },
     {
+      "skill": "public-careers-board",
+      "status": "independent_contract_tests",
+      "tests": [
+        "tests/public-careers-board.test.mjs",
+        "tests/public-careers-board.receiving.test.mjs",
+        "tests/public-careers-board-magnite.test.mjs"
+      ],
+      "note": "Source resolution and frozen normalization have independent contract tests, not a merchant recipe."
+    },
+    {
+      "skill": "received-useful-work",
+      "status": "independent_contract_tests",
+      "tests": [
+        "tests/received-useful-work-export.test.mjs",
+        "tests/route-task-acquisition.test.mjs"
+      ],
+      "note": "Library acquisition and caller-output export have independent contracts, not a merchant recipe."
+    },
+    {
       "skill": "repo-security-scan",
       "merchantModule": "scan.mjs",
       "exports": [

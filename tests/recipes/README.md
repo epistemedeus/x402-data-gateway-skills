@@ -36,7 +36,10 @@ process-global extract fetch / DNS hooks.
 Nine build families each include one useful caller task and one
 refusal/unsupported case. S81-refreshed `web-extract` and
 `samedaydesk-machine-commerce` are non-changing audits only. Remaining skills
-are inventoried as candidates without invented filler cells.
+are inventoried as candidates without invented filler cells. The public careers
+and received-useful-work families use the independent contract tests named in
+`inventory.json`; they are not fabricated merchant recipes. The inventory tracks
+the installed skill names rather than freezing their count at the S88 snapshot.
 
 The runner blocks real network access, including accidental fetch fallthrough.
 Merchant module bytes and their relative-import closure must match
