@@ -35,8 +35,15 @@ function gitArchiveGzip(spec, mtime) {
 }
 
 function readArchive(rel) {
-  const text = readFileSync(path.join(root, rel), 'utf8').replace(/\s+/g, '');
-  return Buffer.from(text, 'base64');
+  const abs = path.join(root, rel);
+  const stored = statSync(abs).isDirectory()
+    ? readdirSync(abs)
+        .filter((name) => name.endsWith('.b64part'))
+        .sort()
+        .map((name) => readFileSync(path.join(abs, name), 'utf8'))
+        .join('')
+    : readFileSync(abs, 'utf8');
+  return Buffer.from(stored.replace(/\s+/g, ''), 'base64');
 }
 
 function extract(bytes) {
@@ -121,6 +128,12 @@ test('the 0.1.2 candidate archive changes only the skill metadata', () => {
   const candidate = provenance.candidate;
   assert.equal(candidate.version, '0.1.2');
   assert.equal(candidate.published, false);
+  assert.equal(candidate.archiveEncoding, 'base64-parts');
+  assert.equal(candidate.archivePartCount, 12);
+  assert.deepEqual(
+    readdirSync(path.join(root, candidate.archive)).filter((name) => name.endsWith('.b64part')).sort(),
+    Array.from({ length: 12 }, (_, index) => `${String(index).padStart(2, '0')}.b64part`),
+  );
   assert.deepEqual(candidate.changedPaths, ['SKILL.md']);
   assert.deepEqual(candidate.tags, ['careers', 'jobs', 'coverage', 'no-spend']);
   assert.equal(candidate.description, publishedDescription);
