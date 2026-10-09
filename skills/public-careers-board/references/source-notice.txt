@@ -20,3 +20,8 @@ bytes. references/source-pins.json records that parent hash and the source
 module hash. The Magnite host stays outside the recipe host gate.
 sources/predicates.mjs selects no role. scripts/predicates.mjs only reads a
 local observation file.
+
+Redirects are not followed. A 3xx from a declared Magnite URL is not_fetched
+with reason unexpected_redirect, and it is not an empty Magnite board. A
+Workday total of 0 is empty for that board only. The SmartRecruiters URL is
+not that board.

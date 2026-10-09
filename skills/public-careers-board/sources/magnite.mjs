@@ -485,6 +485,38 @@ async function requestPublic(url, options) {
   }
 }
 
+function isRedirect(status) {
+  return Number.isInteger(status) && status >= 300 && status < 400;
+}
+
+function redirectRefusal(requests) {
+  return classified(
+    requests,
+    "not_fetched",
+    "unexpected_redirect",
+    "A declared Magnite URL returned a redirect. The redirect was not followed. This is not an empty board.",
+  );
+}
+
+async function waitForCrawlDelay(delayMs, remaining, sleep, signal) {
+  if (delayMs >= remaining()) return false;
+  if (delayMs <= 0) return remaining() > 0;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), Math.max(remaining(), 0));
+  const onParent = () => controller.abort();
+  if (signal) signal.addEventListener("abort", onParent, { once: true });
+  try {
+    await sleep(delayMs, controller.signal);
+  } catch (error) {
+    if (error?.code === "deadline" || error?.name === "AbortError") return false;
+    throw error;
+  } finally {
+    clearTimeout(timer);
+    if (signal) signal.removeEventListener("abort", onParent);
+  }
+  return remaining() > 0;
+}
+
 function classified(requests, result, reason, nextAction, extra = {}) {
   return {
     kind: "classified",
@@ -563,6 +595,7 @@ export async function fetchMagnite(options = {}) {
   });
   requests.push(publicLog(robots));
   if (TRANSPORT_ERRORS.has(robots.error)) return failureObservation(requests, robots.error, robots.httpStatus);
+  if (isRedirect(robots.httpStatus)) return redirectRefusal(requests);
   if (robots.httpStatus !== 200 || robots.error) {
     return classified(
       requests,
@@ -582,7 +615,8 @@ export async function fetchMagnite(options = {}) {
     );
   }
   const delayMs = Math.round(careersRule.crawlDelaySec * 1000);
-  if (delayMs >= remaining()) {
+  const delayFits = await waitForCrawlDelay(delayMs, remaining, sleep, options.signal);
+  if (!delayFits) {
     return classified(
       requests,
       "not_fetched",
@@ -590,7 +624,6 @@ export async function fetchMagnite(options = {}) {
       "The careers host crawl delay does not fit the deadline. The handoff was not skipped and the jobs endpoint was not called. This is not an empty board.",
     );
   }
-  if (delayMs > 0) await sleep(delayMs, options.signal);
 
   const careers = await requestPublic(MAGNITE.careersPage, {
     ...common,
@@ -602,6 +635,7 @@ export async function fetchMagnite(options = {}) {
   });
   requests.push(publicLog(careers));
   if (TRANSPORT_ERRORS.has(careers.error)) return failureObservation(requests, careers.error, careers.httpStatus);
+  if (isRedirect(careers.httpStatus)) return redirectRefusal(requests);
   if (careers.httpStatus !== 200 || careers.error) {
     return failureObservation(requests, careers.error || "careers_http", careers.httpStatus);
   }
@@ -626,6 +660,7 @@ export async function fetchMagnite(options = {}) {
   });
   requests.push(publicLog(shellEntry));
   if (TRANSPORT_ERRORS.has(shellEntry.error)) return failureObservation(requests, shellEntry.error, shellEntry.httpStatus);
+  if (isRedirect(shellEntry.httpStatus)) return redirectRefusal(requests);
   if (shellEntry.httpStatus !== 200 || shellEntry.error) {
     return failureObservation(requests, shellEntry.error || "shell_http", shellEntry.httpStatus);
   }
@@ -683,6 +718,7 @@ export async function fetchMagnite(options = {}) {
   if (!first || TRANSPORT_ERRORS.has(first.error)) {
     return failureObservation(requests, first?.error || collected.stopReason || "not_fetched", first?.httpStatus ?? 0);
   }
+  if (isRedirect(first.httpStatus)) return redirectRefusal(requests);
   const normalized = normalizeWorkday({
     pages: collected.pages.map((page) => ({
       offset: page.offset,

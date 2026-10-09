@@ -626,6 +626,8 @@ export async function execute(argv) {
         source: null,
         rows: null,
         coverage: null,
+        emptyBoard: false,
+        complete: false,
         nextAction: reader.reader === 'fetchMagnite'
           ? 'Magnite reads only its declared Workday endpoint after the official careers handoff. A generic workday token and the SmartRecruiters host are not that source.'
           : 'That source is not the supported reader. Acxiom uses Workday. LiveRamp uses Ashby. No other origin is fetched.',
@@ -651,7 +653,6 @@ export async function execute(argv) {
         }
         return sourceMod.fetchMagnite({
           normalizeWorkday: mod.normalizeWorkday,
-          fetchedAt,
           timeoutMs: clock.left(),
           maxBytes,
           fetchImpl,
