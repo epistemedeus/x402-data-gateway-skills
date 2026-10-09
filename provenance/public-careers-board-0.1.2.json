@@ -6,7 +6,7 @@
   "baseCommit": "7331298752048294e330463a72df336766f48d6f",
   "clawhubCli": "0.23.3",
   "fingerprintAlgorithm": "sha256 of sorted path:sha256 lines joined by newline, matching clawhub 0.23.3 buildSkillFingerprint",
-  "archiveAlgorithm": "git archive --format=tar --mtime=<archiveMtime> <commit>:skills/public-careers-board | gzip -n, stored as base64",
+  "archiveAlgorithm": "git archive --format=tar --mtime=<archiveMtime> <commit>:skills/public-careers-board | gzip -n. Published archives are one base64 file. The 0.1.2 candidate is that base64 split into ordered .b64part files.",
   "published": false,
   "predecessors": [
     {
@@ -37,7 +37,9 @@
   "candidate": {
     "version": "0.1.2",
     "published": false,
-    "archive": "provenance/archives/public-careers-board-0.1.2-candidate.tar.gz.b64",
+    "archive": "provenance/archives/public-careers-board-0.1.2-candidate.parts",
+    "archiveEncoding": "base64-parts",
+    "archivePartCount": 12,
     "archiveSha256": "4ab3ceefaab4d015c6b8ad04fffc2592a9b8161db60e862f8b81d0d7579e62ab",
     "archiveBytes": 28475,
     "fileCount": 13,
@@ -55,7 +57,6 @@
     ],
     "archiveMtime": "2026-10-09T20:23:35+00:00",
     "sourceCommit": "d65b8688c2ba72a965c12520c20bd4c20852469d",
-    "localMetadataCommit": "484ff23a063c9bffc755ee63ee2d297bad8939ce",
-    "archiveEncoding": "base64"
+    "localMetadataCommit": "484ff23a063c9bffc755ee63ee2d297bad8939ce"
   }
 }
