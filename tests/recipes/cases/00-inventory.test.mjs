@@ -13,16 +13,41 @@ function gitTopLevel(cwd) {
   }
 }
 
-test('recipe inventory covers all 16 skills without invented filler cells', () => {
-  const inv = JSON.parse(fs.readFileSync(new URL('../inventory.json', import.meta.url)));
+function assertInventoryCoverage(inv, dirs) {
   assert.equal(inv.skillsPin, SKILLS_PIN);
   assert.equal(inv.merchantPin, MERCHANT_PIN);
+  const names = inv.families.map((family) => family.skill);
+  assert.equal(new Set(names).size, names.length, 'duplicate inventory family');
+  assert.deepEqual(names.slice().sort(), dirs.slice().sort(), 'inventory must match installed skills');
+  const statuses = new Set(['build', 'candidate', 'non_changing_audit', 'independent_contract_tests']);
+  for (const family of inv.families) {
+    assert.ok(statuses.has(family.status), 'unknown inventory status');
+    if (family.status === 'build') {
+      assert.ok(family.merchantModule && family.exports?.length && family.route && family.cell !== 'reserve', 'build family needs its actual merchant contract');
+    }
+    if (family.status === 'independent_contract_tests') {
+      assert.ok(family.tests?.length, 'independent family needs actual tests');
+      for (const file of family.tests) {
+        assert.ok(file.startsWith('tests/') && !file.split('/').includes('..') && file.endsWith('.test.mjs'), 'invalid independent test path');
+        assert.ok(fs.existsSync(path.join(SKILLS_ROOT, file)), 'missing independent test file');
+      }
+    }
+  }
+}
+
+test('recipe inventory covers current installed skills without invented filler cells', () => {
+  const inv = JSON.parse(fs.readFileSync(new URL('../inventory.json', import.meta.url)));
+  assertInventoryCoverage(inv, listSkillDirs());
+});
+
+test('inventory rejects omissions, duplicates, phantom skills and untested independent families', () => {
+  const inv = JSON.parse(fs.readFileSync(new URL('../inventory.json', import.meta.url)));
   const dirs = listSkillDirs();
-  assert.equal(dirs.length, 16);
-  assert.deepEqual(inv.families.map((f) => f.skill).sort(), dirs);
-  const build = inv.families.filter((f) => f.status === 'build');
-  assert.ok(build.length <= 9);
-  assert.equal(build.length, 9);
+  const change = (mutate) => { const candidate = structuredClone(inv); mutate(candidate); return candidate; };
+  assert.throws(() => assertInventoryCoverage(change((candidate) => candidate.families.pop()), dirs));
+  assert.throws(() => assertInventoryCoverage(change((candidate) => candidate.families.push(candidate.families[0])), dirs));
+  assert.throws(() => assertInventoryCoverage(change((candidate) => candidate.families[0].skill = 'phantom-skill'), dirs));
+  assert.throws(() => assertInventoryCoverage(change((candidate) => candidate.families.find((family) => family.status === 'independent_contract_tests').tests = []), dirs));
 });
 
 test('merchant pin checkout is present for fixture-backed recipes', () => {
