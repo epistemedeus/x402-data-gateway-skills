@@ -163,7 +163,15 @@ test('the 0.1.2 candidate archive changes only the skill metadata', () => {
     assert.deepEqual(live.map((file) => file.path), current.map((file) => file.path));
     for (const file of current) {
       const onDisk = live.find((entry) => entry.path === file.path);
-      assert.equal(onDisk.sha256, file.sha256, file.path);
+      if (file.path === 'SKILL.md') {
+        assert.equal(onDisk.bytes.toString('utf8'), file.bytes.toString('utf8').replace(
+          'This 0.1.2 source is a candidate. It is not a published release. ', '',
+        ), file.path);
+        assert.doesNotMatch(onDisk.bytes.toString('utf8'), /not a published release/);
+        assert.equal(descriptionOf(onDisk.bytes.toString('utf8')).value, publishedDescription);
+      } else {
+        assert.equal(onDisk.sha256, file.sha256, file.path);
+      }
     }
     const skill = current.find((file) => file.path === 'SKILL.md').bytes.toString('utf8');
     const parsed = descriptionOf(skill);

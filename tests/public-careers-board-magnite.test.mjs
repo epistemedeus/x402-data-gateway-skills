@@ -408,7 +408,7 @@ test('an empty Workday board stays empty and a crawl delay that expires does not
 test('the candidate bundle exports the declared source pins', async () => {
   const skill = await readFile(path.join(repoSkill, 'SKILL.md'), 'utf8');
   assert.match(skill, /version: "0\.1\.2"/);
-  assert.match(skill, /not a published release/);
+  assert.doesNotMatch(skill, /not a published release/);
   const bundle = skill.split('## Bundle files')[1];
   for (const rel of [
     'references/source-pins.json',
