@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires Node.js >=22.22.2. Acxiom and LiveRamp use the pinned recipe endpoints. Magnite uses a separate declared source and the pinned normalizeWorkday function. One deadline, a raw byte cap, and manual redirects. The pinned recipe bytes stay unchanged. Sends no credential, signature, or purchase. Exclusive file creation and private snapshots use the Linux /proc/self/fd directory-descriptor route. Where that route is unavailable those operations are refused. A missing, unknown, or wrong board does not need that route.
 metadata:
   author: neomorphic
-  version: "0.1.2"
+  version: "0.1.3"
   hermes:
     tags: [careers, jobs, coverage, no-spend]
   openclaw:
@@ -57,6 +57,10 @@ Exit 0 is a classified result: `missing_input`, `unknown_board`, `wrong_source`,
 Exit 2 refuses payment flags, a Node.js runtime below 22.22.2, a tampered recipe, an oversized or timed-out acquisition, an oversized result, a bad seed, or an ambiguous overwrite. The pinned recipe is `references/pins.json`. The command runs a private snapshot of those verified bytes and deletes it afterward, including when the run fails. Creating that snapshot uses the same Linux directory-descriptor route. Where the route is unavailable, the snapshot is refused and the pinned bytes are not imported through a path open. A hash mismatch is not executed. An unknown board or a wrong source returns before that snapshot is imported.
 
 `recipe/boards.mjs` is the upstream file. Do not run it as the installed command. Its own CLI writes an evidence file and reads every board. This command reads only the board the caller named.
+
+## 0.1.3
+
+This version is the immutable successor of published 0.1.2. The description, recipe revision `7d01bfb09c530430933dec1f07c5c0b8517cffa8`, and source pins are unchanged. Installed reads refuse a declared size above the cap before the body is allocated, read through EOF or one byte past the cap, and refuse a size change during the read instead of returning a prefix. A file that fills the cap exactly is still returned whole. Exclusive file creation and private snapshots use the Linux `/proc/self/fd` directory-descriptor route and are refused where that route is unavailable. A missing, unknown, or wrong board does not need that route.
 
 ## Install
 

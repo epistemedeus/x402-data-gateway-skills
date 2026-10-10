@@ -1,0 +1,47 @@
+{
+  "schema": "public-careers-board.release-candidate.v1",
+  "role": "metadata-candidate-provenance",
+  "separatedFromSkillBundle": true,
+  "skill": "public-careers-board",
+  "baseCommit": "88fa44b0babca24379d754e333537beb25b0a754",
+  "predecessorProvenance": "provenance/public-careers-board-0.1.2.json",
+  "clawhubCli": "0.23.3",
+  "fingerprintAlgorithm": "sha256 of sorted path:sha256 lines joined by newline, matching clawhub 0.23.3 buildSkillFingerprint",
+  "archiveAlgorithm": "git archive --format=tar --mtime=<archiveMtime> <sourceCommit>:skills/public-careers-board | gzip -n. The 0.1.3 candidate is that base64 split into ordered .b64part files. Those parts do not replace the 0.1.0, 0.1.1, or 0.1.2 archive bytes.",
+  "published": false,
+  "candidate": {
+    "version": "0.1.3",
+    "published": false,
+    "archive": "provenance/archives/public-careers-board-0.1.3-candidate.parts",
+    "archiveEncoding": "base64-parts",
+    "archivePartCount": 14,
+    "archiveSha256": "0005b6c5c69bbbe8fb96a450a3f821b8c32afdf224263f508edb558b05a591f8",
+    "archiveBytes": 32573,
+    "fileCount": 14,
+    "fingerprint": "68e0ed5b24943b55e745f7c1d50ae7b8019461a50537e3da1f87c7bc79d760cd",
+    "skillMarkdownSha256": "676b0996fadb238bc60a30be22966b42441928a90d2e8b9c2bafe59d837baf6f",
+    "description": "Fetch current public job openings from one supported company careers board and report coverage. The rows are job listings of the board's current public vacancies: title, location, and the board's job URL, with source and fetch time. Supply Acxiom Workday, LiveRamp Ashby, or Magnite Workday to scripts/cli.mjs. Magnite is read only after its official careers handoff confirms the declared Workday board. Role selection stays outside the fetch. A source failure is not an empty or complete board. No wallet, signup, API key, or payment.",
+    "tags": [
+      "careers",
+      "jobs",
+      "coverage",
+      "no-spend"
+    ],
+    "changedPaths": [
+      "scripts/cli.mjs",
+      "scripts/predicates.mjs",
+      "SKILL.md"
+    ],
+    "addedPaths": [
+      "scripts/file-boundary.mjs"
+    ],
+    "archiveMtime": "2026-10-10T05:01:35+00:00",
+    "sourceCommit": "07cfa4019d256fb14dd59d7d4b1e835bb8ee5d36",
+    "localMetadataCommit": "5e07bdb8de12cdb5b136122456d383deaf3124f0",
+    "unchangedPinSha256": {
+      "recipe/boards.mjs": "d062c790660979b38a6ca4fa2bb85850cd710d06bca83ac4a029a5a32f8a3308",
+      "sources/magnite.mjs": "689af2d5da1c38b03adb0d68829583b3f2d3537edc8296e289c79201901fcc26",
+      "sources/predicates.mjs": "b393d6ef5dc7eeba7289f3b4d6fd23cdc7ffc79bf74f8fd4bc7b7097d1282851"
+    }
+  }
+}
