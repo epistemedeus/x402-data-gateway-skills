@@ -2,7 +2,7 @@
 name: public-careers-board
 description: "Fetch current public job openings from one supported company careers board and report coverage. The rows are job listings of the board's current public vacancies: title, location, and the board's job URL, with source and fetch time. Supply Acxiom Workday, LiveRamp Ashby, or Magnite Workday to scripts/cli.mjs. Magnite is read only after its official careers handoff confirms the declared Workday board. Role selection stays outside the fetch. A source failure is not an empty or complete board. No wallet, signup, API key, or payment."
 license: MIT
-compatibility: Requires Node.js >=22.22.2. Acxiom and LiveRamp use the pinned recipe endpoints. Magnite uses a separate declared source and the pinned normalizeWorkday function. One deadline, a raw byte cap, and manual redirects. The pinned recipe bytes stay unchanged. Sends no credential, signature, or purchase.
+compatibility: Requires Node.js >=22.22.2. Acxiom and LiveRamp use the pinned recipe endpoints. Magnite uses a separate declared source and the pinned normalizeWorkday function. One deadline, a raw byte cap, and manual redirects. The pinned recipe bytes stay unchanged. Sends no credential, signature, or purchase. Exclusive file creation and private snapshots use the Linux /proc/self/fd directory-descriptor route. Where that route is unavailable those operations are refused. A missing, unknown, or wrong board does not need that route.
 metadata:
   author: neomorphic
   version: "0.1.2"
@@ -40,13 +40,13 @@ The default `--timeout-ms` is 15000. The retained Magnite robots file publishes 
 node scripts/predicates.mjs observation.json
 ```
 
-`appliedPredicate` stays null. `semantic_role_family` and `department_inference` stay unknown.
+The predicate command reads one regular file of at most 1048576 bytes. A symlink, directory, FIFO, or other non-regular input is refused before that body is allocated. Declared size above the cap and a stream that grows past the cap are both refused. A file that changes size during the read is refused rather than returned as a prefix. The pinned source and its pin file use the same regular-file, cap, and deadline boundary. One 15000 ms deadline covers those reads, and the timer is cleared before the process exits. `appliedPredicate` stays null. `employmentDecision` stays false. `semantic_role_family` and `department_inference` stay unknown.
 
 ```sh
 node scripts/cli.mjs run --board BOARD
 ```
 
-`--out PATH` writes the one result line for every classification and refusal. An existing path, a symlink, a directory, or a path inside this skill is refused and left unchanged. `--seed FILE` is an explicitly supplied control. The result says `seeded: true` and `sourceCoverage: supplied_seed`. A seed does not fill in a missing board. A seed `padTo` is a safe integer checked against the shared byte budget before any buffer is allocated.
+`--out PATH` writes the one result line for every classification and refusal. An existing path, a final symlink, a directory, or a path inside this skill is refused and left unchanged. A parent symlink is not followed, including a multi-level symlink into this skill and a symlinked invocation of this command. The parent is opened without following symlinks, then the new file is created exclusively with `O_NOFOLLOW` on that directory. If the parent identity changes before creation, the write is refused rather than followed. A check followed by an open is not universally race-proof. That parent walk and exclusive create use the Linux directory-descriptor route. Where the route is unavailable, the write is refused and no file is created. A new file in an outside regular directory is still written when the route is available. `--seed FILE` is an explicitly supplied control. The result says `seeded: true` and `sourceCoverage: supplied_seed`. A seed does not fill in a missing board. A seed `padTo` is a safe integer checked against the shared byte budget before any buffer is allocated.
 
 `--timeout-ms` defaults to 15000 and must be 100 through 30000. That one deadline covers pin verification and the source read. When it fires, the command aborts and cancels the owned fetch. `--max-bytes` defaults to 1000000 and must be 1024 through 1048576. It is one budget for every response body in the observation, including later pages. Pinned recipe files are hash-checked under the same deadline and are not counted in that response budget. `--output-bytes` uses the same bounds and limits every result line. A line over that limit is a short `oversized_output` refusal and does not echo the caller input. A timeout, oversized body, or oversized result is a refusal, not an empty or complete board.
 
@@ -54,7 +54,7 @@ node scripts/cli.mjs run --board BOARD
 
 Exit 0 is a classified result: `missing_input`, `unknown_board`, `wrong_source`, or `observation`. An observation keeps the recipe's `rows` and `coverage`. `coverage.status` `source_failure` stays a source failure, with `emptyBoard` false and `complete` false. `partial` keeps the rows already read and stays partial. An empty board has top-level `emptyBoard` true and `complete` false. That includes recipe status `empty_board` and an Ashby `jobs` array that is empty (`coverage.emptyBoard` true), even when the recipe status is `complete_for_returned_listed_set`. A non-empty listed set stays complete. `useful` stays null. The caller decides usefulness.
 
-Exit 2 refuses payment flags, a Node.js runtime below 22.22.2, a tampered recipe, an oversized or timed-out acquisition, an oversized result, a bad seed, or an ambiguous overwrite. The pinned recipe is `references/pins.json`. The command runs a private snapshot of those verified bytes and deletes it afterward, including when the run fails. A hash mismatch is not executed. An unknown board or a wrong source returns before that snapshot is imported.
+Exit 2 refuses payment flags, a Node.js runtime below 22.22.2, a tampered recipe, an oversized or timed-out acquisition, an oversized result, a bad seed, or an ambiguous overwrite. The pinned recipe is `references/pins.json`. The command runs a private snapshot of those verified bytes and deletes it afterward, including when the run fails. Creating that snapshot uses the same Linux directory-descriptor route. Where the route is unavailable, the snapshot is refused and the pinned bytes are not imported through a path open. A hash mismatch is not executed. An unknown board or a wrong source returns before that snapshot is imported.
 
 `recipe/boards.mjs` is the upstream file. Do not run it as the installed command. Its own CLI writes an evidence file and reads every board. This command reads only the board the caller named.
 
@@ -81,4 +81,5 @@ Run the command from the installed copy. It does not read a builder checkout or 
 `sources/magnite.mjs`
 `sources/predicates.mjs`
 `scripts/cli.mjs`
+`scripts/file-boundary.mjs`
 `scripts/predicates.mjs`

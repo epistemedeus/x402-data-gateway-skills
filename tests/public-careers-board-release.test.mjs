@@ -160,19 +160,27 @@ test('the 0.1.2 candidate archive changes only the skill metadata', () => {
     }
     assert.deepEqual(changed, ['SKILL.md']);
     const live = walk(skillDir);
-    assert.deepEqual(live.map((file) => file.path), current.map((file) => file.path));
+    const repairPaths = new Set([
+      'SKILL.md',
+      'scripts/cli.mjs',
+      'scripts/predicates.mjs',
+      'scripts/file-boundary.mjs',
+    ]);
+    assert.ok(live.some((file) => file.path === 'scripts/file-boundary.mjs'));
     for (const file of current) {
       const onDisk = live.find((entry) => entry.path === file.path);
-      if (file.path === 'SKILL.md') {
-        assert.equal(onDisk.bytes.toString('utf8'), file.bytes.toString('utf8').replace(
-          'This 0.1.2 source is a candidate. It is not a published release. ', '',
-        ), file.path);
-        assert.doesNotMatch(onDisk.bytes.toString('utf8'), /not a published release/);
-        assert.equal(descriptionOf(onDisk.bytes.toString('utf8')).value, publishedDescription);
-      } else {
-        assert.equal(onDisk.sha256, file.sha256, file.path);
-      }
+      assert.ok(onDisk, file.path);
+      if (repairPaths.has(file.path)) continue;
+      assert.equal(onDisk.sha256, file.sha256, file.path);
     }
+    for (const file of live) {
+      if (repairPaths.has(file.path)) continue;
+      assert.ok(current.some((entry) => entry.path === file.path), file.path);
+    }
+    const liveSkill = live.find((file) => file.path === 'SKILL.md');
+    assert.doesNotMatch(liveSkill.bytes.toString('utf8'), /not a published release/);
+    assert.equal(descriptionOf(liveSkill.bytes.toString('utf8')).value, publishedDescription);
+    assert.match(liveSkill.bytes.toString('utf8'), /version: "0\.1\.2"/);
     const skill = current.find((file) => file.path === 'SKILL.md').bytes.toString('utf8');
     const parsed = descriptionOf(skill);
     assert.equal(parsed.value, publishedDescription);

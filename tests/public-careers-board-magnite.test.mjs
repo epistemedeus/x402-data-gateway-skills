@@ -416,6 +416,7 @@ test('the candidate bundle exports the declared source pins', async () => {
     'sources/magnite.mjs',
     'sources/predicates.mjs',
     'scripts/cli.mjs',
+    'scripts/file-boundary.mjs',
     'scripts/predicates.mjs',
     'recipe/boards.mjs',
   ]) {
