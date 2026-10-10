@@ -180,7 +180,7 @@ test('the 0.1.2 candidate archive changes only the skill metadata', () => {
     const liveSkill = live.find((file) => file.path === 'SKILL.md');
     assert.doesNotMatch(liveSkill.bytes.toString('utf8'), /not a published release/);
     assert.equal(descriptionOf(liveSkill.bytes.toString('utf8')).value, publishedDescription);
-    assert.match(liveSkill.bytes.toString('utf8'), /version: "0\.1\.2"/);
+    assert.match(liveSkill.bytes.toString('utf8'), /version: "0\.1\.3"/);
     const skill = current.find((file) => file.path === 'SKILL.md').bytes.toString('utf8');
     const parsed = descriptionOf(skill);
     assert.equal(parsed.value, publishedDescription);
