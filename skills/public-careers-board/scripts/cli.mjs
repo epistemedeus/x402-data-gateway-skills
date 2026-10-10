@@ -2,13 +2,22 @@
 // Installed client for the pinned free careers recipe.
 // The byte bounds match the existing acquisition helper: 100–30000 ms,
 // 1024–1048576 source bytes, and 1024–1048576 output bytes. This copy does
-// not import a sibling skill, so an install stays self-contained.
+// not import a sibling skill, so an install stays self-contained. Local file
+// reads and creates go through scripts/file-boundary.mjs, which stays inside
+// the installed directory.
 import { createHash } from 'node:crypto';
-import { constants } from 'node:fs';
-import { chmod, mkdir, mkdtemp, open, lstat, rm, unlink } from 'node:fs/promises';
+import { realpathSync } from 'node:fs';
+import { chmod, mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import {
+  containedByRoots,
+  createExclusiveChild,
+  installedRoots,
+  readBoundedRegular,
+  writeNewFileOutside,
+} from './file-boundary.mjs';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const REFUSED = new Set(['--pay', '--settle', '--sign', '--wallet', '--purchase']);
@@ -105,43 +114,24 @@ function sourceBudget(maxBytes, signal) {
 }
 
 async function readRegular(filePath, maxBytes, clock) {
-  const opening = open(filePath, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
-  let file;
-  try { file = await clock.wait(opening); }
-  catch (error) {
-    void opening.then((handle) => handle.close()).catch(() => {});
-    throw error.code === 'deadline' ? error : fail('tampered_source');
-  }
   try {
-    const info = await clock.wait(file.stat());
-    if (!info.isFile()) throw fail('tampered_source');
-    if (info.size > maxBytes) throw fail('oversized_source');
-    const bytes = Buffer.alloc(info.size);
-    let total = 0;
-    while (total < bytes.length) {
-      const result = await clock.wait(file.read(bytes, total, bytes.length - total));
-      if (!result.bytesRead) break;
-      total += result.bytesRead;
-    }
-    if (total !== info.size) throw fail('tampered_source');
-    return Buffer.from(bytes.subarray(0, total));
-  } finally { void file.close().catch(() => {}); }
+    return await readBoundedRegular(filePath, maxBytes, clock);
+  } catch (error) {
+    if (error.code === 'oversized') throw fail('oversized_source');
+    if (error.code === 'deadline') throw error;
+    throw fail('tampered_source');
+  }
 }
 
-async function readExact(filePath, expected) {
-  const file = await open(filePath, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
+async function readExact(filePath, expected, clock) {
+  let bytes;
   try {
-    const info = await file.stat();
-    if (!info.isFile() || info.size !== expected.length) throw fail('tampered_source');
-    const bytes = Buffer.alloc(info.size);
-    let total = 0;
-    while (total < bytes.length) {
-      const result = await file.read(bytes, total, bytes.length - total);
-      if (!result.bytesRead) break;
-      total += result.bytesRead;
-    }
-    if (total !== expected.length || !bytes.equals(expected)) throw fail('tampered_source');
-  } finally { await file.close(); }
+    bytes = await readBoundedRegular(filePath, expected.length, clock);
+  } catch (error) {
+    if (error.code === 'deadline') throw error;
+    throw fail('tampered_source');
+  }
+  if (!bytes.equals(expected)) throw fail('tampered_source');
 }
 
 async function verifyRecipe(clock) {
@@ -416,29 +406,8 @@ async function loadSeed(filePath, clock, maxBytes) {
   return seed.responses;
 }
 
-function insideSkill(filePath) {
-  const rel = relative(root, filePath);
-  return rel === '' || (!rel.startsWith('..') && !isAbsolute(rel));
-}
-
 async function writeOwned(filePath, line) {
-  let info;
-  try { info = await lstat(filePath); }
-  catch (error) {
-    if (error.code !== 'ENOENT') throw fail('overwrite_refused');
-  }
-  if (info) throw fail('overwrite_refused');
-  if (insideSkill(filePath)) throw fail('overwrite_refused');
-  const file = await open(filePath, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600)
-    .catch(() => { throw fail('overwrite_refused'); });
-  try {
-    await file.writeFile(line);
-  } catch (error) {
-    await file.close().catch(() => {});
-    await unlink(filePath).catch(() => {});
-    throw error;
-  }
-  await file.close();
+  await writeNewFileOutside(filePath, line, installedRoots(root));
 }
 
 function classifyTransport(observation) {
@@ -452,15 +421,18 @@ function classifyTransport(observation) {
   return requests;
 }
 
-async function writeSnapshotFile(dir, rel, bytes, prefix) {
+async function writeSnapshotFile(dir, rel, bytes, prefix, clock) {
   if (typeof rel !== 'string' || rel.includes('..') || !rel.startsWith(prefix)) throw fail('tampered_source');
   const dest = join(dir, rel);
   const relCheck = relative(dir, dest);
   if (relCheck.startsWith('..') || isAbsolute(relCheck)) throw fail('tampered_source');
-  const handle = await open(dest, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600);
-  try { await handle.writeFile(bytes); }
-  finally { await handle.close(); }
-  await readExact(dest, bytes);
+  try {
+    await createExclusiveChild(dirname(dest), basename(rel), bytes, installedRoots(root));
+  } catch (error) {
+    if (error?.code === 'overwrite_refused') throw fail('failed');
+    throw error;
+  }
+  await readExact(dest, bytes, clock);
 }
 
 function httpsLiteral(value) {
@@ -511,19 +483,23 @@ async function verifyMagniteSource(clock, recipeBytes) {
   };
 }
 
-async function runSnapshot(files, fn, extraFiles = null) {
+async function runSnapshot(files, fn, extraFiles = null, clock) {
   const dir = await mkdtemp(join(tmpdir(), `careers-snap-${process.pid}-`));
   try {
+    let inside = true;
+    try { inside = await containedByRoots(dir, installedRoots(root)); }
+    catch { inside = true; }
+    if (inside) throw fail('failed');
     await chmod(dir, 0o700);
     const recipeDir = join(dir, 'recipe');
     await mkdir(recipeDir, { mode: 0o700 });
     await chmod(recipeDir, 0o700);
-    for (const [rel, bytes] of files) await writeSnapshotFile(dir, rel, bytes, 'recipe/');
+    for (const [rel, bytes] of files) await writeSnapshotFile(dir, rel, bytes, 'recipe/', clock);
     if (extraFiles) {
       const sourceDir = join(dir, 'sources');
       await mkdir(sourceDir, { mode: 0o700 });
       await chmod(sourceDir, 0o700);
-      for (const [rel, bytes] of extraFiles) await writeSnapshotFile(dir, rel, bytes, 'sources/');
+      for (const [rel, bytes] of extraFiles) await writeSnapshotFile(dir, rel, bytes, 'sources/', clock);
     }
     const mod = await import(pathToFileURL(join(dir, 'recipe/boards.mjs')).href);
     if (extraFiles) {
@@ -658,14 +634,14 @@ export async function execute(argv) {
           fetchImpl,
           signal: clock.signal,
         });
-      }, new Map([['sources/magnite.mjs', magniteBytes]]))
+      }, new Map([['sources/magnite.mjs', magniteBytes]]), clock)
       : await runSnapshot(files, async (mod) => {
         const live = mod.BOARDS?.[reader.boardKey];
         if (typeof mod[reader.reader] !== 'function' || live?.endpoint !== spec.endpoint || live?.boardUrl !== spec.boardUrl) {
           throw fail('tampered_source');
         }
         return mod[reader.reader](ctx, { timeoutMs: clock.left(), maxBytes, fetchImpl });
-      });
+      }, null, clock);
     if (budget.exceeded()) throw fail('oversized_source');
     if (clock.signal.aborted) throw fail('deadline');
     const requestList = observation?.kind === 'classified' ? observation.requests : observation?.coverage?.requests;
@@ -742,4 +718,14 @@ async function main() {
   process.exitCode = result.code;
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) await main();
+function invokedDirectly() {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  try {
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve(entry));
+  } catch {
+    return false;
+  }
+}
+
+if (invokedDirectly()) await main();

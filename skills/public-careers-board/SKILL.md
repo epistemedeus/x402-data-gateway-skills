@@ -40,13 +40,13 @@ The default `--timeout-ms` is 15000. The retained Magnite robots file publishes 
 node scripts/predicates.mjs observation.json
 ```
 
-`appliedPredicate` stays null. `semantic_role_family` and `department_inference` stay unknown.
+The predicate command reads one regular file of at most 1048576 bytes. A symlink, directory, FIFO, or other non-regular input is refused before that body is allocated. Declared size above the cap and a stream that grows past the cap are both refused. The pinned source and its pin file use the same regular-file, cap, and deadline boundary. One 15000 ms deadline covers those reads, and the timer is cleared before the process exits. `appliedPredicate` stays null. `employmentDecision` stays false. `semantic_role_family` and `department_inference` stay unknown.
 
 ```sh
 node scripts/cli.mjs run --board BOARD
 ```
 
-`--out PATH` writes the one result line for every classification and refusal. An existing path, a symlink, a directory, or a path inside this skill is refused and left unchanged. `--seed FILE` is an explicitly supplied control. The result says `seeded: true` and `sourceCoverage: supplied_seed`. A seed does not fill in a missing board. A seed `padTo` is a safe integer checked against the shared byte budget before any buffer is allocated.
+`--out PATH` writes the one result line for every classification and refusal. An existing path, a final symlink, a directory, or a path inside this skill is refused and left unchanged. A parent symlink is not followed, including a multi-level symlink into this skill and a symlinked invocation of this command. The parent is opened without following symlinks, then the new file is created exclusively with `O_NOFOLLOW` on that directory. If the parent identity changes before creation, the write is refused rather than followed. A check followed by an open is not universally race-proof. A new file in an outside regular directory is still written. `--seed FILE` is an explicitly supplied control. The result says `seeded: true` and `sourceCoverage: supplied_seed`. A seed does not fill in a missing board. A seed `padTo` is a safe integer checked against the shared byte budget before any buffer is allocated.
 
 `--timeout-ms` defaults to 15000 and must be 100 through 30000. That one deadline covers pin verification and the source read. When it fires, the command aborts and cancels the owned fetch. `--max-bytes` defaults to 1000000 and must be 1024 through 1048576. It is one budget for every response body in the observation, including later pages. Pinned recipe files are hash-checked under the same deadline and are not counted in that response budget. `--output-bytes` uses the same bounds and limits every result line. A line over that limit is a short `oversized_output` refusal and does not echo the caller input. A timeout, oversized body, or oversized result is a refusal, not an empty or complete board.
 
@@ -81,4 +81,5 @@ Run the command from the installed copy. It does not read a builder checkout or 
 `sources/magnite.mjs`
 `sources/predicates.mjs`
 `scripts/cli.mjs`
+`scripts/file-boundary.mjs`
 `scripts/predicates.mjs`
