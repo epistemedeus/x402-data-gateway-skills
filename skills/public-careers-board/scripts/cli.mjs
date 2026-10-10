@@ -119,6 +119,7 @@ async function readRegular(filePath, maxBytes, clock) {
   } catch (error) {
     if (error.code === 'oversized') throw fail('oversized_source');
     if (error.code === 'deadline') throw error;
+    if (error.code === 'ambiguous') throw fail('tampered_source');
     throw fail('tampered_source');
   }
 }
@@ -488,7 +489,10 @@ async function runSnapshot(files, fn, extraFiles = null, clock) {
   try {
     let inside = true;
     try { inside = await containedByRoots(dir, installedRoots(root)); }
-    catch { inside = true; }
+    catch (error) {
+      if (error?.code === 'descriptor_unavailable') throw error;
+      inside = true;
+    }
     if (inside) throw fail('failed');
     await chmod(dir, 0o700);
     const recipeDir = join(dir, 'recipe');

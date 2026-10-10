@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { mkdtemp, mkdir, readFile, readdir, rename, rm, symlink, writeFile, lstat } from 'node:fs/promises';
+import { appendFile, mkdtemp, mkdir, readFile, readdir, rename, rm, symlink, writeFile, lstat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -502,6 +502,133 @@ test('an expired acquisition deadline refuses before returning bytes and the chi
     assert.equal(child.body.employmentDecision, false);
     assert.equal(child.groupAlive, false);
     assert.ok(child.ms < 1800, String(child.ms));
+  } finally { await rm(copy.dir, { recursive: true, force: true }); }
+});
+
+function manualClock() {
+  return {
+    signal: new AbortController().signal,
+    left() { return 15000; },
+    stop() {},
+    async wait(promise) { return promise; },
+  };
+}
+
+test('a growing regular file is not returned as an unverified prefix', async () => {
+  const copy = await installedCopy();
+  try {
+    const helper = await import(pathToFileURL(path.join(copy.dest, 'scripts/file-boundary.mjs')).href);
+    const file = path.join(copy.dir, 'rows.json');
+    const original = '[{"title":"Account Executive"}]\n';
+    assert.equal(JSON.parse(original)[0].title, 'Account Executive');
+
+    await writeFile(file, original);
+    const exact = await helper.readBoundedRegular(file, Buffer.byteLength(original), manualClock());
+    assert.equal(exact.toString('utf8'), original);
+
+    await writeFile(file, original);
+    let sawStat = false;
+    const overCap = manualClock();
+    overCap.wait = async (promise) => {
+      const value = await promise;
+      if (!sawStat && value && typeof value.isFile === 'function' && value.isFile()) {
+        sawStat = true;
+        await appendFile(file, 'Y'.repeat(400));
+      }
+      return value;
+    };
+    await assert.rejects(
+      helper.readBoundedRegular(file, 100, overCap),
+      (error) => error.code === 'oversized',
+    );
+    assert.equal((await lstat(file)).size, Buffer.byteLength(original) + 400);
+    assert.ok((await lstat(file)).size > 100);
+
+    await writeFile(file, original);
+    sawStat = false;
+    const within = manualClock();
+    within.wait = async (promise) => {
+      const value = await promise;
+      if (!sawStat && value && typeof value.isFile === 'function' && value.isFile()) {
+        sawStat = true;
+        await appendFile(file, 'TAIL');
+      }
+      return value;
+    };
+    const full = await helper.readBoundedRegular(file, 1000, within);
+    assert.equal(full.toString('utf8'), `${original}TAIL`);
+    assert.equal(full.length, (await lstat(file)).size);
+    assert.notEqual(full.toString('utf8'), original);
+    assert.throws(() => JSON.parse(full.toString('utf8')));
+
+    await writeFile(file, original);
+    let sawEof = false;
+    const afterEof = manualClock();
+    afterEof.wait = async (promise) => {
+      const value = await promise;
+      if (!sawEof && value && value.bytesRead === 0) {
+        sawEof = true;
+        await appendFile(file, 'GROW');
+      }
+      return value;
+    };
+    await assert.rejects(
+      helper.readBoundedRegular(file, 1000, afterEof),
+      (error) => error.code === 'ambiguous',
+    );
+    assert.equal((await lstat(file)).size, Buffer.byteLength(original) + 4);
+    assert.equal(sawEof, true);
+  } finally { await rm(copy.dir, { recursive: true, force: true }); }
+});
+
+test('this Linux host selects the proc directory-descriptor route', async () => {
+  const helper = await import(pathToFileURL(path.join(repoSkill, 'scripts/file-boundary.mjs')).href);
+  assert.equal(process.platform, 'linux');
+  const live = helper.descriptorRouteFrom();
+  assert.equal(live.kind, 'linux-proc-fd');
+  assert.equal(live.available, true);
+  assert.equal(live.platform, 'linux');
+  assert.match(helper.RACE_GUARANTEE, /\/proc\/self\/fd/);
+  assert.match(helper.RACE_GUARANTEE, /Where that route is unavailable/);
+});
+
+test('fixture descriptor routes refuse creates without a macOS or Windows run', async () => {
+  const copy = await installedCopy();
+  try {
+    const helper = await import(pathToFileURL(path.join(copy.dest, 'scripts/file-boundary.mjs')).href);
+    const fixtures = [
+      { platform: 'darwin', procIsDirectory: false },
+      { platform: 'win32', procIsDirectory: false },
+      { platform: 'linux', procIsDirectory: false },
+    ];
+    for (const facts of fixtures) {
+      const route = helper.descriptorRouteFrom(facts);
+      assert.equal(route.available, false, facts.platform);
+      assert.equal(route.kind, 'unavailable', facts.platform);
+      assert.equal(route.platform, facts.platform);
+    }
+    const darwin = helper.descriptorRouteFrom({ platform: 'darwin' });
+    assert.equal(darwin.platform, 'darwin');
+    assert.equal(darwin.available, false);
+
+    const original = '[{"title":"Account Executive"}]\n';
+    const readable = path.join(copy.dir, 'rows.json');
+    await writeFile(readable, original);
+    const bytes = await helper.readBoundedRegular(readable, 1000, manualClock());
+    assert.equal(bytes.toString('utf8'), original);
+
+    await assert.rejects(
+      helper.createExclusiveChild(copy.dir, 'snap.mjs', 'export {}\n', [], darwin),
+      (error) => error.code === 'descriptor_unavailable',
+    );
+    await absent(path.join(copy.dir, 'snap.mjs'));
+    const target = path.join(copy.dir, 'fresh.json');
+    await assert.rejects(
+      helper.writeNewFileOutside(target, 'nope\n', [copy.dest], { descriptorRoute: darwin }),
+      (error) => error.code === 'descriptor_unavailable',
+    );
+    await absent(target);
+    await absent(path.join(copy.dest, 'scripts', 'fresh.json'));
   } finally { await rm(copy.dir, { recursive: true, force: true }); }
 });
 

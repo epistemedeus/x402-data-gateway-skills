@@ -36,6 +36,8 @@ function mapInput(error) {
   if (error?.code === 'oversized') return 'oversized_source';
   if (error?.code === 'deadline') return 'deadline';
   if (error?.code === 'not_regular') return 'seed_rejected';
+  if (error?.code === 'ambiguous') return 'ambiguous';
+  if (error?.code === 'descriptor_unavailable') return 'descriptor_unavailable';
   return 'failed';
 }
 
@@ -79,7 +81,10 @@ async function main() {
     const roots = installedRoots(root);
     let inside = true;
     try { inside = await containedByRoots(scratch, roots); }
-    catch { inside = true; }
+    catch (error) {
+      if (error?.code === 'descriptor_unavailable') throw error;
+      inside = true;
+    }
     if (inside) throw Object.assign(new Error('failed'), { code: 'failed' });
     await createExclusiveChild(scratch, 'predicates.mjs', bytes, roots);
     const written = await readBoundedRegular(join(scratch, 'predicates.mjs'), bytes.length, clock).catch(() => {
@@ -89,7 +94,7 @@ async function main() {
     const mod = await import(pathToFileURL(join(scratch, 'predicates.mjs')).href);
     emit(0, { result: 'predicates', ...mod.applyPredicates(rows) });
   } catch (error) {
-    const reason = error?.code === 'tampered_source' || error?.code === 'seed_rejected' || error?.code === 'usage' || error?.code === 'deadline'
+    const reason = error?.code === 'tampered_source' || error?.code === 'seed_rejected' || error?.code === 'usage' || error?.code === 'deadline' || error?.code === 'descriptor_unavailable' || error?.code === 'ambiguous'
       ? error.code
       : mapInput(error);
     emit(2, refused(reason));
