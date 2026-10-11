@@ -29,9 +29,15 @@ const env = {
 };
 
 // Serial: recipes patch process-global extract fetch / DNS hooks.
+// fixture-deps resolves viem from the pinned merchant node_modules. NODE_PATH
+// is retained above and is not sufficient for Node 22 ESM.
 const result = spawnSync(
   process.execPath,
-  ['--import', path.join(root, 'tests/recipes/lib/offline-only.mjs'), '--test', '--test-concurrency=1', ...files],
+  [
+    '--import', path.join(root, 'tests/recipes/lib/fixture-deps.mjs'),
+    '--import', path.join(root, 'tests/recipes/lib/offline-only.mjs'),
+    '--test', '--test-concurrency=1', ...files,
+  ],
   { cwd: root, env, stdio: 'inherit' },
 );
 process.exit(result.status ?? 1);

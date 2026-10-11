@@ -6,7 +6,7 @@
     "Checkout epistemedeus/x402-url-extractor at the desired release commit.",
     "Export S88_MERCHANT_SOURCE_DIR to that checkout.",
     "Update the immutable merchantPin and merchant-source.json blob identities from the exact reviewed Git tree, including relative imports; do not regenerate trust pins from unreviewed local files.",
-    "Re-run: node --test tests/recipes/cases/*.test.mjs",
+    "Re-run: node tests/recipes/run.mjs",
     "Refresh live /api/actions and /openapi.json readbacks in RESULT; do not freeze catalog prices in skill text.",
     "If exported function or route names changed, update recipe imports and skill route lines only."
   ],
@@ -108,6 +108,15 @@
       "skill": "samedaydesk-machine-commerce",
       "status": "non_changing_audit",
       "note": "S81 refreshed; thin regression only"
+    },
+    {
+      "skill": "samedaydesk-task-result",
+      "status": "independent_contract_tests",
+      "tests": [
+        "tests/samedaydesk-task-result.test.mjs",
+        "tests/samedaydesk-task-result-merchant-journey.test.mjs"
+      ],
+      "note": "Caller acquisition and result retention have independent contracts, not a merchant recipe."
     },
     {
       "skill": "schema-generate",

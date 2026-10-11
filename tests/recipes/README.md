@@ -18,8 +18,16 @@ merchant release, follow `merchantUpdateProcedure` in `inventory.json`.
 ```bash
 export S88_MERCHANT_SOURCE_DIR=/path/to/x402-url-extractor
 # Checkout merchant commit 4910f83bd2be1e38667f1a3cfa23c70fcff6b0c1 there first.
-# Run npm ci --ignore-scripts in both the merchant and skills checkouts.
+# Run npm ci --ignore-scripts in the merchant checkout. The skills checkout
+# does not install viem. Node 22 ESM ignores NODE_PATH.
 node tests/recipes/run.mjs
+```
+
+`tests/recipes/run.mjs` loads `tests/recipes/lib/fixture-deps.mjs` before the cases. That entry resolves the `viem` specifier from `$S88_MERCHANT_SOURCE_DIR/node_modules`, which is the pinned fixture dependency closure. The same entry can be used directly:
+
+```bash
+S88_MERCHANT_SOURCE_DIR=/path/to/x402-url-extractor \
+  node --import ./tests/recipes/lib/fixture-deps.mjs --test --test-concurrency=1 tests/recipes/cases/*.test.mjs
 ```
 
 Or:
