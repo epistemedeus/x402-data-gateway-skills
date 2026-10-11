@@ -567,3 +567,45 @@ test("current catalog skills stay byte-identical beside the additive task-result
   assert.match(source, /A purchase intent is not permission to spend/);
   assert.equal(source.includes("samedaydesk-task-result"), false);
 });
+
+test("FIFO result inputs fail promptly rather than waiting for a writer", { skip: process.platform === "win32" }, () => {
+  const dir = tempWork();
+  const fifo = path.join(dir, "result.fifo");
+  const output = path.join(dir, "result.json");
+  try {
+    const made = spawnSync("mkfifo", [fifo], { encoding: "utf8", timeout: 2000 });
+    assert.equal(made.status, 0, made.stderr);
+    const result = spawnSync(process.execPath, [script, "retain", "--result", fifo, "--out", output], {
+      encoding: "utf8", timeout: 1500, maxBuffer: 10000,
+    });
+    assert.equal(result.error, undefined);
+    assert.equal(result.status, 2);
+    assert.equal(JSON.parse(result.stdout).outcome, "input_rejected");
+    assert.throws(() => statSync(output), { code: "ENOENT" });
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("malformed caller purchase and header JSON are redacted before networking", async () => {
+  const { caller } = await installedCaller();
+  const dir = tempWork();
+  const purchase = path.join(dir, "purchase.json");
+  const headers = path.join(dir, "headers.json");
+  const sentinel = "R993_PRIVATE";
+  const args = ["feedback", "--caller", caller, "--channel", "http", "--send", "yes",
+    "--disposition", "useful", "--purchase", purchase, "--resource", "https://samedaydesk.com/unused",
+    "--header-file", headers];
+  try {
+    writeFileSync(purchase, sentinel);
+    writeFileSync(headers, "{}");
+    const badPurchase = run(args);
+    assert.equal(badPurchase.status, 2);
+    assert.equal(badPurchase.body.outcome, "input_rejected");
+    assert.equal((badPurchase.stdout + badPurchase.stderr).includes(sentinel), false);
+    writeFileSync(purchase, "{}");
+    writeFileSync(headers, sentinel);
+    const badHeaders = run(args);
+    assert.equal(badHeaders.status, 2);
+    assert.equal(badHeaders.body.outcome, "input_rejected");
+    assert.equal((badHeaders.stdout + badHeaders.stderr).includes(sentinel), false);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
