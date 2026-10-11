@@ -113,7 +113,8 @@
       "skill": "samedaydesk-task-result",
       "status": "independent_contract_tests",
       "tests": [
-        "tests/samedaydesk-task-result.test.mjs"
+        "tests/samedaydesk-task-result.test.mjs",
+        "tests/samedaydesk-task-result-merchant-journey.test.mjs"
       ],
       "note": "Caller acquisition and result retention have independent contracts, not a merchant recipe."
     },

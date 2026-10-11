@@ -609,3 +609,33 @@ test("malformed caller purchase and header JSON are redacted before networking",
     assert.equal((badHeaders.stdout + badHeaders.stderr).includes(sentinel), false);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test("malformed caller-private inputs finish promptly across retain, recover, and feedback", async () => {
+  const { caller } = await installedCaller();
+  const dir = tempWork();
+  const sentinel = "R993_PRIVATE";
+  const bad = path.join(dir, "bad.json");
+  const headers = path.join(dir, "headers.json");
+  writeFileSync(bad, sentinel);
+  writeFileSync(headers, "{}");
+  const commands = [
+    ["retain", "--result", bad, "--out", path.join(dir, "out.json")],
+    ["recover", "--caller", caller, "--action", "start", "--operation", bad, "--checkpoint", path.join(dir, "checkpoint.json"), "--grant", path.join(dir, "grant.json")],
+    ["feedback", "--caller", caller, "--channel", "http", "--send", "yes", "--disposition", "useful", "--purchase", bad, "--resource", "https://samedaydesk.com/unused", "--header-file", headers],
+  ];
+  try {
+    for (const args of commands) {
+      const started = Date.now();
+      const result = spawnSync(process.execPath, [script, ...args], {
+        encoding: "utf8", timeout: 2000, maxBuffer: 10000,
+      });
+      assert.equal(result.error, undefined, args[0]);
+      assert.ok(Date.now() - started < 2000, args[0]);
+      assert.equal((result.stdout + result.stderr).includes(sentinel), false, args[0]);
+      const body = JSON.parse(result.stdout);
+      assert.ok(body.outcome === "input_rejected" || body.outcome === "result_rejected", `${args[0]} ${body.outcome}`);
+      assert.equal(body.paymentCreated, false);
+    }
+    assert.throws(() => statSync(path.join(dir, "out.json")), { code: "ENOENT" });
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
