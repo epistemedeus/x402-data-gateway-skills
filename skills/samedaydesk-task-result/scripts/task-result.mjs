@@ -266,11 +266,23 @@ function openSyncExclusive(target) {
 }
 
 export async function verifyCallerTree(caller) {
-  const root = await realpath(caller);
+  let root;
+  try {
+    root = await realpath(caller);
+  } catch (error) {
+    if (error?.code === "ENOENT") throw code("missing_input");
+    throw error;
+  }
   for (const member of PIN.members) {
     const target = path.resolve(root, member.path);
     if (target !== root && !target.startsWith(`${root}${path.sep}`)) throw code("traversal_refused");
-    const fd = await open(target, constants.O_RDONLY | constants.O_NOFOLLOW);
+    let fd;
+    try {
+      fd = await open(target, constants.O_RDONLY | constants.O_NOFOLLOW);
+    } catch (error) {
+      if (error?.code === "ENOENT" || error?.code === "ENOTDIR") throw code("tampered_source");
+      throw error;
+    }
     try {
       const info = await fd.stat();
       if (!info.isFile() || info.size !== member.bytes) throw code("tampered_source");
@@ -526,6 +538,9 @@ async function recover(flags) {
     if (error?.code === "install_required") {
       return { exit: 0, body: baseResult({ outcome: "install_required", nextAction: "Run acquire --install yes for this caller directory before recovery." }) };
     }
+    if (error?.code === "missing_input") {
+      return { exit: 0, body: baseResult({ outcome: "missing_input", nextAction: "Pass --caller with the directory acquire wrote. This command does not create a caller or load an example." }) };
+    }
     throw error;
   }
   const names = [];
@@ -627,6 +642,9 @@ async function feedback(flags) {
   try { installed = await loadInstalled(flags.caller); } catch (error) {
     if (error?.code === "install_required") {
       return { exit: 0, body: baseResult({ outcome: "install_required", connected: false, posted: false, nextAction: "Run acquire --install yes for this caller directory before feedback." }) };
+    }
+    if (error?.code === "missing_input") {
+      return { exit: 0, body: baseResult({ outcome: "missing_input", connected: false, posted: false, nextAction: "Pass --caller with the directory acquire wrote. This command does not create a caller or load an example." }) };
     }
     throw error;
   }

@@ -236,6 +236,11 @@ test("missing command and missing retain input return the next action", () => {
   assert.equal(missing.status, 0);
   assert.equal(missing.body.outcome, "missing_input");
   assert.match(missing.body.nextAction, /does not load a bundled example/);
+  const absentCaller = path.join(tempWork(), "no-caller");
+  const missingCaller = run(["recover", "--caller", absentCaller, "--action", "start", "--operation", path.join(tempWork(), "op.json"), "--checkpoint", path.join(tempWork(), "checkpoint.json"), "--grant", path.join(tempWork(), "grant.json")]);
+  assert.equal(missingCaller.status, 0);
+  assert.equal(missingCaller.body.outcome, "missing_input");
+  assert.match(missingCaller.body.nextAction, /does not create a caller/);
 });
 
 test("payment flags stop before a request", async () => {
