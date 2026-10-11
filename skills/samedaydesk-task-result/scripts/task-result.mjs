@@ -278,7 +278,7 @@ export async function verifyCallerTree(caller) {
     if (target !== root && !target.startsWith(`${root}${path.sep}`)) throw code("traversal_refused");
     let fd;
     try {
-      fd = await open(target, constants.O_RDONLY | constants.O_NOFOLLOW);
+      fd = await open(target, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
     } catch (error) {
       if (error?.code === "ENOENT" || error?.code === "ENOTDIR") throw code("tampered_source");
       throw error;
@@ -304,7 +304,7 @@ export async function verifyCallerTree(caller) {
 async function readCapped(file) {
   let fd;
   try {
-    fd = await open(file, constants.O_RDONLY | constants.O_NOFOLLOW);
+    fd = await open(file, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
   } catch (error) {
     if (error?.code === "ENOENT") throw code("missing_input");
     if (error?.code === "ELOOP") throw code("tampered_source");
@@ -317,6 +317,12 @@ async function readCapped(file) {
   } finally {
     await fd.close();
   }
+}
+
+async function readCallerJson(file) {
+  const bytes = await readCapped(file);
+  try { return JSON.parse(bytes.toString("utf8")); }
+  catch { throw code("input_rejected"); }
 }
 
 async function writeExclusive(file, body) {
@@ -548,10 +554,10 @@ async function recover(flags) {
   let sdk;
   const endpointFor = async () => {
     if (flags.action === "start") {
-      const input = JSON.parse((await readCapped(flags.operation)).toString("utf8"));
+      const input = await readCallerJson(flags.operation);
       return assertMcpEndpoint(input.endpointUrl);
     }
-    const stored = JSON.parse((await readCapped(flags.checkpoint)).toString("utf8"));
+    const stored = await readCallerJson(flags.checkpoint);
     return assertMcpEndpoint(stored?.input?.endpointUrl);
   };
   const client = {
@@ -572,10 +578,10 @@ async function recover(flags) {
     close: () => sdk?.close() ?? Promise.resolve(),
   };
   try {
-    const loadGrant = async () => JSON.parse((await readCapped(flags.grant)).toString("utf8"));
+    const loadGrant = async () => await readCallerJson(flags.grant);
     const store = installed.recovery.mcpRecoveryFileStore(path.resolve(flags.checkpoint));
     const handle = flags.action === "start"
-      ? await installed.recovery.startPaidMcpResult({ client, store, input: JSON.parse((await readCapped(flags.operation)).toString("utf8")), loadGrant })
+      ? await installed.recovery.startPaidMcpResult({ client, store, input: await readCallerJson(flags.operation), loadGrant })
       : await installed.recovery.resumePaidMcpResult({ client, store, loadGrant });
     const checkpoint = await handle.handoff();
     const classified = recoveryOutcome(checkpoint, last);
@@ -627,8 +633,8 @@ async function feedback(flags) {
     }
     const root = await verifyCallerTree(flags.caller);
     const http = await import(pathToFileURL(path.join(root, "src/http-caller-result.mjs")).href);
-    const purchase = JSON.parse((await readCapped(flags.purchase)).toString("utf8"));
-    const headers = JSON.parse((await readCapped(flags["header-file"])).toString("utf8"));
+    const purchase = await readCallerJson(flags.purchase);
+    const headers = await readCallerJson(flags["header-file"]);
     http.bindCallerResultFeedback(purchase, { response: { headers: new Headers(headers) }, resourceUrl: flags.resource });
     const statement = { disposition: flags.disposition };
     if (flags.reason !== undefined) statement.reasonCategory = flags.reason;
@@ -652,7 +658,7 @@ async function feedback(flags) {
     if (!flags.endpoint || !flags.result) {
       return { exit: 0, body: baseResult({ outcome: "missing_input", connected: false, posted: false, nextAction: "Pass --endpoint and --result. A missing token or result does not connect." }) };
     }
-    const result = JSON.parse((await readCapped(flags.result)).toString("utf8"));
+    const result = await readCallerJson(flags.result);
     const capability = installed.mcp.readMcpCallerResultCapability(result);
     if (capability.present !== true) {
       return { exit: 0, body: baseResult({ outcome: "missing_input", connected: false, posted: false, nextAction: "The result has no caller feedback token. Supply the retained result that carries one. This command does not invent a token." }) };
@@ -705,7 +711,7 @@ async function feedback(flags) {
 }
 
 function mapError(error) {
-  const name = error?.code || error?.message || "failed";
+  const name = typeof error?.code === "string" ? error.code : "failed";
   if (name === "missing_input" || name === "install_required") {
     return { exit: 0, body: baseResult({ outcome: name, nextAction: "Supply the caller-owned file named by the command." }) };
   }
@@ -716,7 +722,7 @@ function mapError(error) {
   if (AUTHORITY_CODES.has(name) || ["redirect_refused", "cross_origin_refused", "public_root_rejected", "tampered_archive", "tampered_descriptor", "tampered_provenance", "tampered_license", "tampered_source_notice", "tampered_source", "truncated_archive", "source_disagreement", "traversal_refused", "link_refused", "body_too_large", "result_rejected", "input_rejected", "flag_rejected", "fetch_failed"].includes(name)) {
     return { exit: 2, body: baseResult({ outcome: name }) };
   }
-  return { exit: 0, body: baseResult({ outcome: "transport_failure", failure: String(name) }) };
+  return { exit: 0, body: baseResult({ outcome: "transport_failure", failure: "unexpected_failure" }) };
 }
 
 async function main() {
