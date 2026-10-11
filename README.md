@@ -45,6 +45,11 @@ npx skills add epistemedeus/x402-data-gateway-skills --skill wallet-enrich --yes
 | `transaction-receipt` | Normalized Base or Ethereum receipt, fee, and decoded transfer evidence | `/chain/transaction-receipt` |
 | `wallet-policy-safety` | Exact-action and stateful delegated-wallet policy evidence | Two `/security/*wallet-policy-conformance` routes |
 | `public-careers-board` | One caller-supplied public careers board, with source and coverage, from the free recipe | None. The command does not call the paid route. |
+| `samedaydesk-task-result` | Acquire the published caller-result 0.1.1 archive and retain a caller-supplied result, recovery, or optional feedback statement | None. The command does not pay, sign, or settle. |
+
+## Task result
+
+`samedaydesk-task-result` acquires the published caller and runs it on caller-owned files. From the installed skill, run `node scripts/task-result.mjs acquire --work DIR`. A missing result file returns the next action. Payment stays with a separate executor.
 
 ## Live contract first
 
