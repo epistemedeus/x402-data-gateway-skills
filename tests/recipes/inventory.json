@@ -53,6 +53,15 @@
       "cell": "reserve"
     },
     {
+      "skill": "ein-llc-activation-continuation",
+      "status": "independent_contract_tests",
+      "tests": [
+        "tests/ein-llc-activation-continuation.test.mjs",
+        "tests/ein-llc-activation-continuation-journey.test.mjs"
+      ],
+      "note": "Hosted continuation acquisition and caller-owned continuation have independent contracts, not a merchant recipe."
+    },
+    {
       "skill": "morpho-risk",
       "status": "candidate",
       "cell": "reserve"
