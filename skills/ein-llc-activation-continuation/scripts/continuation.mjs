@@ -405,23 +405,25 @@ function loopbackOrigin(value) {
   return url.origin;
 }
 
-function discoverOrigin(value) {
+function serviceOrigin(value) {
   let url;
   try { url = new URL(value); } catch { throw code("origin_refused"); }
-  if (url.origin === PIN.origin && url.username === "" && url.password === "" && !url.search && !url.hash && (url.pathname === "/" || url.pathname === "")) {
-    return url.origin;
-  }
+  const bare = url.username === "" && url.password === "" && !url.search && !url.hash && (url.pathname === "/" || url.pathname === "");
+  if (url.origin === PIN.origin && bare) return url.origin;
   return loopbackOrigin(value);
 }
 
-function laneFor(flags, command, origin) {
+function laneFor(flags, origin) {
   const requested = flags.lane;
-  if (requested === "autonomous_machine_purchase" || requested === "agent_assisted_human") throw code("lane_refused");
-  if (requested !== undefined && requested !== "disposable_owner_qa") throw code("lane_refused");
+  if (requested === "autonomous_machine_purchase") throw code("lane_refused");
+  if (requested !== undefined && requested !== "agent_assisted_human" && requested !== "disposable_owner_qa") {
+    throw code("lane_refused");
+  }
   if (origin === PIN.origin) {
-    if (command !== "discover" || requested === "disposable_owner_qa") throw code(command === "discover" ? "lane_refused" : "origin_refused");
+    if (requested === "disposable_owner_qa") throw code("lane_refused");
     return "agent_assisted_human";
   }
+  if (requested === "agent_assisted_human") throw code("lane_refused");
   return "disposable_owner_qa";
 }
 
@@ -455,7 +457,7 @@ function missing(nextAction) {
   return { exit: 0, body: baseResult({ outcome: "missing_input", nextAction }) };
 }
 
-export async function runContinuation(flags) {
+export async function runContinuation(flags, supplied = {}) {
   if (flags.pay || flags.settle || flags.sign || flags.wallet) throw code("payment_refused");
   if (flags.claim || flags.attest || flags.register || flags.file) throw code("action_refused");
   if (!flags.caller || !flags.command || !flags.state || !flags["task-id"] || !flags["customer-key-file"] || !flags["base-url"]) {
@@ -468,8 +470,8 @@ export async function runContinuation(flags) {
   if ((transport === "a2a" || transport === "a2a-rest") && flags.command === "discover" && flags["catalog-transport"] !== "http") {
     return missing("A2A discover needs --catalog-transport http. Operations stay on A2A. A stored offer is not the current contract.");
   }
-  const origin = flags.command === "discover" ? discoverOrigin(flags["base-url"]) : loopbackOrigin(flags["base-url"]);
-  const lane = laneFor(flags, flags.command, origin);
+  const origin = serviceOrigin(flags["base-url"]);
+  const lane = laneFor(flags, origin);
   if (!TASK_ID.test(flags["task-id"])) throw code("input_rejected");
   const deadline = flags["deadline-ms"] === undefined ? 15_000 : Number(flags["deadline-ms"]);
   if (!Number.isInteger(deadline) || deadline < 50 || deadline > 60_000) throw code("input_rejected");
@@ -529,6 +531,7 @@ export async function runContinuation(flags) {
   const stdout = capture(STDOUT_LIMIT);
   const stderr = capture(STDOUT_LIMIT);
   const { main } = await import(pathToFileURL(path.join(caller, "src/cli.mjs")).href);
+  // supplied.fetch is a test seam. It is not a command flag, and it is not a live production result.
   const exitCode = await main(
     [flags.command, ...(flags["show-claim-url"] ? ["--show-claim-url"] : [])],
     {
@@ -536,7 +539,7 @@ export async function runContinuation(flags) {
       stdin: Readable.from(contextBytes ? [contextBytes] : []),
       stdout,
       stderr,
-      fetch: globalThis.fetch,
+      fetch: typeof supplied.fetch === "function" ? supplied.fetch : globalThis.fetch,
     },
   );
   const combined = `${stdout.text}${stderr.text}`;

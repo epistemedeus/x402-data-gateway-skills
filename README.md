@@ -54,7 +54,7 @@ npx skills add epistemedeus/x402-data-gateway-skills --skill wallet-enrich --yes
 
 ## EIN activation continuation
 
-`ein-llc-activation-continuation` acquires the public EIN.LLC continuation 0.1.5 archive and runs it on caller-owned files. From the installed skill, run `node scripts/continuation.mjs acquire --work DIR`. A missing context file returns the next action. The command does not claim, pay, or file.
+`ein-llc-activation-continuation` acquires the public EIN.LLC continuation 0.1.5 archive and runs it on caller-owned files. From the installed skill, run `node scripts/continuation.mjs acquire --work DIR`, then `assess`, `prepare`, `resume`, `status`, `show`, or `cancel` against `https://ein.llc` with `agent_assisted_human`. A missing context file returns the next action. Claim, payment, and filing stay with the human. `disposable_owner_qa` is only for an owned loopback.
 
 ## Live contract first
 

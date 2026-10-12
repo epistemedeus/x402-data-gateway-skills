@@ -3,13 +3,13 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { spawn, spawnSync } from "node:child_process";
 import { createServer } from "node:http";
-import { mkdtempSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdtempSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
-import { extractPinnedArchive, PIN, sha256 } from "../skills/ein-llc-activation-continuation/scripts/continuation.mjs";
+import { extractPinnedArchive, PIN, runContinuation, sha256 } from "../skills/ein-llc-activation-continuation/scripts/continuation.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const script = path.join(root, "skills/ein-llc-activation-continuation/scripts/continuation.mjs");
@@ -120,7 +120,35 @@ test("payment, claim, and live prepare stop before a request", async () => {
     "--base-url", "https://ein.llc", "--lane", "disposable_owner_qa",
   ]);
   assert.equal(live.status, 2);
-  assert.equal(live.body.outcome, "origin_refused");
+  assert.equal(live.body.outcome, "lane_refused");
+  const otherOrigin = await run([
+    "run", "--caller", "/tmp/not-used", "--command", "assess", "--state", "/tmp/not-used.json",
+    "--task-id", "task-live-2111004", "--customer-key-file", "/tmp/not-used-key",
+    "--base-url", "https://example.com", "--lane", "agent_assisted_human",
+  ]);
+  assert.equal(otherOrigin.status, 2);
+  assert.equal(otherOrigin.body.outcome, "origin_refused");
+  const canonicalLane = await run([
+    "run", "--caller", "/tmp/not-used", "--command", "assess", "--state", "/tmp/not-used.json",
+    "--task-id", "task-live-2111004", "--customer-key-file", "/tmp/not-used-key",
+    "--base-url", "https://ein.llc", "--lane", "agent_assisted_human",
+  ]);
+  assert.equal(canonicalLane.status, 0);
+  assert.equal(canonicalLane.body.outcome, "missing_input");
+  const omittedLane = await run([
+    "run", "--caller", "/tmp/not-used", "--command", "assess", "--state", "/tmp/not-used.json",
+    "--task-id", "task-live-2111004", "--customer-key-file", "/tmp/not-used-key",
+    "--base-url", "https://ein.llc",
+  ]);
+  assert.equal(omittedLane.status, 0);
+  assert.equal(omittedLane.body.outcome, "missing_input");
+  const omittedLoopback = await run([
+    "run", "--caller", "/tmp/not-used", "--command", "assess", "--state", "/tmp/not-used.json",
+    "--task-id", "task-live-2111004", "--customer-key-file", "/tmp/not-used-key",
+    "--base-url", "http://127.0.0.1:9",
+  ]);
+  assert.equal(omittedLoopback.status, 0);
+  assert.equal(omittedLoopback.body.outcome, "missing_input");
   const autonomous = await run([
     "run", "--caller", "/tmp/not-used", "--command", "discover", "--state", "/tmp/not-used.json",
     "--task-id", "task-live-2111004", "--customer-key-file", "/tmp/not-used-key",
@@ -282,4 +310,242 @@ test("public root rejects non-loopback aliases", async () => {
   const rejected = await run(["acquire", "--work", path.join(dir, "work"), "--public-root", "http://localhost:9/"]);
   assert.equal(rejected.status, 2);
   assert.equal(rejected.body.outcome, "public_root_rejected");
+});
+
+test("canonical agent_assisted_human builds routes on supplied transport and does not call live production", async () => {
+  const catalogResponse = await fetch("https://ein.llc/api/v1/service-catalog", { redirect: "manual" });
+  assert.equal(catalogResponse.status, 200);
+  const catalogText = await catalogResponse.text();
+  const catalog = JSON.parse(catalogText);
+  assert.equal(catalog.schema, "ein.agent-service-catalog.v1");
+  assert.equal(catalog.machineEntry.surfaces.openapi, "https://ein.llc/api/agent/v1/openapi.json");
+  const openapiResponse = await fetch(catalog.machineEntry.surfaces.openapi, { redirect: "manual" });
+  assert.equal(openapiResponse.status, 200);
+  const openapiText = await openapiResponse.text();
+  const openapi = JSON.parse(openapiText);
+  assert.equal(openapi.openapi, "3.1.0");
+
+  const workParent = await mkdtemp(path.join(tmpdir(), "ein-supplied-"));
+  const acquired = await run(["acquire", "--work", path.join(workParent, "work")]);
+  assert.equal(acquired.status, 0, acquired.stderr);
+  const caller = acquired.body.caller;
+  const state = path.join(workParent, "state.json");
+  const keyFile = path.join(workParent, "key.txt");
+  const emailFile = path.join(workParent, "email.txt");
+  const contextFile = path.join(workParent, "context.json");
+  const grantFile = path.join(workParent, "grant.txt");
+  const customerKey = "supplied-caller-key-2111011";
+  const grantToken = "supplied-grant-token-2111011";
+  const recipient = "supplied-recipient@example.test";
+  const taskId = "task-route-2111011";
+  const assessmentId = "asmt_supplied_2111011";
+  const applicationId = "app_supplied_transport_2111011";
+  const claimToken = "supplied-claim-token-2111011";
+  writeFileSync(keyFile, `${customerKey}\n`, { mode: 0o600 });
+  writeFileSync(emailFile, `${recipient}\n`, { mode: 0o600 });
+  writeFileSync(grantFile, `${grantToken}\n`, { mode: 0o600 });
+  chmodSync(keyFile, 0o600);
+  chmodSync(emailFile, 0o600);
+  chmodSync(grantFile, 0o600);
+  writeFileSync(contextFile, JSON.stringify({
+    schema: "ein.supplied-context.v1",
+    task: "synthetic route check",
+    business: { hasUsEntity: "unknown", hasEin: "unknown" },
+    requirements: {
+      providerRequiresUsEntity: "unknown",
+      providerRequiresEin: "unknown",
+      jurisdictionKnown: "unknown",
+    },
+  }));
+  assert.notEqual(customerKey, grantToken);
+
+  const seen = [];
+  const realFetch = globalThis.fetch;
+  let liveProductionCalls = 0;
+  globalThis.fetch = async () => {
+    liveProductionCalls += 1;
+    throw new Error("live_production_fetch");
+  };
+  const suppliedFetch = async (url, init = {}) => {
+    const target = new URL(url);
+    const headers = init.headers ?? {};
+    const authorization = headers.Authorization ?? headers.authorization ?? null;
+    seen.push({
+      url: target.href,
+      method: init.method,
+      pathname: target.pathname,
+      body: init.body ?? null,
+      authorization,
+      redirect: init.redirect ?? null,
+    });
+    if (target.origin !== "https://ein.llc") throw new Error("supplied_transport_foreign_origin");
+    if (authorization && String(authorization).includes(customerKey)) throw new Error("customer_key_sent_as_grant");
+    if (init.method === "GET" && target.pathname === "/api/v1/service-catalog") {
+      return new Response(catalogText, { status: 200, headers: { "content-type": "application/json" } });
+    }
+    if (init.method === "GET" && target.pathname === "/api/agent/v1/openapi.json") {
+      return new Response(openapiText, { status: 200, headers: { "content-type": "application/json" } });
+    }
+    if (init.method === "POST" && target.pathname === "/api/agent/v1/assessments") {
+      return new Response(JSON.stringify({
+        filingAuthorization: false,
+        deploymentStatus: "available",
+        assessmentId,
+        decisionBound: false,
+        actionableAuthorized: false,
+        assessment: {
+          createsCheckout: false,
+          outcome: "required_for_selected_path",
+          summary: "supplied transport assessment",
+          nextSteps: [],
+        },
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    if (init.method === "POST" && target.pathname === "/api/agent/v1/applications") {
+      return new Response(JSON.stringify({
+        filingAuthorization: false,
+        deploymentStatus: "available",
+        complete: true,
+        status: "provisional",
+        applicationId,
+        recovered: false,
+        reconciled: "created",
+        reviewUrl: `https://ein.llc/review/${applicationId}`,
+        claimUrl: `https://ein.llc/review/${applicationId}?claim=${claimToken}`,
+        claimToken,
+        authorizedState: null,
+        actionableAuthorized: false,
+        decisionBound: false,
+      }), { status: 201, headers: { "content-type": "application/json" } });
+    }
+    if (init.method === "GET" && target.pathname === `/api/agent/v1/applications/${applicationId}/status`) {
+      return new Response(JSON.stringify({
+        deploymentStatus: "available",
+        status: {
+          applicationId,
+          filingAuthorization: false,
+          einIssued: false,
+          status: "provisional",
+          nextAction: "human_claim",
+          fulfillmentStatus: null,
+          actionableAuthorized: false,
+        },
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    throw new Error(`unexpected_supplied_${init.method}_${target.pathname}`);
+  };
+
+  const base = {
+    caller,
+    state,
+    "task-id": taskId,
+    "customer-key-file": keyFile,
+    "base-url": "https://ein.llc",
+  };
+  try {
+    const assess = await runContinuation({ ...base, command: "assess", context: contextFile }, { fetch: suppliedFetch });
+    assert.equal(assess.exit, 0, JSON.stringify(assess.body));
+    assert.equal(assess.body.client.lane, "agent_assisted_human");
+    assert.equal(assess.body.client.apiOrigin, "https://ein.llc");
+    assert.equal(assess.body.client.assessment.id, assessmentId);
+    assert.equal(assess.body.client.paid, false);
+    const assessRequest = seen.find((item) => item.method === "POST" && item.pathname === "/api/agent/v1/assessments");
+    assert.ok(assessRequest, "assess POST was not constructed");
+    assert.equal(assessRequest.url, "https://ein.llc/api/agent/v1/assessments");
+    assert.equal(assessRequest.redirect, "manual");
+    assert.equal(assessRequest.authorization, null);
+    assert.deepEqual(JSON.parse(assessRequest.body), {
+      goal: "synthetic route check",
+      hasUsEntity: "unknown",
+      hasEin: "unknown",
+      jurisdictionKnown: "unknown",
+      providerRequiresUsEntity: "unknown",
+      providerRequiresEin: "unknown",
+    });
+
+    const prepare = await runContinuation({
+      ...base,
+      command: "prepare",
+      "intended-email-file": emailFile,
+      lane: "agent_assisted_human",
+    }, { fetch: suppliedFetch });
+    assert.equal(prepare.exit, 0, JSON.stringify(prepare.body));
+    assert.equal(prepare.body.client.applicationId, applicationId);
+    assert.equal(prepare.body.client.paid, false);
+    assert.equal(prepare.body.client.claimUrl, undefined);
+    assert.equal(prepare.body.claimPerformed, false);
+    assert.equal(prepare.body.paymentCreated, false);
+    const prepareRequest = seen.find((item) => item.method === "POST" && item.pathname === "/api/agent/v1/applications");
+    assert.ok(prepareRequest, "prepare POST was not constructed");
+    assert.equal(prepareRequest.url, "https://ein.llc/api/agent/v1/applications");
+    assert.deepEqual(JSON.parse(prepareRequest.body), {
+      assessmentId,
+      intendedEmail: recipient,
+      operationId: `task:${taskId}`,
+    });
+    assert.equal(JSON.stringify(prepare.body).includes(claimToken), false);
+    assert.equal(JSON.stringify(prepare.body).includes(customerKey), false);
+    assert.equal(JSON.stringify(prepare.body).includes(recipient), false);
+
+    const postsBeforeResume = seen.filter((item) => item.method === "POST" && item.pathname === "/api/agent/v1/applications").length;
+    const resume = await runContinuation({
+      ...base,
+      command: "resume",
+      "intended-email-file": emailFile,
+      lane: "agent_assisted_human",
+    }, { fetch: suppliedFetch });
+    assert.equal(resume.exit, 0, JSON.stringify(resume.body));
+    assert.equal(resume.body.client.applicationId, applicationId);
+    assert.equal(seen.filter((item) => item.method === "POST" && item.pathname === "/api/agent/v1/applications").length, postsBeforeResume);
+
+    const status = await runContinuation({
+      ...base,
+      command: "status",
+      "grant-file": grantFile,
+      "grant-origin": "https://ein.llc",
+      lane: "agent_assisted_human",
+    }, { fetch: suppliedFetch });
+    assert.equal(status.exit, 0, JSON.stringify(status.body));
+    assert.equal(status.body.client.paid, false);
+    assert.equal(status.body.client.observedStatus.applicationStatus, "provisional");
+    assert.equal(status.body.client.observedStatus.paid, false);
+    assert.equal(status.body.client.filingAuthorization, false);
+    const statusRequest = seen.find((item) => item.method === "GET" && item.pathname.endsWith("/status"));
+    assert.ok(statusRequest, "status GET was not constructed");
+    assert.equal(statusRequest.url, `https://ein.llc/api/agent/v1/applications/${applicationId}/status`);
+    assert.equal(statusRequest.authorization, `Bearer ${grantToken}`);
+    assert.equal(statusRequest.url.includes(grantToken), false);
+    assert.equal(statusRequest.url.includes(customerKey), false);
+    assert.equal(JSON.stringify(status.body).includes(grantToken), false);
+
+    const beforeShow = seen.length;
+    const hidden = await runContinuation({ ...base, command: "show", lane: "agent_assisted_human" }, { fetch: suppliedFetch });
+    assert.equal(hidden.exit, 0, JSON.stringify(hidden.body));
+    assert.equal(hidden.body.client.claimLinkStored, true);
+    assert.equal(hidden.body.client.claimUrl, undefined);
+    assert.equal(JSON.stringify(hidden.body).includes("claim="), false);
+    assert.equal(seen.length, beforeShow);
+
+    const handoff = await runContinuation({
+      ...base,
+      command: "show",
+      "show-claim-url": true,
+      lane: "agent_assisted_human",
+    }, { fetch: suppliedFetch });
+    assert.equal(handoff.exit, 0, JSON.stringify(handoff.body));
+    assert.equal(handoff.body.client.claimUrl, `https://ein.llc/review/${applicationId}?claim=${claimToken}`);
+    assert.equal(seen.length, beforeShow);
+
+    const beforeCancel = seen.length;
+    const cancelled = await runContinuation({ ...base, command: "cancel", lane: "agent_assisted_human" }, { fetch: suppliedFetch });
+    assert.equal(cancelled.exit, 0, JSON.stringify(cancelled.body));
+    assert.equal(cancelled.body.client.phase, "cancelled");
+    assert.equal(cancelled.body.client.serverCaseCancelled, false);
+    assert.equal(seen.length, beforeCancel);
+    assert.equal(liveProductionCalls, 0);
+    assert.equal(seen.every((item) => item.url.startsWith("https://ein.llc/")), true);
+  } finally {
+    globalThis.fetch = realFetch;
+    await rm(workParent, { recursive: true, force: true });
+  }
 });
