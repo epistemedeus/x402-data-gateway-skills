@@ -1,0 +1,206 @@
+{
+  "schema": "ein.entry-trust.receiving.v1",
+  "task": "ROOT-SOL-ENTRY-TRUST-221900",
+  "role": "receivingConsumer",
+  "nativeSession": {
+    "id": "01a12f89-df97-7d03-9741-003da190e3b4",
+    "startedAt": "2026-10-12T09:55:28.112Z",
+    "originator": "codex_exec",
+    "cliVersion": "0.162.1",
+    "model": "gpt-6.1-sol",
+    "effort": "high",
+    "provider": "openai",
+    "evidence": "Native session_meta and turn_context; no child model or replacement session"
+  },
+  "source": {
+    "repository": "https://github.com/epistemedeus/x402-data-gateway-skills",
+    "baseCommit": "bf6148ce9f814bb757791a302f1e11258b836866",
+    "baseTree": "0ec6e1d5805e78494cbf7c099e227cb25bb78b42",
+    "branch": "codex/ein-entry-trust-receive-221900",
+    "entryTree": "593993a81dfad91b7536a7f25a9239f219c08e7b",
+    "providerSourceMembersMatched": [
+      "LICENSE",
+      "SKILL.md",
+      "references/LICENSE.txt",
+      "references/continuation-pin.json",
+      "scripts/continuation.mjs"
+    ],
+    "providerOnlyMember": {
+      "path": "skill-card.md",
+      "size": 2106,
+      "sha256": "9a73e47191af4b08b46236af05f561ad32eed654765462b30cea50ba3b644600",
+      "contentType": "text/markdown"
+    },
+    "serverResolvedGithubProvenance": "unavailable",
+    "previousMain": "612f61c651b41dba00523c5db1f80424e0a7ca68",
+    "predecessorSkillTreesUnchangedByMerge": {
+      "agent-discoverability-audit": "1fea92aec109c5bef9061a51ed4b8ee402250646",
+      "agent-surface-budget-audit": "ec66940fefde5862c34efa232248e4605018edda",
+      "company-enrich": "f4b8dfd82fe54417306ae1d7acca7f1096762558",
+      "contract-qualified-search": "c9a3fbe8160070b9e6dad16ecb89e2dd23a1dd95",
+      "deep-audit": "9e6308dd5d104c92d1dbf4057f1a55481ca0cc75",
+      "morpho-risk": "4ff180a50a6b6d7140c901da70ebffc683adca51",
+      "opportunity-preflight": "e1b28c7a2d3d44610c80209a0452c090fb798ca1",
+      "payment-offer-preflight": "965ad7fb5eacd70390eb54fe23a3c79012aeb04b",
+      "public-careers-board": "67b61c67d9baee9dc96f438c469b71c1fe904c04",
+      "received-useful-work": "86a10e04aa5de87e45633dbfd6f0aa5bff9d1aff",
+      "repo-security-scan": "ba4e8a58dc7726fb502add33c73025ac94b7f313",
+      "samedaydesk-machine-commerce": "40db70672dde19cf40e0bd27c65fbaf067e039e5",
+      "samedaydesk-task-result": "69535b2eb526c83ffd58bffef6f8a4ca76c10e92",
+      "schema-generate": "ad48ace22ade98e02fe2490c42e3e028fa3f137f",
+      "settlement-proof": "6b571c29cc02bb550810ed2cb23cf913d5b168f4",
+      "transaction-receipt": "2d37fa1165e68a04562094aa14dc411f5a019966",
+      "wallet-enrich": "3292737b3c9fb972fdd66105a7e98c1f882a1589",
+      "wallet-policy-safety": "522f4774d74e42c9f3ab6fd20a8f2f531c4afb6c",
+      "web-extract": "80723c0f05216f3845b1f5ae91db0bb8e424cf66"
+    }
+  },
+  "responses": [
+    {
+      "url": "https://clawhub.ai/api/v1/skills/ein-llc-activation-continuation",
+      "method": "GET",
+      "anonymous": true,
+      "requestStartedAt": "2026-10-12T09:56:49.683468+00:00",
+      "responseCompletedAt": "2026-10-12T09:56:51.770114+00:00",
+      "status": 200,
+      "responseDate": "Mon, 12 Oct 2026 09:56:51 GMT",
+      "bytes": 5641,
+      "sha256": "3525fc4dbe5a9f66434b27dc8ac0c1f4dcd08ba78afa2fb4f35ff9b4f6275f33",
+      "retainedBody": "inspect-skill.json"
+    },
+    {
+      "url": "https://clawhub.ai/api/v1/skills/ein-llc-activation-continuation/versions/0.1.1",
+      "method": "GET",
+      "anonymous": true,
+      "requestStartedAt": "2026-10-12T09:56:51.770581+00:00",
+      "responseCompletedAt": "2026-10-12T09:56:53.027794+00:00",
+      "status": 200,
+      "responseDate": "Mon, 12 Oct 2026 09:56:52 GMT",
+      "bytes": 4571,
+      "sha256": "5aaf72782a8abea2dbea538d87f65b514c02c552d37fe9903b5e228f2d623453",
+      "retainedBody": "inspect-version.json"
+    },
+    {
+      "url": "https://clawhub.ai/api/v1/skills/ein-llc-activation-continuation/verify?version=0.1.1",
+      "method": "GET",
+      "anonymous": true,
+      "requestStartedAt": "2026-10-12T09:56:53.028507+00:00",
+      "responseCompletedAt": "2026-10-12T09:56:54.601388+00:00",
+      "status": 200,
+      "responseDate": "Mon, 12 Oct 2026 09:56:54 GMT",
+      "bytes": 27441,
+      "sha256": "3b2605fe21c39d5c2a57d07da318a36a390a70c63facee85f2b16dd711667e01",
+      "retainedBody": "verify.json"
+    },
+    {
+      "url": "https://ein.llc/downloads/ein-activation-continuation-v0.1.5.json",
+      "method": "GET",
+      "anonymous": true,
+      "requestStartedAt": "2026-10-12T09:58:06.288297+00:00",
+      "responseCompletedAt": "2026-10-12T09:58:06.452006+00:00",
+      "status": 200,
+      "responseDate": "Mon, 12 Oct 2026 09:58:06 GMT",
+      "bytes": 9131,
+      "sha256": "3734639536ee9104549592e46271148e12ed2e4c69191b858116fdbd3ad7da4f",
+      "retainedBody": null
+    },
+    {
+      "url": "https://ein.llc/downloads/ein-activation-continuation-v0.1.5.tgz",
+      "method": "GET",
+      "anonymous": true,
+      "requestStartedAt": "2026-10-12T09:58:06.452301+00:00",
+      "responseCompletedAt": "2026-10-12T09:58:06.596458+00:00",
+      "status": 200,
+      "responseDate": "Mon, 12 Oct 2026 09:58:06 GMT",
+      "bytes": 50590,
+      "sha256": "e490d78753e8bb8e18aa517b882107f667f088546ace4888e5f86b86b9afb6f0",
+      "retainedBody": null
+    },
+    {
+      "url": "https://wry-manatee-359.convex.site/api/v1/skills/ein-llc-activation-continuation/card?ownerHandle=epistemedeus&version=0.1.1",
+      "method": "GET",
+      "anonymous": true,
+      "requestStartedAt": "2026-10-12T09:58:06.596776+00:00",
+      "responseCompletedAt": "2026-10-12T09:58:09.262185+00:00",
+      "status": 200,
+      "responseDate": "Mon, 12 Oct 2026 09:58:09 GMT",
+      "bytes": 2106,
+      "sha256": "9a73e47191af4b08b46236af05f561ad32eed654765462b30cea50ba3b644600",
+      "retainedBody": null
+    }
+  ],
+  "hostedValidation": {
+    "descriptorMatched": true,
+    "archiveMatched": true,
+    "descriptorPublished": false,
+    "archiveMembersMatched": 39,
+    "checks": [
+      "exact member path set",
+      "byte length",
+      "SHA256",
+      "mode"
+    ],
+    "pinPath": "skills/ein-llc-activation-continuation/references/continuation-pin.json",
+    "pinSha256": "866e5a4755c3cdc70c52d6c1c84a2a896e8d89c0ad5b5b98eb388e443c8404db",
+    "version": "0.1.5",
+    "files": {
+      "descriptor": {
+        "path": "/downloads/ein-activation-continuation-v0.1.5.json",
+        "bytes": 9131,
+        "sha256": "3734639536ee9104549592e46271148e12ed2e4c69191b858116fdbd3ad7da4f"
+      },
+      "archive": {
+        "path": "/downloads/ein-activation-continuation-v0.1.5.tgz",
+        "bytes": 50590,
+        "sha256": "e490d78753e8bb8e18aa517b882107f667f088546ace4888e5f86b86b9afb6f0",
+        "uncompressedBytes": 225280,
+        "members": 39
+      }
+    },
+    "cliAndJourneyLangReferences": 0
+  },
+  "receivedPriorGates": {
+    "provenance": "User-provided completed receiving evidence, accepted and not rerun",
+    "installedCases": 95,
+    "oldSkips": 4,
+    "recipeCases": 26,
+    "continuationCases": 76,
+    "humanCases": 16
+  },
+  "currentFocusedValidation": {
+    "command": [
+      "node",
+      "--test",
+      "--test-name-pattern=^(pin keeps|payment, claim|hosted acquire)",
+      "tests/ein-llc-activation-continuation.test.mjs"
+    ],
+    "startedAt": "2026-10-12T09:58:09.329359+00:00",
+    "completedAt": "2026-10-12T09:58:10.406416+00:00",
+    "exitCode": 0,
+    "stdoutSha256": "49b8e772f7740531da6a05c4fb70bb9593ba8940995fbf8fddfa4f271340fbc9",
+    "stderr": "",
+    "tap": "TAP version 13\n# Subtest: pin keeps the frozen published field and the hosted archive identity\nok 1 - pin keeps the frozen published field and the hosted archive identity\n  ---\n  duration_ms: 1.009068\n  ...\n# Subtest: payment, claim, and live prepare stop before a request\nok 2 - payment, claim, and live prepare stop before a request\n  ---\n  duration_ms: 430.092328\n  ...\n# Subtest: hosted acquire matches the pin, imports the client, and does not install or overwrite\nok 3 - hosted acquire matches the pin, imports the client, and does not install or overwrite\n  ---\n  duration_ms: 487.47575\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 1003.741928\n",
+    "runtime": "v22.14.0",
+    "counts": {
+      "tests": 3,
+      "pass": 3,
+      "fail": 0,
+      "skipped": 0
+    },
+    "regressionsAdded": 0
+  },
+  "decision": {
+    "sourceCorrectionWarranted": false,
+    "originalProductReds": [],
+    "providerOriginalIssueObjectsRetained": 7,
+    "providerRecommendation": "DO_NOT_INSTALL",
+    "nativeInstallOverride": false,
+    "ordinaryDiscoveryAndInstall": "unproved",
+    "entrySpecificActualInstallerRefusal": "unproved",
+    "activation": "unproved",
+    "revenue": "unproved",
+    "providerContact": "not performed",
+    "publication": "not performed",
+    "export": "Commit and one push of this documentation-only branch; exact head reported externally to avoid a self-referential hash"
+  }
+}
