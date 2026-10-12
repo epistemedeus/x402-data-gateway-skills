@@ -34,7 +34,7 @@ Run one existing command against caller-owned files on the canonical service:
 
 `discover`, `assess`, `prepare`, `resume`, `status`, `show`, and `cancel` are the continuation commands. `http` is the default transport. `mcp`, `a2a`, and `a2a-rest` are selected with `--transport`. A2A catalog reads need `--catalog-transport http`. Omitting `--lane` selects `agent_assisted_human` for `https://ein.llc` and `disposable_owner_qa` for an owned loopback.
 
-Assess reads `ein.supplied-context.v1` from `--context`. The fields are `hasUsEntity`, `hasEin`, `providerRequiresUsEntity`, `providerRequiresEin`, `jurisdictionKnown`, and `selectedState`, each `yes`, `no`, or `unknown`. Task prose does not infer a business prerequisite. A missing file returns `missing_input` and the next action.
+Assess reads `ein.supplied-context.v1` from `--context`. The fields `hasUsEntity`, `hasEin`, `providerRequiresUsEntity`, `providerRequiresEin`, and `jurisdictionKnown` are each `yes`, `no`, or `unknown`. `selectedState` is the supplied state name, for example `Wyoming`. Task prose does not infer a business prerequisite. A missing file returns `missing_input` and the next action.
 
 Prepare needs `--intended-email-file`. The claim URL stays in the mode 0600 continuation file until `show --show-claim-url`. That handoff is for the intended human. This command does not claim, pay, attest, register, or file.
 
