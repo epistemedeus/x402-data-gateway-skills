@@ -450,7 +450,7 @@ test("disagreeing vendor trees inside the offer are refresh or unknown", () => {
   assert.equal(got.body.identity.disagreements.some((item) => item.field === "offer.preflight.engine.vendorTree"), true);
 });
 
-test("a self-consistent offer and kit that miss the pin record the artifact without old limits", () => {
+test("a self-consistent offer and kit that miss the pin do not execute unreceived code", () => {
   const commit = "1".repeat(40);
   const kit = path.join(keep(mkdtempSync(path.join(tmpdir(), "nbty-stale-"))), "kit");
   cpSync(installed.kit, kit, { recursive: true });
@@ -479,9 +479,8 @@ test("a self-consistent offer and kit that miss the pin record the artifact with
   assert.equal(got.body.identity.documentedLimitsCurrent, false);
   assert.equal(got.body.documentedLimits.status, "unknown");
   assert.equal(got.body.documentedLimits.knownIssue, null);
-  assert.equal(got.body.execution.exit, 0);
-  assert.equal(got.body.execution.artifact.changed[0].id, "packages/widget");
-  assert.equal(existsSync(path.join(out, "result", "pin-delta.json")), true);
+  assert.equal(got.body.execution, null);
+  assert.equal(existsSync(path.join(out, "result", "pin-delta.json")), false);
 });
 
 test("a self-consistent stale pin does not name a known engine refusal", () => {
@@ -510,13 +509,12 @@ test("a self-consistent stale pin does not name a known engine refusal", () => {
   ]);
   assert.equal(got.status, 3, got.stdout);
   assert.equal(got.body.outcome, "identity_unknown");
-  assert.equal(got.body.reason, "refresh_or_unknown");
+  assert.equal(got.body.code, "refresh_or_unknown");
   assert.equal(got.body.documentedLimits.status, "unknown");
   assert.equal(got.body.documentedLimits.knownIssue, null);
   assert.equal(got.body.documentedLimits.engineRefusal, undefined);
-  assert.equal(got.body.execution.exit, 2);
-  assert.equal(got.body.execution.stdout.code, "package-json-only");
-  assert.equal(got.body.comparison.equal, null);
+  assert.equal(got.body.execution, null);
+  assert.equal(existsSync(path.join(out, "result")), false);
 });
 
 test("a changed reward is preserved and is not treated as the original terms", () => {
@@ -558,4 +556,33 @@ test("payment and submission flags stop before a report", () => {
   assert.equal(got.body.code, "refused_flag");
   assert.equal(got.body.submitted, false);
   assert.equal(existsSync(out), false);
+});
+
+
+test("extracted engine bytes must match the verified archive before execution", () => {
+  const kit = path.join(keep(mkdtempSync(path.join(tmpdir(), "nbty-tamper-"))), "kit");
+  cpSync(installed.kit, kit, { recursive: true });
+  const marker = path.join(path.dirname(kit), "executed");
+  const bin = path.join(kit, "engine/bin/lockfile-delta.mjs");
+  const original = readFileSync(bin, "utf8");
+  writeFileSync(bin, original + "\nimport {writeFileSync as tamperWrite} from 'node:fs';\ntamperWrite(" + JSON.stringify(marker) + ", 'executed');\n");
+  const out = freshOut();
+  const got = run(["report", "--kit", kit, "--archive", installed.archive, "--offer", installed.offer,
+    "--before", pair("resolved-only").before, "--after", pair("resolved-only").after,
+    "--expected", pair("resolved-only").expected, "--out", out]);
+  assert.equal(got.status, 3, got.stdout);
+  assert.equal(got.body.outcome, "identity_unknown");
+  assert.equal(got.body.execution, null);
+  assert.equal(existsSync(marker), false);
+});
+
+test("a documented link limit does not excuse an unrelated expected count", () => {
+  const expected = JSON.parse(readFileSync(pair("link-target").expected, "utf8"));
+  expected.counts.unchanged = 999;
+  const file = path.join(keep(mkdtempSync(path.join(tmpdir(), "nbty-count-"))), "expected.json");
+  writeFileSync(file, JSON.stringify(expected));
+  const got = report("link-target", ["--expected", file]);
+  assert.equal(got.status, 0, got.stdout);
+  assert.equal(got.body.outcome, "candidate_report");
+  assert.equal(got.body.comparison.unexplained.some(x => x.side === "counts" && x.key === "unchanged"), true);
 });

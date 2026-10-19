@@ -405,8 +405,13 @@ export function classifyBehavior({ expected, artifact, beforeDoc, afterDoc }) {
     }
     for (const key of COUNT_KEYS) {
       if (wanted.counts[key] === observed.counts[key]) continue;
-      if (key === "missingIntegrity" && missing.matched) continue;
-      if (itemsClean && link.matched && key !== "missingIntegrity") continue;
+      if (key === "missingIntegrity" && missing.matched && wanted.counts[key] === 0) continue;
+      if (itemsClean && link.matched) {
+        if (key === "beforePins" && wanted.counts[key] === observed.counts[key] + linkEntries(beforeDoc).length) continue;
+        if (key === "afterPins" && wanted.counts[key] === observed.counts[key] + linkEntries(afterDoc).length) continue;
+        if (["added", "removed", "changed"].includes(key) && wanted.counts[key] === wanted[key].length) continue;
+        if (key === "unchanged" && wanted.counts[key] === wanted.counts.beforePins - wanted.counts.removed - wanted.counts.changed) continue;
+      }
       unexplained.push({ side: "counts", key, expected: wanted.counts[key], observed: observed.counts[key] });
     }
   }
@@ -677,6 +682,25 @@ async function acquire(args) {
   emit(body, body.ok ? 0 : 3);
 }
 
+function verifyExtractedEngine(kitDir, archivePath) {
+  if (findSymlink(kitDir)) return { ok: false, reason: "symlink" };
+  const members = safeMembers(archivePath);
+  if (!members.ok || members.names.length !== PINS.kit.members) return { ok: false, reason: "archive_members" };
+  const prefix = PINS.kit.directory + "/";
+  const files = members.names.filter(name => name.startsWith(prefix) && !name.endsWith("/")
+    && (name === prefix + "SOURCE.txt" || name.startsWith(prefix + "engine/")));
+  let checked = 0;
+  for (const member of files) {
+    const relative = member.slice(prefix.length), local = path.join(kitDir, relative);
+    if (!regularFile(local).ok) return { ok: false, reason: "missing_engine_member", member: relative };
+    const archived = spawnSync("tar", ["-xOzf", archivePath, member], { maxBuffer: 1_000_000 });
+    if (archived.status !== 0 || archived.error || !Buffer.isBuffer(archived.stdout)
+      || !archived.stdout.equals(readFileSync(local))) return { ok: false, reason: "engine_bytes", member: relative };
+    checked += 1;
+  }
+  return { ok: checked > 0, checked, scope: "SOURCE.txt-and-complete-engine-tree" };
+}
+
 function engineRefusal(stdout) {
   if (!stdout || stdout.ok !== false) return null;
   return typeof stdout.code === "string" ? stdout.code : null;
@@ -734,7 +758,7 @@ async function report(args) {
     kitSource,
     archive: archive.ok ? archive : null,
   });
-  if (!identity.offerKitRunnable) {
+  if (!identity.offerKitRunnable || !identity.documentedLimitsCurrent) {
     const body = {
       ...identityReport(identity, loaded.offer, loaded.source),
       inputs: {
@@ -746,6 +770,17 @@ async function report(args) {
       },
       nextAction: "The offer and the kit on disk disagree, or the archive hash does not match the offer. The engine was not run. Refresh the disagreeing identity instead of reusing an older description.",
     };
+    writeReport(args.out, body);
+    emit(body, 3);
+  }
+  const extracted = verifyExtractedEngine(args.kit, args.archive);
+  identity.extractedEngine = extracted;
+  if (!extracted.ok) {
+    identity.status = "refresh_or_unknown";
+    identity.documentedLimitsCurrent = false;
+    identity.disagreements.push({ field: "kit.engine.bytes", actual: extracted, expected: "verified archive members" });
+    const body = identityReport(identity, loaded.offer, loaded.source);
+    body.nextAction = "The extracted engine does not match the verified archive. Reacquire the pinned kit; no engine was run.";
     writeReport(args.out, body);
     emit(body, 3);
   }
