@@ -47,7 +47,7 @@ npx skills add epistemedeus/x402-data-gateway-skills --skill wallet-enrich --yes
 | `public-careers-board` | One caller-supplied public careers board, with source and coverage, from the free recipe | None. The command does not call the paid route. |
 | `samedaydesk-task-result` | Acquire the published caller-result 0.1.1 archive and retain a caller-supplied result, recovery, or optional feedback statement | None. The command does not pay, sign, or settle. |
 | `ein-llc-activation-continuation` | Acquire the public EIN.LLC continuation 0.1.5 archive and continue one supplied business context | None. The command does not claim, pay, or file. |
-| `lockfile-defect-report` | Prepare a no-Git N-BTY-003 report from a caller-owned npm lockfile pair and an explicit expected pin-delta | None. The command does not submit, award, or pay. |
+| `lockfile-defect-report` | Execute a caller-owned npm lockfile pair and compare a plain-language expectation; structured capture is optional | None. The command does not submit, award, or pay. |
 
 ## Task result
 
@@ -59,7 +59,7 @@ npx skills add epistemedeus/x402-data-gateway-skills --skill wallet-enrich --yes
 
 ## Lockfile defect report
 
-`lockfile-defect-report` reads the current N-BTY-003 offer and prepares a report for a caller-owned npm lockfile v2 or v3 pair. From the installed skill, run `node scripts/report.mjs acquire --work DIR`, then `report` with that kit, the caller's `before.json`, `after.json`, and expected pin-delta. A missing file stays missing. The kit owner fixture is not a substitute. Submission and the original one-award payment stay outside the command.
+`lockfile-defect-report` reads the current N-BTY-003 offer and prepares a report for a caller-owned npm lockfile v2 or v3 pair. From the installed skill, run `node scripts/report.mjs acquire --work DIR`, then run the maintained engine on the caller's `before.json` and `after.json`. Compare the caller's expected behavior with the actual delta. The structured `report --expected` mode is optional. A missing file stays missing. The kit owner fixture is not a substitute. Submission and the original one-award payment stay outside the command.
 
 ## Live contract first
 

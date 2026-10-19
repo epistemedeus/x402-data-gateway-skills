@@ -1,11 +1,11 @@
 ---
 name: lockfile-defect-report
-description: Prepare a no-Git N-BTY-003 report from the caller's own npm package-lock v2 or v3 pair and an explicit expected pin-delta. Use when the caller wants the current Neomorphic offer compared with the maintained n-bty-003 kit command, node n-bty-003-kit-0.1.0/engine/bin/lockfile-delta.mjs. Missing caller files stay missing. A keyword is not a known issue. The command does not submit, award, or pay.
+description: Execute the maintained lockfile delta tool on the caller's own npm package-lock v2 or v3 pair, compare expected behavior with actual output, and prepare a faithful N-BTY-003 report or stopping point without Git. Use for lockfile pin differences, including URL-only changes and documented partial or link cases. Does not submit a claim or promise an award.
 license: MIT
-compatibility: Requires Node.js 22 or newer, tar, and curl-free HTTPS fetch. Public reads are anonymous GETs of the pinned offer and kit. No Git clone, npm install, signup, or wallet.
+compatibility: Requires Node.js 22 or newer, tar, and HTTPS fetch. No Git clone, npm install, signup, or wallet.
 metadata:
   author: neomorphic
-  version: "0.1.0"
+  version: "0.1.1"
   hermes:
     tags: [n-bty-003, lockfile, no-spend]
   openclaw:
@@ -17,30 +17,36 @@ metadata:
 
 # Lockfile defect report
 
-Install the pinned kit, then prepare a report for one caller-owned lockfile pair. The executable is `scripts/report.mjs`. Identity constants are `references/pins.json`. This file's license is `LICENSE`.
+Use the caller's real before/after lockfiles and expected behavior in ordinary words. Missing files or an absent expectation stay missing. Do not substitute the kit owner's demonstration. Identity constants are in references/pins.json; the license is LICENSE.
 
-The original offer is one 0.10 USDC award, manual and not escrowed. Copy `reward`, `inScope`, `outOfScope`, and `boundary` from the fetched offer. If those terms or the offer, kit, and pin identities disagree, the report says `refresh_or_unknown`. Do not rewrite either side into the other and do not treat the pin text as the current offer.
+## Acquire the current offer and pinned kit
 
-`acquire` and `report` are separate. Neither one submits a GitHub issue, selects a winner, or pays. `--submit`, `--award`, `--pay`, `--settle`, `--sign`, `--wallet`, and `--claim` stop before any request. The kit command `reproduce.mjs` on `fixtures/owner-fixture.json` is the publisher's demonstration. It is not the caller's pair and not a paid claim. A labeled QA pair is not customer revenue.
+    node scripts/report.mjs acquire --work DIR
 
-## Install
+DIR must not exist yet. Acquire reads the current offer and downloads only its matching pinned archive and SHA256SUMS. It checks bytes, hash and members before extraction and does not run the owner fixture. A source or terms mismatch is refresh_or_unknown, not an old description promoted to current truth.
 
-`node scripts/report.mjs acquire --work DIR`
+The original offer is one manual, non-escrowed 0.10 USDC award. Preserve reward, inScope, outOfScope and boundary from the fetched offer. Preparing a report is not submitting or winning a claim.
 
-`DIR` must be a new directory. The command GETs `https://neomorphic.io/api/trials/n-bty-003.json` and, only when that offer matches the pin, downloads the pinned archive and `SHA256SUMS`. It checks the hash, byte length, and member count, then extracts. It does not run the owner fixture. A mismatch writes `install.json` and does not download an unpinned URL.
+## Default task path: the caller pair, no expectation schema
 
-## Report
+Run the maintained engine directly on the freshly acquired kit:
 
-The caller supplies both lockfiles and the expected pin-delta. The expected JSON has `status`, `counts` (`beforePins`, `afterPins`, `added`, `removed`, `changed`, `unchanged`, `missingIntegrity`), and arrays `added`, `removed`, and `changed`. A missing path, a missing expected file, or a missing offer stays missing.
+    node DIR/n-bty-003-kit-0.1.0/engine/bin/lockfile-delta.mjs --before before.json --after after.json --out-dir result
 
-`node scripts/report.mjs report --kit DIR/n-bty-003-kit-0.1.0 --archive DIR/n-bty-003-kit-0.1.0.tar.gz --before before.json --after after.json --expected expected.json --out OUT`
+No expected-output JSON is required. Compare the caller's stated expectation with actual stdout, exit and result/pin-delta.json plus result/pin-delta.md. Retain the input provenance, command and artifact digest. A result is not observed merely because source code suggests it should happen.
 
-The maintained engine command, from a directory that contains the extracted kit and the pair, is:
+Check the actual fields and documented limits before alleging a new defect. Missing integrity can remain partial while real deltas are still listed; installed link entries are excluded by the pinned engine. A known-issue match needs the actual same behavior, not a keyword. Offer preflight notes are advisory, not automatic award or rejection decisions.
 
-`node n-bty-003-kit-0.1.0/engine/bin/lockfile-delta.mjs --before before.json --after after.json --out-dir result`
+If output agrees with the caller or matches a documented limit, return a concise useful stopping point. Otherwise retain the smallest reproducible difference, expected behavior and actual artifact for the caller. The caller decides whether to submit; this skill does not submit, award or pay. Owner QA is not outside adoption or customer revenue.
 
-The report command runs that same `engine/bin/lockfile-delta.mjs` with `--before`, `--after`, and `--out-dir`. `OUT/report.json` keeps the offer, the input hashes, the argv, the exit, and the `pin-delta.json` digest. `purchaseAuthority` on a usable artifact is false.
+Use the freshly verified kit. If resuming a changed or uncertain extracted kit, reacquire it or use the identity-checking structured mode below rather than claim its labels prove the executable bytes.
 
-Exit 0 is a prepared report: the projection matches the caller, the difference matches a documented limit of the pinned engine, an unexplained difference remains, or the engine returned a known input refusal. Exit 2 is a missing or refused input. Exit 3 is an identity or terms disagreement. Offer preflight notes are advisory. `knownIssue` is set only when the artifact and the lockfile entries match that issue's behavior. A title or note that names an issue does not.
+## Optional structured comparison
 
-When the report's identity status is `refresh_or_unknown`, stop using the pinned limit text as a current description. Filing the envelope and any maintainer decision stay with the caller.
+Use this only when a machine-readable expected projection is already useful to the caller. Do not invent that extra schema merely to run the default task path.
+
+    node scripts/report.mjs report --kit DIR/n-bty-003-kit-0.1.0 --archive DIR/n-bty-003-kit-0.1.0.tar.gz --before before.json --after after.json --expected expected.json --out OUT
+
+Expected JSON contains status, counts (beforePins, afterPins, added, removed, changed, unchanged, missingIntegrity), and added/removed/changed arrays. This mode verifies extracted engine bytes against the archive and retains comparison/source/terms in OUT/report.json. It adds structured capture, not a claim of lower complete effort. Submission, award and payment flags are refused.
+
+Exit 0 means a prepared report or useful known refusal, not bounty eligibility. Exit 2 is missing/refused input; exit 3 is source/terms disagreement. Keep stale identities unknown and do not apply old pinned limit descriptions as current facts.
