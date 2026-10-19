@@ -1,0 +1,38 @@
+{
+  "qa": true,
+  "label": "qa-workspace-link",
+  "note": "caller proposes the installed link identity",
+  "status": "actionable",
+  "counts": {
+    "beforePins": 1,
+    "afterPins": 1,
+    "added": 0,
+    "removed": 0,
+    "changed": 1,
+    "unchanged": 0,
+    "missingIntegrity": 0
+  },
+  "added": [],
+  "removed": [],
+  "changed": [
+    {
+      "id": "node_modules/workspace-widget",
+      "name": "workspace-widget",
+      "changeKinds": [
+        "version"
+      ],
+      "before": {
+        "name": "workspace-widget",
+        "version": "1.0.0",
+        "integrity": null,
+        "resolved": "packages/widget"
+      },
+      "after": {
+        "name": "workspace-widget",
+        "version": "1.0.1",
+        "integrity": null,
+        "resolved": "packages/widget"
+      }
+    }
+  ]
+}

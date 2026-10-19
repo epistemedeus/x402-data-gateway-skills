@@ -1,0 +1,38 @@
+{
+  "qa": true,
+  "label": "qa-link-target",
+  "note": "caller proposes the installed link resolved change",
+  "status": "actionable",
+  "counts": {
+    "beforePins": 3,
+    "afterPins": 3,
+    "added": 0,
+    "removed": 0,
+    "changed": 1,
+    "unchanged": 2,
+    "missingIntegrity": 0
+  },
+  "added": [],
+  "removed": [],
+  "changed": [
+    {
+      "id": "node_modules/localpkg",
+      "name": "localpkg",
+      "changeKinds": [
+        "resolved"
+      ],
+      "before": {
+        "name": "localpkg",
+        "version": null,
+        "integrity": null,
+        "resolved": "packages/a"
+      },
+      "after": {
+        "name": "localpkg",
+        "version": null,
+        "integrity": null,
+        "resolved": "packages/b"
+      }
+    }
+  ]
+}

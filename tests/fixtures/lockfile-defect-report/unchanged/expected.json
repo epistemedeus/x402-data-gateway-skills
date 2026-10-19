@@ -1,0 +1,17 @@
+{
+  "qa": true,
+  "label": "qa-unchanged",
+  "status": "informational",
+  "counts": {
+    "beforePins": 1,
+    "afterPins": 1,
+    "added": 0,
+    "removed": 0,
+    "changed": 0,
+    "unchanged": 1,
+    "missingIntegrity": 0
+  },
+  "added": [],
+  "removed": [],
+  "changed": []
+}
