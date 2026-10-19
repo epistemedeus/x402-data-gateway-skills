@@ -1,0 +1,16 @@
+{
+  "name": "qa-git-partial",
+  "version": "1.0.0",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "qa-git-partial",
+      "version": "1.0.0"
+    },
+    "node_modules/gitpkg": {
+      "version": "1.0.0",
+      "resolved": "git+https://example.invalid/gitpkg.git#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  }
+}

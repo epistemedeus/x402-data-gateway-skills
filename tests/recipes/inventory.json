@@ -62,6 +62,14 @@
       "note": "Hosted continuation acquisition and caller-owned continuation have independent contracts, not a merchant recipe."
     },
     {
+      "skill": "lockfile-defect-report",
+      "status": "independent_contract_tests",
+      "tests": [
+        "tests/lockfile-defect-report.test.mjs"
+      ],
+      "note": "No-Git lockfile defect report preparation has an independent contract, not a merchant recipe."
+    },
+    {
       "skill": "morpho-risk",
       "status": "candidate",
       "cell": "reserve"

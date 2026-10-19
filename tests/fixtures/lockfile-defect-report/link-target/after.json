@@ -1,0 +1,27 @@
+{
+  "name": "qa-link-target",
+  "version": "1.0.0",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "qa-link-target",
+      "version": "1.0.0",
+      "dependencies": {
+        "localpkg": "file:packages/b"
+      }
+    },
+    "node_modules/localpkg": {
+      "resolved": "packages/b",
+      "link": true
+    },
+    "packages/a": {
+      "name": "@test/a",
+      "version": "1.0.0"
+    },
+    "packages/b": {
+      "name": "@test/b",
+      "version": "1.0.0"
+    }
+  }
+}

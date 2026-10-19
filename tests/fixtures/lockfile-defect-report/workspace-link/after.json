@@ -1,0 +1,23 @@
+{
+  "name": "qa-workspace-link",
+  "version": "1.0.0",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "qa-workspace-link",
+      "version": "1.0.0",
+      "workspaces": [
+        "packages/widget"
+      ]
+    },
+    "node_modules/workspace-widget": {
+      "resolved": "packages/widget",
+      "link": true
+    },
+    "packages/widget": {
+      "name": "workspace-widget",
+      "version": "1.0.1"
+    }
+  }
+}

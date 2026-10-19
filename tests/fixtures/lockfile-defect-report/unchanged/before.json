@@ -1,0 +1,17 @@
+{
+  "name": "qa-unchanged",
+  "version": "1.0.0",
+  "lockfileVersion": 2,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "qa-unchanged",
+      "version": "1.0.0"
+    },
+    "node_modules/control": {
+      "version": "1.0.0",
+      "integrity": "sha512-control",
+      "resolved": "https://registry.invalid/control-1.0.0.tgz"
+    }
+  }
+}

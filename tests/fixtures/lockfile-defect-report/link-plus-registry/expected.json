@@ -1,0 +1,57 @@
+{
+  "qa": true,
+  "label": "qa-link-plus-registry",
+  "note": "issue 128",
+  "status": "actionable",
+  "counts": {
+    "beforePins": 2,
+    "afterPins": 2,
+    "added": 0,
+    "removed": 0,
+    "changed": 2,
+    "unchanged": 0,
+    "missingIntegrity": 0
+  },
+  "added": [],
+  "removed": [],
+  "changed": [
+    {
+      "id": "node_modules/control",
+      "name": "control",
+      "changeKinds": [
+        "resolved"
+      ],
+      "before": {
+        "name": "control",
+        "version": "1.0.0",
+        "integrity": "sha512-control",
+        "resolved": "https://registry.invalid/control-1.0.0.tgz"
+      },
+      "after": {
+        "name": "control",
+        "version": "1.0.0",
+        "integrity": "sha512-control",
+        "resolved": "https://registry.invalid/relocated/control-1.0.0.tgz"
+      }
+    },
+    {
+      "id": "node_modules/localpkg",
+      "name": "localpkg",
+      "changeKinds": [
+        "version"
+      ],
+      "before": {
+        "name": "localpkg",
+        "version": "1.0.0",
+        "integrity": null,
+        "resolved": "packages/a"
+      },
+      "after": {
+        "name": "localpkg",
+        "version": "1.0.1",
+        "integrity": null,
+        "resolved": "packages/a"
+      }
+    }
+  ]
+}

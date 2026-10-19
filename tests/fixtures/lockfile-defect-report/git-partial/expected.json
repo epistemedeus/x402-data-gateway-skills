@@ -1,0 +1,38 @@
+{
+  "qa": true,
+  "label": "qa-git-partial",
+  "note": "caller proposes actionable despite missing integrity",
+  "status": "actionable",
+  "counts": {
+    "beforePins": 1,
+    "afterPins": 1,
+    "added": 0,
+    "removed": 0,
+    "changed": 1,
+    "unchanged": 0,
+    "missingIntegrity": 0
+  },
+  "added": [],
+  "removed": [],
+  "changed": [
+    {
+      "id": "node_modules/gitpkg",
+      "name": "gitpkg",
+      "changeKinds": [
+        "resolved"
+      ],
+      "before": {
+        "name": "gitpkg",
+        "version": "1.0.0",
+        "integrity": null,
+        "resolved": "git+https://example.invalid/gitpkg.git#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "after": {
+        "name": "gitpkg",
+        "version": "1.0.0",
+        "integrity": null,
+        "resolved": "git+https://example.invalid/gitpkg.git#bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "neomorphic.lockfile-defect-report.pins.v1",
+  "offerUrl": "https://neomorphic.io/api/trials/n-bty-003.json",
+  "offerId": "N-BTY-003",
+  "originalTerms": {
+    "amount": "0.10",
+    "asset": "USDC",
+    "network": "base",
+    "totalOneReward": "0.10",
+    "entryFee": "0",
+    "automated": false,
+    "escrowed": false,
+    "customerRevenue": false
+  },
+  "kit": {
+    "version": "0.1.0",
+    "archive": "n-bty-003-kit-0.1.0.tar.gz",
+    "directory": "n-bty-003-kit-0.1.0",
+    "archiveUrl": "https://neomorphic.io/downloads/n-bty-003/n-bty-003-kit-0.1.0.tar.gz",
+    "sha256sumsUrl": "https://neomorphic.io/downloads/n-bty-003/SHA256SUMS",
+    "sha256": "613df234495f926963526928457eb460877908652410b6b16adf09d6481b12dc",
+    "bytes": 13891,
+    "members": 25,
+    "command": "node n-bty-003-kit-0.1.0/engine/bin/lockfile-delta.mjs --before before.json --after after.json --out-dir result"
+  },
+  "engine": {
+    "repo": "epistemedeus/x402-url-extractor",
+    "commit": "ca38205279f0d543515b81b7261909e55ea2600f",
+    "path": "vendor/lockfile-pin-delta",
+    "vendorTree": "45eaba985a94187c7a2206e82b890b6f44560a9c",
+    "merchantCommit": "b6b9735e37d89109754ffbf43a4a3fa85e95d92d",
+    "merchantVersion": "1.23.47",
+    "featureMapUrl": "https://github.com/epistemedeus/x402-url-extractor/blob/ca38205279f0d543515b81b7261909e55ea2600f/vendor/lockfile-pin-delta/FEATURE-MAP.md",
+    "issue128Url": "https://github.com/epistemedeus/x402-url-extractor/issues/128",
+    "issue128ObservationUrl": "https://github.com/epistemedeus/x402-url-extractor/issues/128#issuecomment-6261628549"
+  },
+  "sourceAmendment": {
+    "repo": "epistemedeus/neomorphic-io",
+    "pr": 382,
+    "merge": "40ea86e28ec65a05ba5eeef566a6f23fa3dd0782",
+    "builder": "fb7180c615dbbd26052d15e0c884ff98d0c33ade"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "qa": true,
+  "label": "qa-resolved-only",
+  "note": "issue 128 installed link",
+  "status": "actionable",
+  "counts": {
+    "beforePins": 1,
+    "afterPins": 1,
+    "added": 0,
+    "removed": 0,
+    "changed": 1,
+    "unchanged": 0,
+    "missingIntegrity": 0
+  },
+  "added": [],
+  "removed": [],
+  "changed": [
+    {
+      "id": "node_modules/control",
+      "name": "control",
+      "changeKinds": [
+        "resolved"
+      ],
+      "before": {
+        "name": "control",
+        "version": "1.0.0",
+        "integrity": "sha512-control",
+        "resolved": "https://registry.invalid/control-1.0.0.tgz"
+      },
+      "after": {
+        "name": "control",
+        "version": "1.0.0",
+        "integrity": "sha512-control",
+        "resolved": "https://registry.invalid/relocated/control-1.0.0.tgz"
+      }
+    }
+  ]
+}
