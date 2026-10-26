@@ -20,7 +20,7 @@ for (const [name, guide] of guides) {
     assert.match(guide, /GET that contract fresh; its `Cache-Control: no-store` availability, operation,\nexample, limits and result guidance are the authority before constructing a request/);
     assert.match(guide, /Missing, malformed or unreachable discovery means availability is unknown: stop\nthe trial path/);
     assert.match(guide, /Discovery alone does not authorize an unsolicited URL fetch/);
-    assert.match(guide, /caller's actual task and caller-owned public HTTPS URL; replace the\ndiscovery example/);
+    assert.match(guide, /caller's actual task and caller-supplied public HTTPS URL; replace the\ndiscovery example/);
     assert.doesNotMatch(guide, /2026-11-01|17 remaining|18 remaining|20 (?:free )?calls/i);
   });
 

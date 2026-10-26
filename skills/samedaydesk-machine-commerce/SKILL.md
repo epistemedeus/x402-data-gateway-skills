@@ -1,6 +1,6 @@
 ---
 name: samedaydesk-machine-commerce
-description: Discover SameDayDesk's live account-free machine services, follow current walletless extraction/read availability for a caller-owned public page, or produce a verified, non-spending purchase intent from the live OpenAPI contract and unpaid HTTP 402 challenge. Use to select and preflight public web extraction, company or wallet enrichment, repository security scans, JSON-LD generation, AI-search audits, Morpho risk analysis, work opportunities, agent-service discoverability, agent-surface context budgets, contract-qualified service search, seller integrity, x402 or MPP payment offers, Base or Solana transaction evidence, or delegated-wallet policy conformance before a separately authorized payment executor is involved.
+description: Discover SameDayDesk's live account-free machine services, follow current walletless extraction/read availability for a caller-supplied public page, or produce a verified, non-spending purchase intent from the live OpenAPI contract and unpaid HTTP 402 challenge. Use to select and preflight public web extraction, company or wallet enrichment, repository security scans, JSON-LD generation, AI-search audits, Morpho risk analysis, work opportunities, agent-service discoverability, agent-surface context budgets, contract-qualified service search, seller integrity, x402 or MPP payment offers, Base or Solana transaction evidence, or delegated-wallet policy conformance before a separately authorized payment executor is involved.
 ---
 
 # Preflight SameDayDesk machine commerce
@@ -29,8 +29,9 @@ GET that contract fresh; its `Cache-Control: no-store` availability, operation,
 example, limits and result guidance are the authority before constructing a request.
 Missing, malformed or unreachable discovery means availability is unknown: stop
 the trial path. Discovery alone does not authorize an unsolicited URL fetch.
-Require the caller's actual task and caller-owned public HTTPS URL; replace the
+Require the caller's actual task and caller-supplied public HTTPS URL; replace the
 discovery example, never invent a target or use an issue as a QA task.
+A public third-party page is eligible; domain ownership is not required.
 
 | Caller needs | Contract member | Current HTTP operation | JSON body template |
 | --- | --- | --- | --- |

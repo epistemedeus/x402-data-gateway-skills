@@ -1,6 +1,6 @@
 ---
 name: web-extract
-description: Read credential-free public webpages as structured JSON or bounded LLM-ready Markdown with supported native HTML tables. Follow live walletless trial discovery first for one caller-owned public HTTPS page; otherwise consider a separate authorized paid GET /extract, GET /read, or bounded POST /extract/batch for 2–5 caller-supplied public HTTPS URLs with explicit fields. A caller may explicitly request a one-item batch. Do not use for authenticated or private-network content.
+description: Read credential-free public webpages as structured JSON or bounded LLM-ready Markdown with supported native HTML tables. Follow live walletless trial discovery first for one caller-supplied public HTTPS page; otherwise consider a separate authorized paid GET /extract, GET /read, or bounded POST /extract/batch for 2–5 caller-supplied public HTTPS URLs with explicit fields. A caller may explicitly request a one-item batch. Do not use for authenticated or private-network content.
 ---
 
 # Extract or read public webpage(s)
@@ -20,8 +20,9 @@ GET that contract fresh; its `Cache-Control: no-store` availability, operation,
 example, limits and result guidance are the authority before constructing a request.
 Missing, malformed or unreachable discovery means availability is unknown: stop
 the trial path. Discovery alone does not authorize an unsolicited URL fetch.
-Require the caller's actual task and caller-owned public HTTPS URL; replace the
+Require the caller's actual task and caller-supplied public HTTPS URL; replace the
 discovery example, never invent a target or use an issue as a QA task.
+A public third-party page is eligible; domain ownership is not required.
 
 | Caller needs | Contract member | Current HTTP operation | JSON body template |
 | --- | --- | --- | --- |
