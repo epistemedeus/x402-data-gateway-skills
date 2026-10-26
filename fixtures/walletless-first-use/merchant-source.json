@@ -1,0 +1,108 @@
+{
+  "repository": "https://github.com/epistemedeus/x402-url-extractor.git",
+  "commit": "6517665410c4e1267d7c2a7ef8860abdeec8086c",
+  "files": [
+    {
+      "path": "package.json",
+      "bytes": 11247,
+      "blob": "1acb407b4b804c68fe31d30b427a06fdabd5c386",
+      "sha256": "22de3f184fefd7c1bb4f85d4a771893243831bbd36bbfecb84351221e54b5c44"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 126669,
+      "blob": "df5c1c4c932ca25c3a0fcf5f626255dcc49fb849",
+      "sha256": "28d5a53db8e9107efb07be00b377a96e5afce9f897a9852c3915c293345dd42c"
+    },
+    {
+      "path": "extraction-trial.mjs",
+      "bytes": 12385,
+      "blob": "7eaa924386a24b3f3f61b1a9f147d40069dfd58e",
+      "sha256": "3b0166d4d806df55997023963bb60d0d707054d8c235a415b5b9742d887de647"
+    },
+    {
+      "path": "extraction-trial-reason.mjs",
+      "bytes": 2431,
+      "blob": "edb2172d2446da8be025525c7ce74241b35bfe5f",
+      "sha256": "7499ccb107f8d615cd72960483e0f63ce585717974b2aacefe41ad7085eaa963"
+    },
+    {
+      "path": "extraction-trial-test-fixture.mjs",
+      "bytes": 10821,
+      "blob": "3d3e82354865cf3003fe635f8434b88ab4af6a70",
+      "sha256": "b9a517e6d6004808644cf036bd14c954f3b0c974bac0e4b7fed7a220f72fd326"
+    },
+    {
+      "path": "extraction-trial-discovery.test.mjs",
+      "bytes": 11866,
+      "blob": "14eae47306c588d7b3e97f9c3f4e0e532fa2eb5b",
+      "sha256": "0bbbe71a3c1de4c89b9b477a7f168c166a2ccff711c469816daa8731852f5399"
+    },
+    {
+      "path": "walletless-read.http.test.mjs",
+      "bytes": 13820,
+      "blob": "092df453f77929b3ecd2e444e65f74aa070715c2",
+      "sha256": "7b9a2f6a869636c89615ace058eb00c751ec718a9dfbea03d549ad6763833f98"
+    },
+    {
+      "path": "extract.mjs",
+      "bytes": 15857,
+      "blob": "0d5dced95cef6de50aa3f052bc1261d57aa7a284",
+      "sha256": "e087cdcc6bbb019fa9ea0b8ca2e5f7d9e682dfb2bfd6b205e119330d32a5c6e1"
+    },
+    {
+      "path": "extract-capture.mjs",
+      "bytes": 6384,
+      "blob": "287a7d61d9885fd52349205ebde92e0373d23ab7",
+      "sha256": "64c4c0422bd84cedb7168d0509b694d88ef1f8a694e7c5ecc48b18080493b0d5"
+    },
+    {
+      "path": "server.js",
+      "bytes": 270071,
+      "blob": "e081d04e2a45c375eac7dae5376eab9e852a60ae",
+      "sha256": "20819f2bd4c4147c260073df49ebdae61b2b992874cb66f1179d0fac0ef223c3"
+    },
+    {
+      "path": "discovery-contract.mjs",
+      "bytes": 6503,
+      "blob": "d81bf9107c4991bf66462cc325b25ee0e89ec913",
+      "sha256": "b83f5a3d9266496bc1b04d4aec861c3a92b76ab76a76c797665acdd63cbc3377"
+    },
+    {
+      "path": "mcp-tool-metadata.mjs",
+      "bytes": 18648,
+      "blob": "97bafc2e557acead4b64b5bf238ce09b75aefa85",
+      "sha256": "1cddb84bf3898ba1d939b8cdacbf67ccfd68becd519b6de64e6389938b1883d9"
+    },
+    {
+      "path": "markdown-table.mjs",
+      "bytes": 11713,
+      "blob": "a7924a20f8fb62f1c0b8e16112680d749772b03a",
+      "sha256": "cec20b50a4efd91688ff22c4d28c176c3f538f080111af36f4bce2b5a55846ba"
+    },
+    {
+      "path": "extract-excerpt-budget.mjs",
+      "bytes": 2648,
+      "blob": "78aa5fa54a9a66e71cac87596a236ef8a0d4dfe8",
+      "sha256": "f767283b0078823c4da27b32f4f7c8dab6cb4740e2af1feb660e641ba2376419"
+    },
+    {
+      "path": "extract-batch-config.mjs",
+      "bytes": 2995,
+      "blob": "bf0bf17002c6a6e964b07ab5cd02812e73dd705a",
+      "sha256": "4ef4d63a5b379250620443fa19c0ba4fa2c0b2d6035b480cf9c0b224c3201728"
+    },
+    {
+      "path": "extract-batch-c1/url-guard.mjs",
+      "bytes": 2340,
+      "blob": "cd6f4a0a9ac1c2ead689075ce4550dc579ccb56b",
+      "sha256": "85931890091efa2b91399b4356764e8bb6adb7f1f81bcf61ad8e5b0e5935193d"
+    },
+    {
+      "path": "extract-batch-c1/public-fetch.mjs",
+      "bytes": 2005,
+      "blob": "8eadcd92ffb0dd04303dfabd268241847bc82da1",
+      "sha256": "780264c1f85a32c7dda9432d6590775553f1a8afd21d677d53d7f34c0048a082"
+    }
+  ]
+}

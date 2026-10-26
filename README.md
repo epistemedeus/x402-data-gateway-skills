@@ -28,10 +28,10 @@ npx skills add epistemedeus/x402-data-gateway-skills --skill wallet-enrich --yes
 
 | Skill | Capability family | Paid routes |
 | --- | --- | --- |
-| `samedaydesk-machine-commerce` | Credential-free catalog selection and verified purchase-intent preflight | All live paid HTTP routes from `/api/actions` (twenty-three at last check) |
+| `samedaydesk-machine-commerce` | Current walletless public-page discovery, catalog selection and nonspending purchase-intent preflight | All live paid HTTP routes from `/api/actions` (twenty-three at last check) |
 | `company-enrich` | Company, contact, infrastructure, and AI-readiness evidence | `/enrich` |
 | `wallet-enrich` | Base wallet and contract profiling | `/wallet-enrich` |
-| `web-extract` | Structured page extraction and LLM-ready Markdown | `/extract`, `/extract/batch`, `/read` |
+| `web-extract` | Live walletless first use for structured extraction or bounded Markdown with supported tables; separate paid routes | `/extract`, `/extract/batch`, `/read` |
 | `repo-security-scan` | Static pre-install repository risk evidence | `/scan` |
 | `schema-generate` | JSON-LD generation and structured-data gap analysis | `/schemaforge` |
 | `deep-audit` | Combined company and AI-search-readiness audit | `/deep-audit` |
@@ -62,6 +62,18 @@ npx skills add epistemedeus/x402-data-gateway-skills --skill wallet-enrich --yes
 `lockfile-defect-report` reads the current N-BTY-003 offer and prepares a report for a caller-owned npm lockfile v2 or v3 pair. From the installed skill, run `node scripts/report.mjs acquire --work DIR`, then run the maintained engine on the caller's `before.json` and `after.json`. Compare the caller's expected behavior with the actual delta. The structured `report --expected` mode is optional. A missing file stays missing. The kit owner fixture is not a substitute. Submission and the original one-award payment stay outside the command.
 
 ## Live contract first
+
+For one caller-owned public HTTPS page, the two existing skills first follow
+OpenAPI `x-service-info.docs.extractionTrial` on the same origin and GET the
+fresh `no-store` contract before constructing any trial request. Its current
+`request` describes structured extraction; `reader.request` describes bounded
+Markdown with supported native HTML tables. Discovery is not authorization for
+an unsolicited fetch. Both operations share the original finite hop allowance,
+one concurrent lease and current expiry; a hop is not a call. Refusal or an
+unknown outcome never becomes an automatic retry or payment. Direct/native
+alternatives and the separate nonspending paid-intent path remain available.
+The live challenge determines which payment protocols are actually offered;
+historical MPP examples do not establish current availability.
 
 Do not trust a cached price or payment example. Before any separate executor pays:
 
@@ -138,6 +150,19 @@ EXTRACT_MERCHANT_SOURCE_DIR=/path/to/exact-merchant-checkout node --test tests/*
 
 Without that path, only the optional source-replay test is explicitly skipped.
 Native model selection, installation and execution remain a separate gate.
+
+Current walletless guidance also has offline producer fixtures at
+`fixtures/walletless-first-use/`. Their separate optional replay uses the merchant
+at `6517665410c4e1267d7c2a7ef8860abdeec8086c` with its locked dependencies:
+
+```bash
+FIRST_USE_MERCHANT_SOURCE_DIR=/path/to/exact-current-merchant \
+  node --test --test-concurrency=1 tests/walletless-first-use.test.mjs
+```
+
+Without that input the current producer replay is explicitly skipped. These
+tests compare guidance decisions and delivered records, not model execution or
+live trial availability. They make no trial request over the network.
 
 ## Offline buyer recipes
 

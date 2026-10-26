@@ -1,0 +1,1144 @@
+{
+  "synthetic": true,
+  "sourcePin": "6517665410c4e1267d7c2a7ef8860abdeec8086c",
+  "discoveryPointer": "https://agents.samedaydesk.com/.well-known/extraction-trial",
+  "discovery": {
+    "enabled": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store"
+      },
+      "body": {
+        "schema": "samedaydesk.extraction-trial-budget.v1",
+        "experimentId": "offline-guidance-fixture",
+        "startsAt": "2026-10-25T09:24:44.619Z",
+        "expiresAt": "2026-11-01T09:24:44.619Z",
+        "maxStarted": 20,
+        "availability": "enabled",
+        "started": 0,
+        "remaining": 20,
+        "request": {
+          "method": "POST",
+          "path": "/trial/extract",
+          "contentType": "application/json",
+          "body": {
+            "url": "https://example.com/"
+          }
+        },
+        "limits": {
+          "maxStarted": 20,
+          "concurrency": 1,
+          "maxDays": 7,
+          "maxBodyBytes": 3000000,
+          "timeoutMs": 12000,
+          "redirects": 3
+        },
+        "accounting": "Each attempted HTTP hop, including failed DNS and redirects, spends one durable start. No per-caller credit or automatic renewal.",
+        "response": "Existing extract JSON. HTTP 200 can contain sourceOk=false or ok=false; inspect capture truncation. No payment or settlement receipt.",
+        "retry": "Do not automatically repeat after an unknown response; another request spends more allowance. Results are not retained for replay.",
+        "paidNextTask": {
+          "method": "GET",
+          "path": "/extract?url={encodedPublicUrl}",
+          "terms": "/.well-known/x402"
+        },
+        "reader": {
+          "request": {
+            "method": "POST",
+            "path": "/trial/read",
+            "contentType": "application/json",
+            "body": {
+              "url": "https://example.com/",
+              "markdownLimitChars": 40000
+            }
+          },
+          "markdownLimitChars": {
+            "optional": true,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 40000,
+            "default": 40000
+          },
+          "sharedBudget": "Read and extract share the same original authority, remaining hops, expiry and one concurrent operation. No separate reader allowance.",
+          "response": "Existing readMarkdown JSON: inspect ok, sourceOk, status, error, markdown, truncated and capture. Bounded native HTML tables preserve blank cells, spans and links inside Markdown; unsupported tables are explicitly omitted with truncation. No JavaScript or completeness guarantee. HTTP 200 may report source or fetch failure. No payment or settlement receipt.",
+          "paidNextTask": {
+            "method": "GET",
+            "path": "/read?url={encodedPublicUrl}",
+            "terms": "/.well-known/x402"
+          }
+        }
+      }
+    },
+    "disabled": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store"
+      },
+      "body": {
+        "schema": "samedaydesk.extraction-trial.v1",
+        "availability": "disabled",
+        "request": {
+          "method": "POST",
+          "path": "/trial/extract",
+          "contentType": "application/json",
+          "body": {
+            "url": "https://example.com/"
+          }
+        },
+        "limits": {
+          "maxStarted": 20,
+          "concurrency": 1,
+          "maxDays": 7,
+          "maxBodyBytes": 3000000,
+          "timeoutMs": 12000,
+          "redirects": 3
+        },
+        "accounting": "Each attempted HTTP hop, including failed DNS and redirects, spends one durable start. No per-caller credit or automatic renewal.",
+        "response": "Existing extract JSON. HTTP 200 can contain sourceOk=false or ok=false; inspect capture truncation. No payment or settlement receipt.",
+        "retry": "Do not automatically repeat after an unknown response; another request spends more allowance. Results are not retained for replay.",
+        "paidNextTask": {
+          "method": "GET",
+          "path": "/extract?url={encodedPublicUrl}",
+          "terms": "/.well-known/x402"
+        },
+        "reader": {
+          "request": {
+            "method": "POST",
+            "path": "/trial/read",
+            "contentType": "application/json",
+            "body": {
+              "url": "https://example.com/",
+              "markdownLimitChars": 40000
+            }
+          },
+          "markdownLimitChars": {
+            "optional": true,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 40000,
+            "default": 40000
+          },
+          "sharedBudget": "Read and extract share the same original authority, remaining hops, expiry and one concurrent operation. No separate reader allowance.",
+          "response": "Existing readMarkdown JSON: inspect ok, sourceOk, status, error, markdown, truncated and capture. Bounded native HTML tables preserve blank cells, spans and links inside Markdown; unsupported tables are explicitly omitted with truncation. No JavaScript or completeness guarantee. HTTP 200 may report source or fetch failure. No payment or settlement receipt.",
+          "paidNextTask": {
+            "method": "GET",
+            "path": "/read?url={encodedPublicUrl}",
+            "terms": "/.well-known/x402"
+          }
+        }
+      }
+    },
+    "scheduled": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store"
+      },
+      "body": {
+        "schema": "samedaydesk.extraction-trial-budget.v1",
+        "experimentId": "offline-guidance-fixture",
+        "startsAt": "2026-10-25T09:24:44.619Z",
+        "expiresAt": "2026-11-01T09:24:44.619Z",
+        "maxStarted": 20,
+        "availability": "scheduled",
+        "started": 0,
+        "remaining": 20,
+        "request": {
+          "method": "POST",
+          "path": "/trial/extract",
+          "contentType": "application/json",
+          "body": {
+            "url": "https://example.com/"
+          }
+        },
+        "limits": {
+          "maxStarted": 20,
+          "concurrency": 1,
+          "maxDays": 7,
+          "maxBodyBytes": 3000000,
+          "timeoutMs": 12000,
+          "redirects": 3
+        },
+        "accounting": "Each attempted HTTP hop, including failed DNS and redirects, spends one durable start. No per-caller credit or automatic renewal.",
+        "response": "Existing extract JSON. HTTP 200 can contain sourceOk=false or ok=false; inspect capture truncation. No payment or settlement receipt.",
+        "retry": "Do not automatically repeat after an unknown response; another request spends more allowance. Results are not retained for replay.",
+        "paidNextTask": {
+          "method": "GET",
+          "path": "/extract?url={encodedPublicUrl}",
+          "terms": "/.well-known/x402"
+        },
+        "reader": {
+          "request": {
+            "method": "POST",
+            "path": "/trial/read",
+            "contentType": "application/json",
+            "body": {
+              "url": "https://example.com/",
+              "markdownLimitChars": 40000
+            }
+          },
+          "markdownLimitChars": {
+            "optional": true,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 40000,
+            "default": 40000
+          },
+          "sharedBudget": "Read and extract share the same original authority, remaining hops, expiry and one concurrent operation. No separate reader allowance.",
+          "response": "Existing readMarkdown JSON: inspect ok, sourceOk, status, error, markdown, truncated and capture. Bounded native HTML tables preserve blank cells, spans and links inside Markdown; unsupported tables are explicitly omitted with truncation. No JavaScript or completeness guarantee. HTTP 200 may report source or fetch failure. No payment or settlement receipt.",
+          "paidNextTask": {
+            "method": "GET",
+            "path": "/read?url={encodedPublicUrl}",
+            "terms": "/.well-known/x402"
+          }
+        }
+      }
+    },
+    "expired": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store"
+      },
+      "body": {
+        "schema": "samedaydesk.extraction-trial-budget.v1",
+        "experimentId": "offline-guidance-fixture",
+        "startsAt": "2026-10-25T09:24:44.619Z",
+        "expiresAt": "2026-11-01T09:24:44.619Z",
+        "maxStarted": 20,
+        "availability": "expired",
+        "started": 0,
+        "remaining": 20,
+        "request": {
+          "method": "POST",
+          "path": "/trial/extract",
+          "contentType": "application/json",
+          "body": {
+            "url": "https://example.com/"
+          }
+        },
+        "limits": {
+          "maxStarted": 20,
+          "concurrency": 1,
+          "maxDays": 7,
+          "maxBodyBytes": 3000000,
+          "timeoutMs": 12000,
+          "redirects": 3
+        },
+        "accounting": "Each attempted HTTP hop, including failed DNS and redirects, spends one durable start. No per-caller credit or automatic renewal.",
+        "response": "Existing extract JSON. HTTP 200 can contain sourceOk=false or ok=false; inspect capture truncation. No payment or settlement receipt.",
+        "retry": "Do not automatically repeat after an unknown response; another request spends more allowance. Results are not retained for replay.",
+        "paidNextTask": {
+          "method": "GET",
+          "path": "/extract?url={encodedPublicUrl}",
+          "terms": "/.well-known/x402"
+        },
+        "reader": {
+          "request": {
+            "method": "POST",
+            "path": "/trial/read",
+            "contentType": "application/json",
+            "body": {
+              "url": "https://example.com/",
+              "markdownLimitChars": 40000
+            }
+          },
+          "markdownLimitChars": {
+            "optional": true,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 40000,
+            "default": 40000
+          },
+          "sharedBudget": "Read and extract share the same original authority, remaining hops, expiry and one concurrent operation. No separate reader allowance.",
+          "response": "Existing readMarkdown JSON: inspect ok, sourceOk, status, error, markdown, truncated and capture. Bounded native HTML tables preserve blank cells, spans and links inside Markdown; unsupported tables are explicitly omitted with truncation. No JavaScript or completeness guarantee. HTTP 200 may report source or fetch failure. No payment or settlement receipt.",
+          "paidNextTask": {
+            "method": "GET",
+            "path": "/read?url={encodedPublicUrl}",
+            "terms": "/.well-known/x402"
+          }
+        }
+      }
+    },
+    "exhausted": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store"
+      },
+      "body": {
+        "schema": "samedaydesk.extraction-trial-budget.v1",
+        "experimentId": "offline-guidance-fixture",
+        "startsAt": "2026-10-25T09:24:44.619Z",
+        "expiresAt": "2026-11-01T09:24:44.619Z",
+        "maxStarted": 20,
+        "availability": "exhausted",
+        "started": 20,
+        "remaining": 0,
+        "request": {
+          "method": "POST",
+          "path": "/trial/extract",
+          "contentType": "application/json",
+          "body": {
+            "url": "https://example.com/"
+          }
+        },
+        "limits": {
+          "maxStarted": 20,
+          "concurrency": 1,
+          "maxDays": 7,
+          "maxBodyBytes": 3000000,
+          "timeoutMs": 12000,
+          "redirects": 3
+        },
+        "accounting": "Each attempted HTTP hop, including failed DNS and redirects, spends one durable start. No per-caller credit or automatic renewal.",
+        "response": "Existing extract JSON. HTTP 200 can contain sourceOk=false or ok=false; inspect capture truncation. No payment or settlement receipt.",
+        "retry": "Do not automatically repeat after an unknown response; another request spends more allowance. Results are not retained for replay.",
+        "paidNextTask": {
+          "method": "GET",
+          "path": "/extract?url={encodedPublicUrl}",
+          "terms": "/.well-known/x402"
+        },
+        "reader": {
+          "request": {
+            "method": "POST",
+            "path": "/trial/read",
+            "contentType": "application/json",
+            "body": {
+              "url": "https://example.com/",
+              "markdownLimitChars": 40000
+            }
+          },
+          "markdownLimitChars": {
+            "optional": true,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 40000,
+            "default": 40000
+          },
+          "sharedBudget": "Read and extract share the same original authority, remaining hops, expiry and one concurrent operation. No separate reader allowance.",
+          "response": "Existing readMarkdown JSON: inspect ok, sourceOk, status, error, markdown, truncated and capture. Bounded native HTML tables preserve blank cells, spans and links inside Markdown; unsupported tables are explicitly omitted with truncation. No JavaScript or completeness guarantee. HTTP 200 may report source or fetch failure. No payment or settlement receipt.",
+          "paidNextTask": {
+            "method": "GET",
+            "path": "/read?url={encodedPublicUrl}",
+            "terms": "/.well-known/x402"
+          }
+        }
+      }
+    },
+    "busy": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store"
+      },
+      "body": {
+        "schema": "samedaydesk.extraction-trial-budget.v1",
+        "experimentId": "offline-guidance-fixture",
+        "startsAt": "2026-10-25T09:24:44.619Z",
+        "expiresAt": "2026-11-01T09:24:44.619Z",
+        "maxStarted": 20,
+        "availability": "busy",
+        "started": 0,
+        "remaining": 20,
+        "request": {
+          "method": "POST",
+          "path": "/trial/extract",
+          "contentType": "application/json",
+          "body": {
+            "url": "https://example.com/"
+          }
+        },
+        "limits": {
+          "maxStarted": 20,
+          "concurrency": 1,
+          "maxDays": 7,
+          "maxBodyBytes": 3000000,
+          "timeoutMs": 12000,
+          "redirects": 3
+        },
+        "accounting": "Each attempted HTTP hop, including failed DNS and redirects, spends one durable start. No per-caller credit or automatic renewal.",
+        "response": "Existing extract JSON. HTTP 200 can contain sourceOk=false or ok=false; inspect capture truncation. No payment or settlement receipt.",
+        "retry": "Do not automatically repeat after an unknown response; another request spends more allowance. Results are not retained for replay.",
+        "paidNextTask": {
+          "method": "GET",
+          "path": "/extract?url={encodedPublicUrl}",
+          "terms": "/.well-known/x402"
+        },
+        "reader": {
+          "request": {
+            "method": "POST",
+            "path": "/trial/read",
+            "contentType": "application/json",
+            "body": {
+              "url": "https://example.com/",
+              "markdownLimitChars": 40000
+            }
+          },
+          "markdownLimitChars": {
+            "optional": true,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 40000,
+            "default": 40000
+          },
+          "sharedBudget": "Read and extract share the same original authority, remaining hops, expiry and one concurrent operation. No separate reader allowance.",
+          "response": "Existing readMarkdown JSON: inspect ok, sourceOk, status, error, markdown, truncated and capture. Bounded native HTML tables preserve blank cells, spans and links inside Markdown; unsupported tables are explicitly omitted with truncation. No JavaScript or completeness guarantee. HTTP 200 may report source or fetch failure. No payment or settlement receipt.",
+          "paidNextTask": {
+            "method": "GET",
+            "path": "/read?url={encodedPublicUrl}",
+            "terms": "/.well-known/x402"
+          }
+        }
+      }
+    },
+    "unavailable": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store"
+      },
+      "body": {
+        "schema": "samedaydesk.extraction-trial.v1",
+        "availability": "unavailable",
+        "request": {
+          "method": "POST",
+          "path": "/trial/extract",
+          "contentType": "application/json",
+          "body": {
+            "url": "https://example.com/"
+          }
+        },
+        "limits": {
+          "maxStarted": 20,
+          "concurrency": 1,
+          "maxDays": 7,
+          "maxBodyBytes": 3000000,
+          "timeoutMs": 12000,
+          "redirects": 3
+        },
+        "accounting": "Each attempted HTTP hop, including failed DNS and redirects, spends one durable start. No per-caller credit or automatic renewal.",
+        "response": "Existing extract JSON. HTTP 200 can contain sourceOk=false or ok=false; inspect capture truncation. No payment or settlement receipt.",
+        "retry": "Do not automatically repeat after an unknown response; another request spends more allowance. Results are not retained for replay.",
+        "paidNextTask": {
+          "method": "GET",
+          "path": "/extract?url={encodedPublicUrl}",
+          "terms": "/.well-known/x402"
+        },
+        "reader": {
+          "request": {
+            "method": "POST",
+            "path": "/trial/read",
+            "contentType": "application/json",
+            "body": {
+              "url": "https://example.com/",
+              "markdownLimitChars": 40000
+            }
+          },
+          "markdownLimitChars": {
+            "optional": true,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 40000,
+            "default": 40000
+          },
+          "sharedBudget": "Read and extract share the same original authority, remaining hops, expiry and one concurrent operation. No separate reader allowance.",
+          "response": "Existing readMarkdown JSON: inspect ok, sourceOk, status, error, markdown, truncated and capture. Bounded native HTML tables preserve blank cells, spans and links inside Markdown; unsupported tables are explicitly omitted with truncation. No JavaScript or completeness guarantee. HTTP 200 may report source or fetch failure. No payment or settlement receipt.",
+          "paidNextTask": {
+            "method": "GET",
+            "path": "/read?url={encodedPublicUrl}",
+            "terms": "/.well-known/x402"
+          }
+        }
+      }
+    }
+  },
+  "refusals": {
+    "disabled": {
+      "status": 503,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "trial_unavailable",
+        "availability": "disabled"
+      }
+    },
+    "scheduled": {
+      "status": 503,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "trial_unavailable",
+        "availability": "scheduled"
+      }
+    },
+    "expired": {
+      "status": 503,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "trial_unavailable",
+        "availability": "expired"
+      }
+    },
+    "exhausted": {
+      "status": 503,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "trial_unavailable",
+        "availability": "exhausted"
+      }
+    },
+    "busy": {
+      "status": 503,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "trial_unavailable",
+        "availability": "busy"
+      }
+    },
+    "unavailable": {
+      "status": 503,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "trial_unavailable",
+        "availability": "unavailable"
+      }
+    }
+  },
+  "requests": {
+    "readMinimum": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": true,
+        "requestedUrl": "https://caller-owned.example/page",
+        "finalUrl": "https://caller-owned.example/page",
+        "url": "https://caller-owned.example/page",
+        "status": 200,
+        "sourceOk": true,
+        "error": null,
+        "title": "",
+        "markdown": "[",
+        "wordCount": 1,
+        "truncated": true,
+        "capture": {
+          "method": "http-get-no-javascript",
+          "javascriptExecuted": false,
+          "maxBodyBytes": 3000000,
+          "textExcerptLimitChars": null,
+          "markdownLimitChars": 1,
+          "bodyBytes": 258,
+          "bodyTruncated": false,
+          "textTruncated": true,
+          "charset": "utf-8",
+          "charsetSource": "content-type"
+        }
+      }
+    },
+    "readMaximum": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": true,
+        "requestedUrl": "https://caller-owned.example/page",
+        "finalUrl": "https://caller-owned.example/page",
+        "url": "https://caller-owned.example/page",
+        "status": 200,
+        "sourceOk": true,
+        "error": null,
+        "title": "",
+        "markdown": "<table><tr><th rowspan=\"2\">Engine</th><th colspan=\"2\">Support</th></tr><tr><th>Transpile</th><th>Reconcile</th></tr><tr><td>Alpha</td><td></td><td>Yes<sup><a href=\"https://caller-owned.example/page#fn1\">1</a></sup></td></tr><tr><td colspan=\"3\"><span id=\"fn1\">Preview</span></td></tr></table>",
+        "wordCount": 8,
+        "truncated": false,
+        "capture": {
+          "method": "http-get-no-javascript",
+          "javascriptExecuted": false,
+          "maxBodyBytes": 3000000,
+          "textExcerptLimitChars": null,
+          "markdownLimitChars": 40000,
+          "bodyBytes": 258,
+          "bodyTruncated": false,
+          "textTruncated": false,
+          "charset": "utf-8",
+          "charsetSource": "content-type"
+        }
+      }
+    },
+    "extractExcerpt": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": true,
+        "requestedUrl": "https://caller-owned.example/page",
+        "finalUrl": "https://caller-owned.example/page",
+        "url": "https://caller-owned.example/page",
+        "status": 200,
+        "sourceOk": true,
+        "error": null,
+        "contentType": "text/html; charset=utf-8",
+        "title": "",
+        "description": null,
+        "canonical": null,
+        "lang": null,
+        "openGraph": {},
+        "twitter": {},
+        "jsonLd": [],
+        "headings": {
+          "h1": [],
+          "h2": []
+        },
+        "links": [],
+        "text": "Engine S",
+        "aiReadiness": {
+          "hasJsonLd": false,
+          "hasOpenGraph": false,
+          "hasTitle": false,
+          "hasDescription": false,
+          "hasCanonical": false,
+          "schemaTypes": []
+        },
+        "capture": {
+          "method": "http-get-no-javascript",
+          "javascriptExecuted": false,
+          "maxBodyBytes": 3000000,
+          "textExcerptLimitChars": 8,
+          "markdownLimitChars": null,
+          "bodyBytes": 258,
+          "bodyTruncated": false,
+          "textTruncated": true,
+          "charset": "utf-8",
+          "charsetSource": "content-type"
+        }
+      }
+    },
+    "wrongReadField": {
+      "status": 400,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "invalid_trial_input"
+      }
+    },
+    "wrongExtractField": {
+      "status": 400,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "invalid_trial_input"
+      }
+    },
+    "readString": {
+      "status": 400,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "invalid_trial_input"
+      }
+    },
+    "readZero": {
+      "status": 400,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "invalid_trial_input"
+      }
+    },
+    "readTooLarge": {
+      "status": 400,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "invalid_trial_input"
+      }
+    },
+    "extra": {
+      "status": 400,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "invalid_trial_input"
+      }
+    },
+    "private": {
+      "status": 400,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "invalid_trial_input"
+      }
+    },
+    "credentials": {
+      "status": 400,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "invalid_trial_input"
+      }
+    },
+    "query": {
+      "status": 400,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "invalid_trial_input"
+      }
+    },
+    "method": {
+      "status": 405,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1",
+        "allow": "POST"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "method_not_allowed"
+      }
+    },
+    "invalidJson": {
+      "status": 400,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "invalid_trial_body"
+      }
+    },
+    "oversizeJson": {
+      "status": 413,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "charged": false,
+        "error": "invalid_trial_body"
+      }
+    }
+  },
+  "outputs": {
+    "read": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": true,
+        "requestedUrl": "https://caller-owned.example/page",
+        "finalUrl": "https://caller-owned.example/page",
+        "url": "https://caller-owned.example/page",
+        "status": 200,
+        "sourceOk": true,
+        "error": null,
+        "title": "",
+        "markdown": "<table><tr><th rowspan=\"2\">Engine</th><th colspan=\"2\">Support</th></tr><tr><th>Transpile</th><th>Reconcile</th></tr><tr><td>Alpha</td><td></td><td>Yes<sup><a href=\"https://caller-owned.example/page#fn1\">1</a></sup></td></tr><tr><td colspan=\"3\"><span id=\"fn1\">Preview</span></td></tr></table>",
+        "wordCount": 8,
+        "truncated": false,
+        "capture": {
+          "method": "http-get-no-javascript",
+          "javascriptExecuted": false,
+          "maxBodyBytes": 3000000,
+          "textExcerptLimitChars": null,
+          "markdownLimitChars": 40000,
+          "bodyBytes": 258,
+          "bodyTruncated": false,
+          "textTruncated": false,
+          "charset": "utf-8",
+          "charsetSource": "content-type"
+        }
+      }
+    },
+    "extract": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": true,
+        "requestedUrl": "https://caller-owned.example/page",
+        "finalUrl": "https://caller-owned.example/page",
+        "url": "https://caller-owned.example/page",
+        "status": 200,
+        "sourceOk": true,
+        "error": null,
+        "contentType": "text/html; charset=utf-8",
+        "title": "",
+        "description": null,
+        "canonical": null,
+        "lang": null,
+        "openGraph": {},
+        "twitter": {},
+        "jsonLd": [],
+        "headings": {
+          "h1": [],
+          "h2": []
+        },
+        "links": [],
+        "text": "Engine Support Transpile Reconcile Alpha Yes 1 Preview",
+        "aiReadiness": {
+          "hasJsonLd": false,
+          "hasOpenGraph": false,
+          "hasTitle": false,
+          "hasDescription": false,
+          "hasCanonical": false,
+          "schemaTypes": []
+        },
+        "capture": {
+          "method": "http-get-no-javascript",
+          "javascriptExecuted": false,
+          "maxBodyBytes": 3000000,
+          "textExcerptLimitChars": 1200,
+          "markdownLimitChars": null,
+          "bodyBytes": 258,
+          "bodyTruncated": false,
+          "textTruncated": false,
+          "charset": "utf-8",
+          "charsetSource": "content-type"
+        }
+      }
+    },
+    "bounded": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": true,
+        "requestedUrl": "https://caller-owned.example/page",
+        "finalUrl": "https://caller-owned.example/page",
+        "url": "https://caller-owned.example/page",
+        "status": 200,
+        "sourceOk": true,
+        "error": null,
+        "title": "",
+        "markdown": "[Table omitted: character",
+        "wordCount": 3,
+        "truncated": true,
+        "capture": {
+          "method": "http-get-no-javascript",
+          "javascriptExecuted": false,
+          "maxBodyBytes": 3000000,
+          "textExcerptLimitChars": null,
+          "markdownLimitChars": 25,
+          "bodyBytes": 258,
+          "bodyTruncated": false,
+          "textTruncated": true,
+          "charset": "utf-8",
+          "charsetSource": "content-type"
+        }
+      }
+    },
+    "omitted": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": true,
+        "requestedUrl": "https://caller-owned.example/page",
+        "finalUrl": "https://caller-owned.example/page",
+        "url": "https://caller-owned.example/page",
+        "status": 200,
+        "sourceOk": true,
+        "error": null,
+        "title": "",
+        "markdown": "[Table omitted: nested table; cell mappings unavailable.]",
+        "wordCount": 7,
+        "truncated": true,
+        "capture": {
+          "method": "http-get-no-javascript",
+          "javascriptExecuted": false,
+          "maxBodyBytes": 3000000,
+          "textExcerptLimitChars": null,
+          "markdownLimitChars": 40000,
+          "bodyBytes": 72,
+          "bodyTruncated": false,
+          "textTruncated": true,
+          "charset": "utf-8",
+          "charsetSource": "content-type"
+        }
+      }
+    },
+    "sourceRefusal": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": true,
+        "requestedUrl": "https://caller-owned.example/page",
+        "finalUrl": "https://caller-owned.example/page",
+        "url": "https://caller-owned.example/page",
+        "status": 403,
+        "sourceOk": false,
+        "error": {
+          "code": "http_403",
+          "message": "source refused: HTTP 403"
+        },
+        "title": "",
+        "markdown": "Blocked",
+        "wordCount": 1,
+        "truncated": false,
+        "capture": {
+          "method": "http-get-no-javascript",
+          "javascriptExecuted": false,
+          "maxBodyBytes": 3000000,
+          "textExcerptLimitChars": null,
+          "markdownLimitChars": 40000,
+          "bodyBytes": 20,
+          "bodyTruncated": false,
+          "textTruncated": false,
+          "charset": "utf-8",
+          "charsetSource": "content-type"
+        }
+      }
+    },
+    "empty": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": true,
+        "requestedUrl": "https://caller-owned.example/page",
+        "finalUrl": "https://caller-owned.example/page",
+        "url": "https://caller-owned.example/page",
+        "status": 204,
+        "sourceOk": true,
+        "error": null,
+        "title": "",
+        "markdown": "",
+        "wordCount": 0,
+        "truncated": false,
+        "capture": {
+          "method": "http-get-no-javascript",
+          "javascriptExecuted": false,
+          "maxBodyBytes": 3000000,
+          "textExcerptLimitChars": null,
+          "markdownLimitChars": 40000,
+          "bodyBytes": 0,
+          "bodyTruncated": false,
+          "textTruncated": false,
+          "charset": "utf-8",
+          "charsetSource": "content-type"
+        }
+      }
+    },
+    "fetchFailure": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": false,
+        "url": "https://caller-owned.example/page",
+        "requestedUrl": "https://caller-owned.example/page",
+        "finalUrl": null,
+        "status": null,
+        "sourceOk": false,
+        "error": {
+          "code": "timeout",
+          "message": "Bounded trial read failed"
+        },
+        "capture": {
+          "method": "http-get-no-javascript",
+          "javascriptExecuted": false,
+          "maxBodyBytes": 3000000,
+          "textExcerptLimitChars": null,
+          "markdownLimitChars": 40000,
+          "bodyBytes": 0,
+          "bodyTruncated": false,
+          "textTruncated": false,
+          "charset": null,
+          "charsetSource": "default-utf-8"
+        }
+      }
+    },
+    "bodyCap": {
+      "status": 200,
+      "headers": {
+        "cache-control": "no-store",
+        "x-samedaydesk-trial": "walletless-first-use-v1"
+      },
+      "body": {
+        "ok": true,
+        "requestedUrl": "https://caller-owned.example/page",
+        "finalUrl": "https://caller-owned.example/page",
+        "url": "https://caller-owned.example/page",
+        "status": 200,
+        "sourceOk": true,
+        "error": null,
+        "title": "",
+        "markdown": "xxxxxxxxxxxxxxxxxxxxxxxxx",
+        "wordCount": 1,
+        "truncated": true,
+        "capture": {
+          "method": "http-get-no-javascript",
+          "javascriptExecuted": false,
+          "maxBodyBytes": 3000000,
+          "textExcerptLimitChars": null,
+          "markdownLimitChars": 25,
+          "bodyBytes": 3000000,
+          "bodyTruncated": true,
+          "textTruncated": true,
+          "charset": "utf-8",
+          "charsetSource": "content-type"
+        }
+      }
+    }
+  },
+  "discoveryAndRefusalSourceCalls": 0,
+  "sharedAfterTwo": {
+    "schema": "samedaydesk.extraction-trial-budget.v1",
+    "experimentId": "offline-guidance-fixture",
+    "startsAt": "2026-10-25T09:24:44.619Z",
+    "expiresAt": "2026-11-01T09:24:44.619Z",
+    "maxStarted": 20,
+    "availability": "enabled",
+    "started": 2,
+    "remaining": 18,
+    "request": {
+      "method": "POST",
+      "path": "/trial/extract",
+      "contentType": "application/json",
+      "body": {
+        "url": "https://example.com/"
+      }
+    },
+    "limits": {
+      "maxStarted": 20,
+      "concurrency": 1,
+      "maxDays": 7,
+      "maxBodyBytes": 3000000,
+      "timeoutMs": 12000,
+      "redirects": 3
+    },
+    "accounting": "Each attempted HTTP hop, including failed DNS and redirects, spends one durable start. No per-caller credit or automatic renewal.",
+    "response": "Existing extract JSON. HTTP 200 can contain sourceOk=false or ok=false; inspect capture truncation. No payment or settlement receipt.",
+    "retry": "Do not automatically repeat after an unknown response; another request spends more allowance. Results are not retained for replay.",
+    "paidNextTask": {
+      "method": "GET",
+      "path": "/extract?url={encodedPublicUrl}",
+      "terms": "/.well-known/x402"
+    },
+    "reader": {
+      "request": {
+        "method": "POST",
+        "path": "/trial/read",
+        "contentType": "application/json",
+        "body": {
+          "url": "https://example.com/",
+          "markdownLimitChars": 40000
+        }
+      },
+      "markdownLimitChars": {
+        "optional": true,
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 40000,
+        "default": 40000
+      },
+      "sharedBudget": "Read and extract share the same original authority, remaining hops, expiry and one concurrent operation. No separate reader allowance.",
+      "response": "Existing readMarkdown JSON: inspect ok, sourceOk, status, error, markdown, truncated and capture. Bounded native HTML tables preserve blank cells, spans and links inside Markdown; unsupported tables are explicitly omitted with truncation. No JavaScript or completeness guarantee. HTTP 200 may report source or fetch failure. No payment or settlement receipt.",
+      "paidNextTask": {
+        "method": "GET",
+        "path": "/read?url={encodedPublicUrl}",
+        "terms": "/.well-known/x402"
+      }
+    }
+  },
+  "invalidRequestSourceCalls": 0,
+  "crossOperationBusy": {
+    "status": 503,
+    "headers": {
+      "cache-control": "no-store",
+      "x-samedaydesk-trial": "walletless-first-use-v1"
+    },
+    "body": {
+      "ok": false,
+      "charged": false,
+      "error": "trial_unavailable",
+      "availability": "busy"
+    }
+  },
+  "sourceCalls": 12
+}
