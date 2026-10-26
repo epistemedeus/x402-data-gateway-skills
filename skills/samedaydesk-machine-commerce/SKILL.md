@@ -1,6 +1,6 @@
 ---
 name: samedaydesk-machine-commerce
-description: Discover SameDayDesk's live account-free machine services (twenty-three paid HTTP actions in the 2026-09-10 version 1.23.46 `/api/actions` readback; re-verify live) and produce a verified, non-spending purchase intent from the live OpenAPI contract and unpaid HTTP 402 challenge. Use to select and preflight public web extraction, company or wallet enrichment, repository security scans, JSON-LD generation, AI-search audits, Morpho risk analysis, work opportunities, agent-service discoverability, agent-surface context budgets, contract-qualified service search, seller integrity, x402 or MPP payment offers, Base or Solana transaction evidence, or delegated-wallet policy conformance before a separately authorized payment executor is involved.
+description: Discover SameDayDesk's live account-free machine services, follow current walletless extraction/read availability for a caller-owned public page, or produce a verified, non-spending purchase intent from the live OpenAPI contract and unpaid HTTP 402 challenge. Use to select and preflight public web extraction, company or wallet enrichment, repository security scans, JSON-LD generation, AI-search audits, Morpho risk analysis, work opportunities, agent-service discoverability, agent-surface context budgets, contract-qualified service search, seller integrity, x402 or MPP payment offers, Base or Solana transaction evidence, or delegated-wallet policy conformance before a separately authorized payment executor is involved.
 ---
 
 # Preflight SameDayDesk machine commerce
@@ -19,6 +19,63 @@ run before payment. Do not access a wallet, read a private key, create or attach
 a payment credential, sign a message or transaction, broadcast a transaction,
 or replay the paid request. A separate payment executor with its own explicit
 authority may consume the verified purchase intent later.
+
+## Check walletless first use for a public page
+
+Before choosing a paid extract/read action, follow the live OpenAPI
+`x-service-info.docs.extractionTrial` pointer. Resolve it against the canonical
+origin and require same-origin HTTPS without credentials or cross-origin redirects.
+GET that contract fresh; its `Cache-Control: no-store` availability, operation,
+example, limits and result guidance are the authority before constructing a request.
+Missing, malformed or unreachable discovery means availability is unknown: stop
+the trial path. Discovery alone does not authorize an unsolicited URL fetch.
+Require the caller's actual task and caller-owned public HTTPS URL; replace the
+discovery example, never invent a target or use an issue as a QA task.
+
+| Caller needs | Contract member | Current HTTP operation | JSON body template |
+| --- | --- | --- | --- |
+| Structured text, metadata, headings, links or JSON-LD | `request` | `POST /trial/extract` | `{"url":"<caller-public-https-url>"}` |
+| Page body with bounded tables in Markdown | `reader.request` | `POST /trial/read` | `{"url":"<caller-public-https-url>","markdownLimitChars":40000}` |
+
+Use the freshly discovered method, path and `application/json` content type;
+the table describes the current contract, not a fallback if discovery changes.
+These are HTTP operations, not evidence of walletless MCP tools or batch support.
+Extract optionally accepts `textExcerptLimitChars` (1–40,000, default 1,200);
+read optionally accepts integer `markdownLimitChars` (1–40,000, default 40,000).
+Do not swap those fields, attach query parameters, or send extra body fields.
+
+| Fresh availability | Trial decision |
+| --- | --- |
+| `enabled` | Eligible only for the caller-authorized task; recheck current limits and expiry. |
+| `disabled`, `scheduled`, `expired`, `exhausted`, `busy`, `unavailable` | Stop and explain the returned boundary; do not submit or automatically retry. |
+| Missing or unknown | Stop with availability unknown; do not infer a grant. |
+
+Read and extract share the SAME original authority: at most 20 attempted hops,
+one concurrent operation and the original expiry reported by live discovery.
+A hop is not a call: failed DNS and redirects spend before I/O. Never cache a
+remaining count or date as permanent entitlement, assign per-operation credit,
+renew/reset a grant, or read runtime stores. An enabled snapshot can race;
+HTTP 503 `trial_unavailable` with `availability` is an admission refusal, not 402.
+HTTP 400 `invalid_trial_input`/`invalid_trial_body`, 413 `invalid_trial_body`,
+and 405 `method_not_allowed` are refusals, not useful source output.
+An unknown/lost response must not be automatically repeated; results are not
+retained for replay and another request spends more allowance.
+
+HTTP 200 is delivery, not source success: inspect `ok`, `sourceOk`, `status`,
+`error`, `requestedUrl`, `finalUrl`, `capture` and, for read, `markdown` and
+`truncated`. A captured 403 can have `ok:true` and `sourceOk:false`; a fetch
+failure can have `ok:false`, `status:null`, `finalUrl:null`. Neither is useful
+source content. No-JS capture is bounded to 3,000,000 body bytes; supported
+native HTML tables inside Markdown preserve blank cells, spans and links.
+Unsupported tables are explicitly omitted with truncation. Inspect body/text
+truncation and omission markers; even untruncated output proves no general
+table fidelity, rendered-page completeness or buyer acceptance. No trial result
+is a payment or settlement receipt.
+
+On refusal or unknown outcome, offer the caller's authorized direct/native
+alternative, or the separate nonspending paid-intent path below when requested.
+Never turn a free refusal into a paid retry. Keep the optional source header as
+declared attribution only; it cannot grant access or allowance.
 
 ## Choose the paid action
 
@@ -96,7 +153,8 @@ On HTTP 402:
 1. verify the complete resource URL and selected operation;
 2. require Base network `eip155:8453` and canonical Base USDC;
 3. verify the current amount and recipient from the live challenge;
-4. select one compatible protocol offer, x402 v2 or native MPP `evm/charge`;
+4. select one compatible protocol offer actually present in the live challenge,
+   x402 v2 or native MPP `evm/charge`; naming MPP here does not establish it is live;
 5. return a purchase intent containing the method, resolved URL, operation,
    exact POST body when applicable, protocol, amount, network, asset, recipient, challenge expiry, and output
    expectations;
