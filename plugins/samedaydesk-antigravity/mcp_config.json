@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "samedaydesk": {
+      "serverUrl": "https://agents.samedaydesk.com/mcp"
+    }
+  }
+}

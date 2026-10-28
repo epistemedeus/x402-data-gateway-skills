@@ -1,0 +1,84 @@
+{
+  "schema": "samedaydesk.antigravity-qualification.v0",
+  "note": "One qualification of this directory. It is not a compatibility promise for a later agy build, and the tool count is not a package contract.",
+  "cli": {
+    "command": "agy",
+    "version": "1.4.8",
+    "platform": "linux_amd64",
+    "installer": "https://antigravity.google/cli/install.sh",
+    "installerSha256": "62966c07365423bd4dc209355060744058fb30d60f5323e2d360e39de64e5042"
+  },
+  "validate": {
+    "command": "agy plugin validate <directory> --strict --json",
+    "findings": [],
+    "agentPluginsSpec": false,
+    "components": {
+      "agents": 0,
+      "hooks": 0,
+      "mcpServers": 1,
+      "rules": 0,
+      "sidecars": 0,
+      "skills": 1
+    }
+  },
+  "install": {
+    "form": "local-directory",
+    "listSource": "antigravity",
+    "stagedDirectory": ".gemini/config/plugins/samedaydesk-antigravity",
+    "enabledState": ".gemini/config/config.json plugins.<name>.enabled",
+    "missingEnabledEntryListsAsEnabled": true,
+    "serverUrl": "https://agents.samedaydesk.com/mcp",
+    "skill": "samedaydesk-remote-mcp",
+    "mcpServer": "samedaydesk"
+  },
+  "githubInstall": {
+    "treeBranchSubpathParsed": true,
+    "commitShaIsABranch": false,
+    "ownerRepoColonSubpath": "rejected: install target must be a directory",
+    "fragmentSubpathSelectsPlugin": false,
+    "pinnedOneCommandUrl": false
+  },
+  "hostLoadedExchange": {
+    "received": false,
+    "pluginListReadsComponents": true,
+    "mcpListShowsPluginServer": false,
+    "reason": "agy mcp list stays empty for a server declared only by this plugin and does not open the endpoint. No plugin subcommand performs initialize. agy --print was not run."
+  },
+  "directSdkProbe": {
+    "sdk": "@modelcontextprotocol/sdk",
+    "sdkVersion": "1.32.2",
+    "separateFromAntigravityHost": true,
+    "protocolVersion": "2025-11-25",
+    "server": {
+      "name": "x402-data-gateway",
+      "version": "1.23.55"
+    },
+    "methods": [
+      "initialize",
+      "notifications/initialized",
+      "tools/list",
+      "ping",
+      "prompts/list"
+    ],
+    "toolsCallSent": false,
+    "toolsListCount": 29,
+    "toolsWithInputSchema": 29,
+    "toolsMarkedX402PaymentRequired": 25,
+    "toolsMarkedSamedaydeskUncharged": [
+      "page_change",
+      "careers_board_cold",
+      "report_caller_result",
+      "recover_paid_result"
+    ],
+    "getCardToolCount": 25,
+    "getIsNotToolsList": true,
+    "ping": {},
+    "promptsList": {
+      "http": 200,
+      "jsonrpcError": -32601,
+      "message": "Method not found"
+    }
+  },
+  "attribution": "unqualified",
+  "sourceHeader": null
+}
