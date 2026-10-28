@@ -5,7 +5,7 @@ description: Discover the existing SameDayDesk remote MCP tools and their paymen
 
 # SameDayDesk remote MCP discovery
 
-This is the only skill in the `samedaydesk-antigravity` plugin. It does not install the other skills in this repository.
+This is the only skill in this plugin. The source directory is `plugins/samedaydesk-antigravity`. The machine name is `samedaydesk`. It does not install the other skills in this repository.
 
 ## Bound server
 
@@ -18,6 +18,23 @@ This is the only skill in the `samedaydesk-antigravity` plugin. It does not inst
 | Transport | Remote Streamable HTTP |
 
 The config has no command, environment, OAuth client, or HTTP header. The merchant allowlist used for this adapter has no Antigravity source value. This plugin omits `X-SameDayDesk-Agent-Source`. Attribution is unqualified. Do not copy `claude-code-marketplace-v1`, `agent-plugins-v1`, `agent-skills-v1`, or `goose-native-v1` onto this client.
+
+## Host tool names
+
+The host builds `mcp_<plugin name>_<server name>_<tool id>`. The result has to match `^[a-zA-Z0-9_-]{1,64}$`.
+
+| Piece | Value |
+| --- | --- |
+| Source directory | `plugins/samedaydesk-antigravity` |
+| Machine name | `samedaydesk` |
+| Display name | SameDayDesk |
+| Server name | `samedaydesk` |
+| Prefix | `mcp_samedaydesk_samedaydesk_` (28 characters) |
+| Longest remote id that fits | 36 characters |
+
+The remote tool id comes from `tools/list`. This skill does not rename it. The plugin schema has `displayName` and no tool-id alias. Hiding a tool is not a shorter id. Do not add a local proxy that forwards `tools/call`.
+
+An earlier machine name, `samedaydesk-antigravity`, made a 40-character prefix. Host qualification dropped every generated name longer than 64 characters. That failure stays in `OBSERVED.json`. Do not call it a complete host load. A saved id list is not the live inventory. Read `tools/list` again when the set matters.
 
 ## Unpaid discovery
 

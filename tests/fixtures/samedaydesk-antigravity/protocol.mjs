@@ -13,6 +13,40 @@ export const DISCOVERY_METHODS = Object.freeze([
   'tools/list',
 ]);
 
+/**
+ * Directory this fixture uses when it stages a plugin.
+ * This is not the path agy 1.4.8 wrote. That observed path is
+ * OBSERVED_AGY_148_PLUGIN_STAGE_REL.
+ */
+export const SYNTHETIC_PLUGIN_STAGE_REL = '.gemini/antigravity-cli/plugins';
+
+/** Staged plugin root recorded for agy 1.4.8. The fixture never writes this path. */
+export const OBSERVED_AGY_148_PLUGIN_STAGE_REL = '.gemini/config/plugins';
+
+export const HOST_NAME_MAX = 64;
+export const HOST_NAME_PATTERN = /^[a-zA-Z0-9_-]{1,64}$/;
+
+export function agyHostPrefix(pluginName, serverName) {
+  if (typeof pluginName !== 'string' || !/^[a-zA-Z0-9_-]+$/.test(pluginName)) {
+    throw new ConfigError('plugin name is not a host name component');
+  }
+  if (typeof serverName !== 'string' || !/^[a-zA-Z0-9_-]+$/.test(serverName)) {
+    throw new ConfigError('server name is not a host name component');
+  }
+  return `mcp_${pluginName}_${serverName}_`;
+}
+
+export function agyHostToolName(pluginName, serverName, toolId) {
+  if (typeof toolId !== 'string' || toolId.length === 0) {
+    throw new ConfigError('tool id missing');
+  }
+  return `${agyHostPrefix(pluginName, serverName)}${toolId}`;
+}
+
+export function agyHostNameFits(pluginName, serverName, toolId) {
+  return HOST_NAME_PATTERN.test(agyHostToolName(pluginName, serverName, toolId));
+}
+
 export class ConfigError extends Error {
   constructor(message) {
     super(message);
@@ -316,7 +350,7 @@ export function treeDigest(dir) {
 
 export function stagePlugin(home, name, sourceDir) {
   if (!/^[a-zA-Z0-9_-]+$/.test(name)) throw new ConfigError('plugin name rejected');
-  const pluginsRoot = join(home, '.gemini', 'antigravity-cli', 'plugins');
+  const pluginsRoot = join(home, ...SYNTHETIC_PLUGIN_STAGE_REL.split('/'));
   const dest = join(pluginsRoot, name);
   if (!contained(pluginsRoot, dest)) throw new ConfigError('plugin path escaped the config root');
   if (existsSync(join(sourceDir, 'hooks.json'))) throw new ConfigError('hooks are not part of this adapter');
@@ -332,7 +366,7 @@ export function stagePlugin(home, name, sourceDir) {
 
 export function uninstallPlugin(home, name) {
   if (!/^[a-zA-Z0-9_-]+$/.test(name)) throw new ConfigError('plugin name rejected');
-  const pluginsRoot = join(home, '.gemini', 'antigravity-cli', 'plugins');
+  const pluginsRoot = join(home, ...SYNTHETIC_PLUGIN_STAGE_REL.split('/'));
   const dest = join(pluginsRoot, name);
   if (!contained(pluginsRoot, dest)) throw new ConfigError('plugin path escaped the config root');
   rmSync(dest, { recursive: true, force: true });
