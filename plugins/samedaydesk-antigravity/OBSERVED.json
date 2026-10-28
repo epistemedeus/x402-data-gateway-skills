@@ -134,6 +134,30 @@
       "trialPostSent": false,
       "purchaseSent": false,
       "note": "Re-checked one unpaid tools/list for the task-ready reader. Did not rename, did not host-load, did not send tools/call, did not POST /trial/*, and did not purchase. The retained 29-id list is unchanged. trial_read was present on this later list. That count is not a package contract. execution.taskSupport was forbidden on every listed tool."
+    },
+    {
+      "id": "ROOT23200",
+      "pluginVersion": "0.1.3",
+      "hostLoadedExchangeReceived": false,
+      "hostInstallReRunAfterRename": false,
+      "hostComplete": false,
+      "productionToolsCallSent": false,
+      "trialPostSent": false,
+      "purchaseSent": false,
+      "globalNoCallBanResealed": false,
+      "commands": [
+        {
+          "command": "agy --version",
+          "exitCode": 127,
+          "stderr": "bash: line 1: agy: command not found"
+        },
+        {
+          "command": "agy plugin validate plugins/samedaydesk-antigravity --strict --json",
+          "exitCode": 127,
+          "stderr": "bash: line 1: agy: command not found"
+        }
+      ],
+      "note": "Customer skill may send one ordinary free trial_read. Discovery mode still refuses tools/call. agy is not installed on this host, so the renamed namespace was not host-loaded. Direct SDK listing was not used as a host load. No production tools/call, trial POST, or purchase."
     }
   ],
   "hostName": {
@@ -317,5 +341,24 @@
       "trial_read",
       "recover_paid_result"
     ]
+  },
+  "customerUsefulExecution": {
+    "id": "ROOT23200",
+    "productionToolsCallSent": false,
+    "trialPostSent": false,
+    "purchaseSent": false,
+    "globalNoCallBanResealed": false,
+    "discoveryNoCallRemains": true,
+    "customerOrdinaryCall": "trial_read",
+    "taskAugmentation": false,
+    "taskSupportForbiddenMeans": "no asynchronous Task augmentation; ordinary synchronous tools/call stays allowed",
+    "contracts": [
+      "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2025-11-25/basic/utilities/tasks.mdx",
+      "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2025-11-25/server/tools.mdx"
+    ],
+    "fixture": "tests/fixtures/samedaydesk-antigravity/protocol.mjs",
+    "positiveCase": "one synthetic public URL, one ordinary tools/call, one structured read, no paid request",
+    "stoppedOutcomes": ["missing", "expired", "exhausted", "refused", "unknown"],
+    "hostComplete": false
   }
 }

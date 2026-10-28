@@ -1,6 +1,6 @@
 # samedaydesk-antigravity
 
-Antigravity CLI plugin for the existing SameDayDesk remote MCP. The source directory is `plugins/samedaydesk-antigravity`. The machine name in `plugin.json` is `samedaydesk`. The name shown to people is SameDayDesk. It binds one server and one discovery skill. It does not install the other skills in this repository, and it does not change the merchant server.
+Antigravity CLI plugin for the existing SameDayDesk remote MCP. The source directory is `plugins/samedaydesk-antigravity`. The machine name in `plugin.json` is `samedaydesk`. The name shown to people is SameDayDesk. It binds one server and one skill. It does not install the other skills in this repository, and it does not change the merchant server.
 
 ## Install
 
@@ -56,7 +56,7 @@ agy 1.4.8 loads plugin MCP tools under `mcp_<plugin name>_<server name>_<tool id
 
 The published plugin schema, fetched from `https://antigravity.google/schemas/v1/plugin.json` on 2026-10-28, can set `displayName`. It has no tool-id alias. `enabledTools` and `disabledTools` only hide tools. This config sets neither. The server entry stays `serverUrl` only and still points at `https://agents.samedaydesk.com/mcp`. Remote tool ids stay the merchant ids. SameDayDesk branding stays in `displayName`, the description, and the skill. The host prefix uses the machine name. The source directory is longer, and this job did not re-measure a host load, so a later host that prefixes the directory name instead of `plugin.json` `name` would still be over 64.
 
-With machine name `samedaydesk` and server `samedaydesk`, the prefix is `mcp_samedaydesk_samedaydesk_` (28 characters). A remote id of 37 or more characters does not fit. One unpaid `tools/list` on 2026-10-28, separate from the Antigravity host, had 29 ids. The longest was `stateful_wallet_policy_conformance` at 34 characters, so the longest generated name was 62. That count is not a permanent inventory. No `tools/call` was sent. This package has not been host-loaded again after the rename. A later unpaid list for the task-ready reader is appended in `OBSERVED.json`. It does not replace the 29-id measurement, and it is not a second host load.
+With machine name `samedaydesk` and server `samedaydesk`, the prefix is `mcp_samedaydesk_samedaydesk_` (28 characters). A remote id of 37 or more characters does not fit. One unpaid `tools/list` on 2026-10-28, separate from the Antigravity host, had 29 ids. The longest was `stateful_wallet_policy_conformance` at 34 characters, so the longest generated name was 62. That count is not a permanent inventory. That list measurement sent no `tools/call`. This package has not been host-loaded again after the rename. A later unpaid list for the task-ready reader is appended in `OBSERVED.json`. It does not replace the 29-id measurement, and it is not a second host load.
 
 ## Tests and the CLI
 
@@ -66,13 +66,15 @@ No hook, install script, resident process, credential field, or telemetry endpoi
 
 ## Discovery and payment
 
-`initialize` and `tools/list` are unpaid discovery. They are not extraction and not a trial. Do not send `tools/call` from this package. The plugin sets no `X-SameDayDesk-Agent-Source` header. Attribution is unqualified.
+`initialize` and `tools/list` are unpaid discovery. They are not a trial and not a purchase. In operator discovery-QA, stop after that list and do not send `tools/call`. That no-call control is only for discovery-QA.
+
+The customer skill may send one ordinary free `trial_read` when the user supplies a public URL. This package does not pay, does not POST `/trial/read` or `/trial/extract`, and sets no `X-SameDayDesk-Agent-Source` header. Attribution is unqualified.
 
 A direct MCP SDK probe of the URL is not the Antigravity host loading the plugin. `agy plugin list` is the component readback. A model turn is a later step and is not required to install or list the plugin.
 
 ## Task-ready reader
 
-Use operator discovery-QA for the unpaid list. Use customer task-ready only as a reading for an authorized caller. That reading does not perform the call. The free page tool on the appended re-check is `trial_read`. Its measured input is required `url` and optional `markdownLimitChars`. Paid tools, including `read`, stay with the caller's own payment authority. This package does not purchase, does not POST `/trial/read` or `/trial/extract`, and does not copy a price. `execution.taskSupport` was `forbidden` on every tool in that re-check. The client filter lives in `tests/fixtures/samedaydesk-antigravity/protocol.mjs`. Skill prose is not that filter. Counts in `OBSERVED.json` are not a package contract.
+Use customer task-ready to send one ordinary free `trial_read` for the supplied public URL and inspect the structured result. It does not add Task augmentation. `execution.taskSupport` `forbidden` forbids that augmentation only. Paid tools, including `read`, stay with the authorized caller's own payment authority. Missing, expired, exhausted, refused, and lost responses stop without a payment or a retry. The synthetic journey lives in `tests/fixtures/samedaydesk-antigravity/protocol.mjs`. Counts in `OBSERVED.json` are not a package contract.
 
 ## Remove
 

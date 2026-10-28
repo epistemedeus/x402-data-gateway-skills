@@ -1,6 +1,11 @@
 /**
  * Isolated synthetic protocol fixture for the Antigravity adapter.
  * This is not the official MCP SDK and not the Antigravity host.
+ *
+ * Audiences stay separate:
+ * - Implementation/QA uses this file on loopback only. It does not call production.
+ * - Operator discovery-QA uses discover() and refuses tools/call.
+ * - The customer path uses customerFreeRead() for one ordinary trial_read.
  */
 import { createHash } from 'node:crypto';
 import { createServer } from 'node:http';
@@ -17,8 +22,8 @@ export const DISCOVERY_METHODS = Object.freeze([
 export const OPERATOR_DISCOVERY_QA = 'operator-discovery-qa';
 
 /**
- * Documents the authorized caller's next action.
- * This client still does not send that action.
+ * Customer path. One ordinary free trial_read is allowed.
+ * Discovery mode does not use this constant as a call.
  */
 export const CUSTOMER_TASK_READY = 'customer-task-ready';
 
@@ -117,9 +122,10 @@ export function loadAdapterConfig(config) {
   return { name, serverUrl: server.serverUrl };
 }
 
-function refusePaid(method) {
+/** Discovery mode only. An ordinary customer tools/call does not use this. */
+function refuseDiscoveryCall(method) {
   if (method === 'tools/call') {
-    throw new ProtocolError('paid tool request refused before send');
+    throw new ProtocolError('discovery mode refuses tools/call before send');
   }
 }
 
@@ -211,7 +217,7 @@ export function readToolBoundary(tool, mode) {
   if (mode === OPERATOR_DISCOVERY_QA) {
     documentedNextAction = 'stop-after-unpaid-list';
   } else if (classified.class === 'free' && classified.name === 'trial_read') {
-    documentedNextAction = 'authorized-caller-live-trial-read-schema';
+    documentedNextAction = 'one-ordinary-free-trial-read';
   } else if (classified.class === 'paid') {
     documentedNextAction = 'caller-authority';
   } else if (classified.class === 'free') {
@@ -235,15 +241,196 @@ export function readInventory(tools, mode) {
   };
 }
 
-/**
- * Customer task-ready prose is not a send path.
- * tools/call is refused first. A trial URL is refused before any other method.
- */
-export function customerTaskReadyCall(method, url, { fetchImpl = globalThis.fetch } = {}) {
-  refusePaid(method);
+function assertSyntheticMcp(url) {
   refuseTrialTarget(url);
-  void fetchImpl;
-  throw new ProtocolError('customer task-ready does not send from this client');
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new ProtocolError('customer fixture accepts only a synthetic local MCP');
+  }
+  if (parsed.protocol !== 'http:' || (parsed.hostname !== '127.0.0.1' && parsed.hostname !== 'localhost')) {
+    throw new ProtocolError('customer fixture accepts only a synthetic local MCP');
+  }
+}
+
+function assertPublicPageUrl(value) {
+  if (typeof value !== 'string' || value.length === 0) throw new ProtocolError('public url required');
+  let parsed;
+  try {
+    parsed = new URL(value);
+  } catch {
+    throw new ProtocolError('public url required');
+  }
+  if (parsed.protocol !== 'https:' || parsed.username || parsed.password || parsed.hostname.length === 0) {
+    throw new ProtocolError('public url must be https without credentials');
+  }
+}
+
+function trialReadArguments(schema, publicUrl, markdownLimitChars) {
+  if (!isRecord(schema) || !isRecord(schema.properties)) throw new ProtocolError('missing-input-schema');
+  const urlSchema = schema.properties.url;
+  if (!isRecord(urlSchema) || urlSchema.type !== 'string') throw new ProtocolError('live schema has no url string');
+  if (!Array.isArray(schema.required) || !schema.required.includes('url')) {
+    throw new ProtocolError('live schema does not require url');
+  }
+  const min = Number.isInteger(urlSchema.minLength) ? urlSchema.minLength : 1;
+  const max = Number.isInteger(urlSchema.maxLength) ? urlSchema.maxLength : null;
+  if (publicUrl.length < min || (max !== null && publicUrl.length > max)) {
+    throw new ProtocolError('public url outside live schema');
+  }
+  const args = { url: publicUrl };
+  if (markdownLimitChars !== undefined) {
+    const limitSchema = schema.properties.markdownLimitChars;
+    if (!isRecord(limitSchema)) throw new ProtocolError('live schema has no markdownLimitChars');
+    if (!Number.isInteger(markdownLimitChars)) throw new ProtocolError('markdownLimitChars outside live schema');
+    if (Number.isInteger(limitSchema.minimum) && markdownLimitChars < limitSchema.minimum) {
+      throw new ProtocolError('markdownLimitChars outside live schema');
+    }
+    if (Number.isInteger(limitSchema.maximum) && markdownLimitChars > limitSchema.maximum) {
+      throw new ProtocolError('markdownLimitChars outside live schema');
+    }
+    args.markdownLimitChars = markdownLimitChars;
+  }
+  return args;
+}
+
+const ACCESS_OUTCOMES = new Set(['exhausted', 'expired', 'refused']);
+
+function namedAccess(body, isError) {
+  const errorText = typeof body.error === 'string' ? body.error.trim().toLowerCase() : '';
+  const availability = typeof body.availability === 'string' ? body.availability.trim().toLowerCase() : '';
+  if (ACCESS_OUTCOMES.has(availability)) return availability;
+  if (ACCESS_OUTCOMES.has(errorText)) return errorText;
+  if (isError) return 'refused';
+  return null;
+}
+
+function judgeTrialRead(exchange) {
+  if (!exchange || exchange.lost) return { outcome: 'unknown', reason: 'lost-response', structured: null };
+  if (exchange.paidChallenge || exchange.httpStatus === 402) {
+    return { outcome: 'caller-authority', reason: 'payment-challenge', structured: null };
+  }
+  const payload = exchange.payload;
+  if (!payload || payload.jsonrpc !== '2.0' || payload.error || !isRecord(payload.result)) {
+    return { outcome: 'unknown', reason: 'lost-response', structured: null };
+  }
+  const result = payload.result;
+  const body = isRecord(result.structuredContent) ? result.structuredContent : null;
+  if (!body) {
+    return {
+      outcome: result.isError === true ? 'refused' : 'unknown',
+      reason: result.isError === true ? 'tool-error' : 'missing-structured-content',
+      structured: null,
+    };
+  }
+  const access = namedAccess(body, result.isError === true);
+  if (access) return { outcome: access, reason: access, structured: body };
+  if (body.charged !== false) return { outcome: 'unknown', reason: 'charged-not-false', structured: body };
+  if (body.ok === true && body.sourceOk === true && typeof body.markdown === 'string' && body.markdown.length > 0) {
+    return { outcome: 'useful', reason: 'structured-read', structured: body };
+  }
+  if (body.sourceOk === false) return { outcome: 'refused', reason: 'source-not-ok', structured: body };
+  return { outcome: 'unknown', reason: 'unclassified-result', structured: body };
+}
+
+function customerResult(found, publicUrl, extra) {
+  const sent = [...found.sent];
+  if (extra.sentExtra) sent.push(extra.sentExtra);
+  return {
+    mode: CUSTOMER_TASK_READY,
+    outcome: extra.outcome,
+    reason: extra.reason ?? null,
+    publicUrl,
+    sent,
+    toolsCallSent: extra.toolsCallSent === true,
+    consumingRequests: extra.consumingRequests ?? 0,
+    trialPostSent: false,
+    purchaseSent: false,
+    paidRequestSent: false,
+    taskAugmented: false,
+    retried: false,
+    structured: extra.structured ?? null,
+  };
+}
+
+async function postOneTrialRead(url, session, args, fetchImpl) {
+  const params = { name: 'trial_read', arguments: args };
+  const headers = {
+    'content-type': 'application/json',
+    accept: 'application/json, text/event-stream',
+  };
+  if (session) headers['mcp-session-id'] = session;
+  let response;
+  try {
+    response = await fetchImpl(url, {
+      method: 'POST',
+      redirect: 'error',
+      headers,
+      body: JSON.stringify({ jsonrpc: '2.0', id: 3, method: 'tools/call', params }),
+    });
+  } catch (error) {
+    return { lost: true, message: error instanceof Error ? error.message : String(error) };
+  }
+  let text = '';
+  try {
+    text = await response.text();
+  } catch (error) {
+    return {
+      lost: true,
+      httpStatus: response.status,
+      message: error instanceof Error ? error.message : String(error),
+    };
+  }
+  if (response.status === 402) return { httpStatus: 402, paidChallenge: true };
+  if (!text.trim()) return { lost: true, httpStatus: response.status, empty: true };
+  try {
+    return { httpStatus: response.status, payload: parseRpcBody(text) };
+  } catch {
+    return { lost: true, httpStatus: response.status, unreadable: true };
+  }
+}
+
+/**
+ * One ordinary free trial_read for a supplied public URL.
+ * Discovery methods are not consuming. The tools/call is the one consuming request.
+ * No task field, no second call, no paid tool, no production host.
+ */
+export async function customerFreeRead(mcpUrl, publicUrl, options = {}) {
+  if (options.task != null) throw new ProtocolError('task augmentation refused before send');
+  assertSyntheticMcp(mcpUrl);
+  assertPublicPageUrl(publicUrl);
+  const fetchImpl = options.fetchImpl ?? globalThis.fetch;
+  const found = await discover(mcpUrl, { fetchImpl });
+  const tool = found.tools.find((item) => item && item.name === 'trial_read') ?? null;
+  if (!tool) return customerResult(found, publicUrl, { outcome: 'missing', reason: 'trial_read-not-listed' });
+  const boundary = readToolBoundary(tool, CUSTOMER_TASK_READY);
+  if (boundary.class !== 'free') {
+    return customerResult(found, publicUrl, {
+      outcome: boundary.class === 'paid' ? 'caller-authority' : 'refused',
+      reason: boundary.reason,
+    });
+  }
+  if (boundary.taskSupport === 'required') {
+    return customerResult(found, publicUrl, { outcome: 'refused', reason: 'task-augmentation-required' });
+  }
+  let args;
+  try {
+    args = trialReadArguments(tool.inputSchema, publicUrl, options.markdownLimitChars);
+  } catch (error) {
+    return customerResult(found, publicUrl, {
+      outcome: 'refused',
+      reason: error instanceof Error ? error.message : 'refused',
+    });
+  }
+  const exchange = await postOneTrialRead(mcpUrl, found.session, args, fetchImpl);
+  const judged = judgeTrialRead(exchange);
+  return customerResult(found, publicUrl, {
+    ...judged,
+    toolsCallSent: true,
+    consumingRequests: 1,
+    sentExtra: 'tools/call',
+  });
 }
 
 function parseRpcBody(text) {
@@ -267,7 +454,7 @@ export async function discover(url, { fetchImpl = globalThis.fetch } = {}) {
   let session = null;
 
   async function post(method, params, id) {
-    refusePaid(method);
+    refuseDiscoveryCall(method);
     if (!DISCOVERY_METHODS.includes(method)) {
       throw new ProtocolError(`method not in discovery set: ${method}`, { sent: [...sent] });
     }
@@ -346,7 +533,7 @@ export async function discover(url, { fetchImpl = globalThis.fetch } = {}) {
 }
 
 export async function probeUnsupported(url, method, { fetchImpl = globalThis.fetch } = {}) {
-  refusePaid(method);
+  refuseDiscoveryCall(method);
   refuseTrialTarget(url);
   const response = await fetchImpl(url, {
     method: 'POST',
@@ -369,7 +556,7 @@ function readerListTools() {
   return [
     {
       name: 'trial_read',
-      description: 'Fixture free trial_read. Do not call it.',
+      description: 'Fixture free trial_read. Ordinary tools/call is allowed once.',
       inputSchema: {
         type: 'object',
         additionalProperties: false,
@@ -384,7 +571,7 @@ function readerListTools() {
     },
     {
       name: 'read',
-      description: 'Fixture paid read. Do not call it.',
+      description: 'Fixture paid read. Customer free read must not call it.',
       inputSchema: {
         type: 'object',
         additionalProperties: false,
@@ -419,8 +606,98 @@ function readerListTools() {
   ];
 }
 
+function listedTools(mode) {
+  if (mode === 'missing-schema') return [{ name: 'broken', description: 'no schema' }];
+  if (mode === 'reader-list' || (typeof mode === 'string' && mode.startsWith('customer-'))) {
+    let tools = readerListTools();
+    if (mode === 'customer-missing') tools = tools.filter((tool) => tool.name !== 'trial_read');
+    if (mode === 'customer-task-required') {
+      tools = tools.map((tool) => (
+        tool.name === 'trial_read' ? { ...tool, execution: { taskSupport: 'required' } } : tool
+      ));
+    }
+    return tools;
+  }
+  return [
+    {
+      name: 'extract',
+      description: 'Paid page extract. The discovery fixture must not be asked to call it.',
+      inputSchema: {
+        type: 'object',
+        properties: { url: { type: 'string' } },
+        required: ['url'],
+      },
+    },
+  ];
+}
+
+function accessBody(error, status = null) {
+  return {
+    ok: false,
+    sourceOk: false,
+    status,
+    error,
+    markdown: null,
+    truncated: false,
+    capture: null,
+    charged: false,
+  };
+}
+
+function respondCustomerCall(res, mode, message, customerCalls) {
+  if (mode === 'customer-lost') {
+    res.writeHead(200, { 'content-type': 'application/json' });
+    res.end('');
+    return;
+  }
+  if (mode === 'customer-payment') {
+    res.writeHead(402, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ error: 'payment required' }));
+    return;
+  }
+  const params = message.params && typeof message.params === 'object' ? message.params : {};
+  const tasky = Object.prototype.hasOwnProperty.call(params, 'task');
+  const name = params.name;
+  const page = params.arguments && params.arguments.url;
+  let structured;
+  let isError = false;
+  if (customerCalls > 1 || tasky || name !== 'trial_read') {
+    structured = accessBody('refused', 403);
+    isError = true;
+  } else if (mode === 'customer-useful') {
+    structured = {
+      ok: true,
+      sourceOk: true,
+      status: 200,
+      error: null,
+      markdown: `Synthetic read of ${page}`,
+      truncated: false,
+      capture: { fixture: true },
+      charged: false,
+    };
+  } else if (mode === 'customer-exhausted') {
+    structured = accessBody('exhausted', 503);
+  } else if (mode === 'customer-expired') {
+    structured = accessBody('expired', 403);
+  } else if (mode === 'customer-refused') {
+    structured = accessBody('refused', 403);
+    isError = true;
+  } else {
+    structured = accessBody('refused', 403);
+    isError = true;
+  }
+  res.writeHead(200, { 'content-type': 'application/json' });
+  res.end(JSON.stringify(positiveResult(message.id, {
+    content: [{ type: 'text', text: JSON.stringify(structured) }],
+    structuredContent: structured,
+    isError,
+  })));
+}
+
 export function startFixture(mode) {
   const requests = [];
+  const headerLog = [];
+  let customerCalls = 0;
   const server = createServer((req, res) => {
     const chunks = [];
     req.on('data', (chunk) => chunks.push(chunk));
@@ -433,6 +710,14 @@ export function startFixture(mode) {
         message = { parseError: true, raw };
       }
       requests.push(message);
+      headerLog.push({
+        method: message && message.method,
+        headers: {
+          'mcp-session-id': req.headers['mcp-session-id'] ?? null,
+          authorization: req.headers.authorization ?? null,
+          'x-samedaydesk-agent-source': req.headers['x-samedaydesk-agent-source'] ?? null,
+        },
+      });
       if (mode === 'transport-refusal') {
         res.writeHead(503, { 'content-type': 'application/json' });
         res.end(JSON.stringify({ error: 'refused' }));
@@ -443,9 +728,14 @@ export function startFixture(mode) {
         res.end(JSON.stringify({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'parse error' } }));
         return;
       }
+      if (message.method === 'tools/call' && typeof mode === 'string' && mode.startsWith('customer-')) {
+        customerCalls += 1;
+        respondCustomerCall(res, mode, message, customerCalls);
+        return;
+      }
       if (message.method === 'tools/call') {
         res.writeHead(500, { 'content-type': 'text/plain' });
-        res.end('paid tool request reached the fixture');
+        res.end('tools/call reached a discovery fixture');
         return;
       }
       if (message.method === 'notifications/initialized') {
@@ -467,22 +757,7 @@ export function startFixture(mode) {
       }
       if (message.method === 'tools/list') {
         res.writeHead(200, { 'content-type': 'text/event-stream' });
-        const tools = mode === 'reader-list'
-          ? readerListTools()
-          : mode === 'missing-schema'
-            ? [{ name: 'broken', description: 'no schema' }]
-            : [
-              {
-                name: 'extract',
-                description: 'Paid page extract. The fixture must not be asked to call it.',
-                inputSchema: {
-                  type: 'object',
-                  properties: { url: { type: 'string' } },
-                  required: ['url'],
-                },
-              },
-            ];
-        const payload = positiveResult(message.id, { tools });
+        const payload = positiveResult(message.id, { tools: listedTools(mode) });
         res.end(`event: message\ndata: ${JSON.stringify(payload)}\n\n`);
         return;
       }
@@ -502,6 +777,7 @@ export function startFixture(mode) {
       resolveListen({
         url: `http://127.0.0.1:${address.port}/mcp`,
         requests,
+        headerLog,
         close() {
           return new Promise((resolveClose, rejectClose) => {
             server.close((error) => (error ? rejectClose(error) : resolveClose()));

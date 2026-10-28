@@ -18,7 +18,7 @@ import {
   agyHostPrefix,
   agyHostToolName,
   classifyListedTool,
-  customerTaskReadyCall,
+  customerFreeRead,
   discover,
   loadAdapterConfig,
   probeUnsupported,
@@ -116,13 +116,16 @@ test('license is scoped to the adapter directory', () => {
   assert.doesNotMatch(readme, /whole repository is MIT/i);
 });
 
-test('skill states unpaid discovery, unqualified attribution, and no tool call', () => {
+test('customer skill allows one free trial_read and keeps no-call in discovery only', () => {
   const skill = readPlugin('skills/samedaydesk-remote-mcp/SKILL.md');
+  const parts = skill.split('## Operator discovery-QA');
+  assert.equal(parts.length, 2);
+  const customer = parts[0];
+  const discovery = parts[1];
   assert.match(skill, /^---\nname: samedaydesk-remote-mcp\n/);
   assert.match(skill, /description: .+/);
   assert.match(skill, new RegExp(ENDPOINT.replaceAll('/', '\\/')));
   assert.match(skill, /Attribution is unqualified/);
-  assert.match(skill, /Do not send `tools\/call`/);
   assert.match(skill, /Do not start either trial/);
   assert.match(skill, /_meta\.x402\.paymentRequired/);
   assert.match(skill, /A GET of `https:\/\/agents\.samedaydesk\.com\/mcp` is not `tools\/list`/);
@@ -138,7 +141,16 @@ test('skill states unpaid discovery, unqualified attribution, and no tool call',
   assert.match(skill, /execution\.taskSupport/);
   assert.match(skill, /forbidden/);
   assert.match(skill, /markdownLimitChars/);
-  assert.match(skill, /Skill prose is not that filter/);
+  assert.match(skill, /does not forbid this ordinary `tools\/call`/);
+  assert.match(skill, /not idempotent/);
+  assert.match(customer, /Send one ordinary `tools\/call`/);
+  assert.match(customer, /original shared budget/);
+  assert.doesNotMatch(customer, /Do not send `tools\/call`/);
+  assert.doesNotMatch(customer, /This skill does not send/);
+  assert.match(discovery, /only when the task is operator discovery-QA/);
+  assert.match(discovery, /Do not send `tools\/call`/);
+  assert.match(readPlugin('README.md'), /one ordinary free `trial_read`/);
+  assert.match(readPlugin('README.md'), /only for discovery-QA/);
   assert.doesNotMatch(skill, /X-SameDayDesk-Agent-Source: claude-code-marketplace-v1/);
   assert.doesNotMatch(skill, /\b29 tools\b/);
   assert.doesNotMatch(skill, /\b30 tools\b/);
@@ -165,7 +177,7 @@ test('bad config and unsupported operation never open a paid tool request', asyn
     assert.equal(fixture.requests.length, 0);
     await assert.rejects(
       () => probeUnsupported(fixture.url, 'tools/call'),
-      (error) => error instanceof ProtocolError && /paid tool request refused before send/.test(error.message),
+      (error) => error instanceof ProtocolError && /discovery mode refuses tools\/call before send/.test(error.message),
     );
     assert.equal(fixture.requests.length, 0);
     const unsupported = await probeUnsupported(fixture.url, 'prompts/list');
@@ -305,7 +317,16 @@ test('generated host names after the agy prefix stay within 64 characters', () =
   for (const id of reader.ids) {
     assert.equal(agyHostNameFits(manifest.name, serverName, id), true, id);
   }
-  assert.equal(observed.qualificationHistory.at(-1).id, 'ROOT22600');
+  assert.equal(observed.qualificationHistory.at(-2).id, 'ROOT22600');
+  assert.equal(observed.qualificationHistory.at(-1).id, 'ROOT23200');
+  assert.equal(observed.qualificationHistory.at(-1).globalNoCallBanResealed, false);
+  assert.equal(observed.qualificationHistory.at(-1).productionToolsCallSent, false);
+  assert.equal(observed.qualificationHistory.at(-1).hostComplete, false);
+  assert.equal(observed.qualificationHistory.at(-1).commands[0].exitCode, 127);
+  assert.equal(observed.customerUsefulExecution.customerOrdinaryCall, 'trial_read');
+  assert.equal(observed.customerUsefulExecution.taskAugmentation, false);
+  assert.equal(observed.customerUsefulExecution.hostComplete, false);
+  assert.equal(observed.hostLoadedExchange.received, false);
   assert.equal(observed.qualificationHistory[1].evidence.sha256, 'f223ae2ba7d8457b168aa8dfba1c6b5c4b7f1b43694c266bf14b26aa730c37b2');
 
   const boundary = 'a'.repeat(HOST_NAME_MAX - prefix.length);
@@ -361,7 +382,7 @@ test('reader separates operator discovery from customer task-ready and drops pri
   assert.equal(operator.class, 'free');
   assert.equal(customer.class, 'free');
   assert.equal(operator.documentedNextAction, 'stop-after-unpaid-list');
-  assert.equal(customer.documentedNextAction, 'authorized-caller-live-trial-read-schema');
+  assert.equal(customer.documentedNextAction, 'one-ordinary-free-trial-read');
   assert.equal(operator.toolsCallSent, false);
   assert.equal(customer.toolsCallSent, false);
   assert.equal(customer.trialPostSent, false);
@@ -410,33 +431,103 @@ test('reader separates operator discovery from customer task-ready and drops pri
   assert.equal(inventory.toolsCallSent, false);
 });
 
-test('customer task-ready prose cannot send tools/call or consume a trial', async () => {
+const PUBLIC_PAGE = 'https://example.com/root23200-synthetic-page';
+
+function callMessages(fixture) {
+  return fixture.requests.filter((message) => message && message.method === 'tools/call');
+}
+
+test('customer fixture refuses production and trial routes before send', async () => {
   let fetches = 0;
   const fetchImpl = async () => {
     fetches += 1;
     throw new Error('fetch must not run');
   };
-  assert.throws(
-    () => customerTaskReadyCall('tools/call', 'https://agents.samedaydesk.com/trial/read', { fetchImpl }),
-    (error) => error instanceof ProtocolError && /paid tool request refused before send/.test(error.message),
+  await assert.rejects(
+    () => customerFreeRead(ENDPOINT, PUBLIC_PAGE, { fetchImpl }),
+    (error) => error instanceof ProtocolError && /synthetic local MCP/.test(error.message),
   );
-  assert.throws(
-    () => customerTaskReadyCall('tools/list', 'https://agents.samedaydesk.com/trial/extract', { fetchImpl }),
+  await assert.rejects(
+    () => customerFreeRead('https://agents.samedaydesk.com/trial/read', PUBLIC_PAGE, { fetchImpl }),
     (error) => error instanceof ProtocolError && /trial consumption refused before send/.test(error.message),
   );
-  assert.throws(
-    () => customerTaskReadyCall('tools/list', `${ENDPOINT}?trial=1`, { fetchImpl }),
-    (error) => error instanceof ProtocolError && /customer task-ready does not send from this client/.test(error.message),
+  await assert.rejects(
+    () => customerFreeRead('http://127.0.0.1:9/mcp', 'http://example.com/page', { fetchImpl }),
+    (error) => error instanceof ProtocolError && /https without credentials/.test(error.message),
   );
   await assert.rejects(
     () => discover('https://agents.samedaydesk.com/trial/read', { fetchImpl }),
     (error) => error instanceof ProtocolError && /trial consumption refused before send/.test(error.message),
   );
   await assert.rejects(
-    () => probeUnsupported('https://agents.samedaydesk.com/trial/read', 'prompts/list', { fetchImpl }),
+    () => probeUnsupported('https://agents.samedaydesk.com/trial/extract', 'prompts/list', { fetchImpl }),
     (error) => error instanceof ProtocolError && /trial consumption refused before send/.test(error.message),
   );
   assert.equal(fetches, 0);
+});
+
+test('positive fixture reads one synthetic URL with one ordinary tools/call', async () => {
+  const fixture = await startFixture('customer-useful');
+  try {
+    const found = await customerFreeRead(fixture.url, PUBLIC_PAGE);
+    assert.equal(found.outcome, 'useful');
+    assert.equal(found.reason, 'structured-read');
+    assert.equal(found.structured.ok, true);
+    assert.equal(found.structured.sourceOk, true);
+    assert.equal(found.structured.charged, false);
+    assert.equal(found.structured.truncated, false);
+    assert.match(found.structured.markdown, /root23200-synthetic-page/);
+    assert.deepEqual(found.sent, ['initialize', 'notifications/initialized', 'tools/list', 'tools/call']);
+    assert.equal(found.toolsCallSent, true);
+    assert.equal(found.consumingRequests, 1);
+    assert.equal(found.retried, false);
+    assert.equal(found.taskAugmented, false);
+    assert.equal(found.purchaseSent, false);
+    assert.equal(found.trialPostSent, false);
+    assert.equal(found.paidRequestSent, false);
+    const calls = callMessages(fixture);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].params.name, 'trial_read');
+    assert.equal(Object.hasOwn(calls[0].params, 'task'), false);
+    assert.deepEqual(calls[0].params.arguments, { url: PUBLIC_PAGE });
+    assert.equal(fixture.requests.some((message) => message && message.params && message.params.name === 'read'), false);
+    assert.equal(JSON.stringify(fixture.requests).includes('/trial/'), false);
+    assert.equal(JSON.stringify(fixture.requests).includes('payTo'), false);
+    const callHeaders = fixture.headerLog.at(-1).headers;
+    assert.equal(callHeaders['mcp-session-id'], 'fixture-session');
+    assert.equal(callHeaders.authorization, null);
+    assert.equal(callHeaders['x-samedaydesk-agent-source'], null);
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('live schema limit is sent once and an overlong URL does not call', async () => {
+  const limited = await startFixture('customer-useful');
+  try {
+    const found = await customerFreeRead(limited.url, PUBLIC_PAGE, { markdownLimitChars: 1000 });
+    assert.equal(found.outcome, 'useful');
+    assert.equal(found.consumingRequests, 1);
+    assert.deepEqual(callMessages(limited)[0].params.arguments, {
+      url: PUBLIC_PAGE,
+      markdownLimitChars: 1000,
+    });
+    assert.equal(Object.hasOwn(callMessages(limited)[0].params, 'task'), false);
+  } finally {
+    await limited.close();
+  }
+  const tooLong = await startFixture('customer-useful');
+  try {
+    const page = `https://example.com/${'a'.repeat(2048)}`;
+    const found = await customerFreeRead(tooLong.url, page);
+    assert.equal(found.outcome, 'refused');
+    assert.equal(found.reason, 'public url outside live schema');
+    assert.equal(found.toolsCallSent, false);
+    assert.equal(found.consumingRequests, 0);
+    assert.equal(callMessages(tooLong).length, 0);
+  } finally {
+    await tooLong.close();
+  }
 });
 
 test('reader list classifies free paid and refusal without tools/call', async () => {
@@ -448,7 +539,7 @@ test('reader list classifies free paid and refusal without tools/call', async ()
     assert.deepEqual(inventory.free, ['trial_read', 'page_change']);
     assert.deepEqual(inventory.paid, ['read']);
     assert.deepEqual(inventory.refusal, ['contradictory']);
-    assert.equal(inventory.rows.find((row) => row.name === 'trial_read').documentedNextAction, 'authorized-caller-live-trial-read-schema');
+    assert.equal(inventory.rows.find((row) => row.name === 'trial_read').documentedNextAction, 'one-ordinary-free-trial-read');
     assert.equal(inventory.rows.find((row) => row.name === 'read').documentedNextAction, 'caller-authority');
     assert.equal(inventory.rows.find((row) => row.name === 'read').taskSupportAuthorizesCall, false);
     assert.equal(JSON.stringify(inventory).includes('5000'), false);
@@ -474,6 +565,122 @@ test('a listed tool without an input schema stops before tools/call', async () =
       'notifications/initialized',
       'tools/list',
     ]);
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('exhausted, expired, and refused reads stop without a paid call or a retry', async () => {
+  for (const [mode, outcome] of [
+    ['customer-exhausted', 'exhausted'],
+    ['customer-expired', 'expired'],
+    ['customer-refused', 'refused'],
+  ]) {
+    const fixture = await startFixture(mode);
+    try {
+      const found = await customerFreeRead(fixture.url, PUBLIC_PAGE);
+      assert.equal(found.outcome, outcome, mode);
+      assert.equal(found.consumingRequests, 1, mode);
+      assert.equal(found.retried, false, mode);
+      assert.equal(found.purchaseSent, false, mode);
+      assert.equal(found.paidRequestSent, false, mode);
+      assert.equal(callMessages(fixture).length, 1, mode);
+      assert.equal(callMessages(fixture)[0].params.name, 'trial_read', mode);
+      assert.equal(fixture.requests.some((message) => message && message.params && message.params.name === 'read'), false, mode);
+    } finally {
+      await fixture.close();
+    }
+  }
+});
+
+test('missing trial_read and required task augmentation do not send tools/call', async () => {
+  const missing = await startFixture('customer-missing');
+  try {
+    const found = await customerFreeRead(missing.url, PUBLIC_PAGE);
+    assert.equal(found.outcome, 'missing');
+    assert.equal(found.toolsCallSent, false);
+    assert.equal(found.consumingRequests, 0);
+    assert.deepEqual(found.sent, ['initialize', 'notifications/initialized', 'tools/list']);
+    assert.equal(callMessages(missing).length, 0);
+  } finally {
+    await missing.close();
+  }
+  const required = await startFixture('customer-task-required');
+  try {
+    const found = await customerFreeRead(required.url, PUBLIC_PAGE);
+    assert.equal(found.outcome, 'refused');
+    assert.equal(found.reason, 'task-augmentation-required');
+    assert.equal(found.toolsCallSent, false);
+    assert.equal(found.taskAugmented, false);
+    assert.equal(callMessages(required).length, 0);
+  } finally {
+    await required.close();
+  }
+});
+
+test('a lost response and a payment challenge do not retry or purchase', async () => {
+  const lost = await startFixture('customer-lost');
+  try {
+    const found = await customerFreeRead(lost.url, PUBLIC_PAGE);
+    assert.equal(found.outcome, 'unknown');
+    assert.equal(found.reason, 'lost-response');
+    assert.equal(found.consumingRequests, 1);
+    assert.equal(found.retried, false);
+    assert.equal(found.purchaseSent, false);
+    assert.equal(callMessages(lost).length, 1);
+  } finally {
+    await lost.close();
+  }
+  const dropped = await startFixture('customer-useful');
+  try {
+    let toolCalls = 0;
+    const fetchImpl = async (url, init) => {
+      const message = JSON.parse(init.body);
+      if (message.method === 'tools/call') {
+        toolCalls += 1;
+        throw new Error('socket reset');
+      }
+      return fetch(url, init);
+    };
+    const found = await customerFreeRead(dropped.url, PUBLIC_PAGE, { fetchImpl });
+    assert.equal(toolCalls, 1);
+    assert.equal(found.outcome, 'unknown');
+    assert.equal(found.reason, 'lost-response');
+    assert.equal(found.retried, false);
+    assert.equal(found.consumingRequests, 1);
+    assert.equal(found.purchaseSent, false);
+  } finally {
+    await dropped.close();
+  }
+  const challenge = await startFixture('customer-payment');
+  try {
+    const found = await customerFreeRead(challenge.url, PUBLIC_PAGE);
+    assert.equal(found.outcome, 'caller-authority');
+    assert.equal(found.reason, 'payment-challenge');
+    assert.equal(found.purchaseSent, false);
+    assert.equal(found.paidRequestSent, false);
+    assert.equal(found.retried, false);
+    assert.equal(callMessages(challenge).length, 1);
+    assert.equal(callMessages(challenge)[0].params.name, 'trial_read');
+  } finally {
+    await challenge.close();
+  }
+});
+
+test('discovery mode still refuses tools/call when the fixture would accept one', async () => {
+  const fixture = await startFixture('customer-useful');
+  try {
+    const found = await discover(fixture.url);
+    assert.equal(found.tools.some((tool) => tool.name === 'trial_read'), true);
+    await assert.rejects(
+      () => customerFreeRead(fixture.url, PUBLIC_PAGE, { task: { ttl: 1000 } }),
+      (error) => error instanceof ProtocolError && /task augmentation refused before send/.test(error.message),
+    );
+    await assert.rejects(
+      () => probeUnsupported(fixture.url, 'tools/call'),
+      (error) => error instanceof ProtocolError && /discovery mode refuses tools\/call before send/.test(error.message),
+    );
+    assert.equal(fixture.requests.some((message) => message.method === 'tools/call'), false);
   } finally {
     await fixture.close();
   }
