@@ -62,7 +62,7 @@ test('qualification record keeps the SDK probe separate from host execution', ()
   const observed = JSON.parse(readPlugin('OBSERVED.json'));
   assert.equal(observed.directSdkProbe.separateFromAntigravityHost, true);
   assert.equal(observed.directSdkProbe.toolsCallSent, false);
-  assert.equal(observed.hostLoadedExchange.received, false);
+  assert.equal(observed.hostLoadedExchange.received, true);
   assert.equal(observed.attribution, 'unqualified');
   assert.equal(observed.sourceHeader, null);
   assert.equal(observed.githubInstall.pinnedOneCommandUrl, false);
@@ -77,11 +77,16 @@ test('qualification record keeps the SDK probe separate from host execution', ()
   assert.equal(observed.qualificationHistory[1].loaded, 22);
   assert.equal(observed.qualificationHistory[1].dropped, 7);
   assert.equal(observed.qualificationHistory[1].evidence.sha256, 'f223ae2ba7d8457b168aa8dfba1c6b5c4b7f1b43694c266bf14b26aa730c37b2');
-  assert.equal(observed.hostName.hostLoadedAfterRename, false);
+  assert.equal(observed.hostName.hostLoadedAfterRename, true);
+  assert.equal(observed.hostName.agy149ServerHeading, 'samedaydesk_samedaydesk');
+  assert.equal(observed.hostName.prefixFormObservedOnAgy149, false);
   assert.equal(observed.hostName.installReRun, true);
   assert.equal(observed.hostName.installReRunStagedDirectory, '.gemini/config/plugins/samedaydesk');
   assert.equal(observed.hostName.schemaHasToolIdAlias, false);
-  assert.match(observed.hostLoadedExchange.reason, /Not reloading plugin MCP servers|does not reload plugin MCP servers|cannot get the signed-in user/);
+  assert.match(observed.hostLoadedExchange.reason, /samedaydesk_samedaydesk/);
+  assert.match(observed.hostLoadedExchange.reason, /30 Lazy remote ids/);
+  assert.match(observed.hostLoadedExchange.reason, /mcp_samedaydesk_samedaydesk_/);
+  assert.match(observed.hostLoadedExchange.reason, /No tools\/call was sent/);
 });
 
 test('adapter manifest has no hooks file', () => {
@@ -325,13 +330,14 @@ test('generated host names after the agy prefix stay within 64 characters', () =
     'ROOT22600',
     'ROOT23200',
     'ROOT24420',
+    'ROOT25700',
   ]);
   const root23200 = observed.qualificationHistory.find((entry) => entry.id === 'ROOT23200');
   assert.equal(root23200.globalNoCallBanResealed, false);
   assert.equal(root23200.productionToolsCallSent, false);
   assert.equal(root23200.hostComplete, false);
   assert.equal(root23200.commands[0].exitCode, 127);
-  const root24420 = observed.qualificationHistory.at(-1);
+  const root24420 = observed.qualificationHistory.find((entry) => entry.id === 'ROOT24420');
   assert.equal(root24420.id, 'ROOT24420');
   assert.equal(root24420.hostComplete, false);
   assert.equal(root24420.hostLoadedAfterRename, false);
@@ -366,11 +372,67 @@ test('generated host names after the agy prefix stay within 64 characters', () =
   assert.equal(root24420.cleanup.exitCode, 0);
   assert.equal(root24420.cleanup.unrelatedPluginPreserved, true);
   assert.equal(root24420.cleanup.unrelatedName, 'unrelated-notes');
+  const root25700 = observed.qualificationHistory.at(-1);
+  assert.equal(root25700.id, 'ROOT25700');
+  assert.equal(root25700.isolatedHome, false);
+  assert.equal(root25700.homeInheritProfile, 'tpotalpha');
+  assert.equal(root25700.hostLoadedAfterRename, true);
+  assert.equal(root25700.hostLoadedExchangeReceived, true);
+  assert.equal(root25700.hostComplete, true);
+  assert.equal(root25700.prefixFormObserved, false);
+  assert.equal(root25700.agyVersion, '1.4.9');
+  assert.equal(root25700.pinnedQualificationCli, '1.4.8');
+  assert.equal(root25700.installerNotExecuted, true);
+  assert.equal(root25700.loginUrlFollowed, false);
+  assert.equal(root25700.loginWaitFinalized, false);
+  assert.equal(root25700.productionToolsCallSent, false);
+  assert.equal(root25700.trialPostSent, false);
+  assert.equal(root25700.purchaseSent, false);
+  assert.equal(root25700.globalNoCallBanResealed, false);
+  assert.equal(root25700.discoveryNoCallRemains, true);
+  assert.equal(root25700.sdkProbeUsedAsHostLoad, false);
+  assert.equal(root25700.lengthOnlyFixtureUsedAsHostLoad, false);
+  assert.equal(root25700.doctor.tpotalphaAuthenticated, true);
+  assert.equal(root25700.doctor.exitCode, 1);
+  assert.equal(root25700.doctor.binaryVersion, '1.4.9');
+  assert.equal(root25700.validate.exitCode, 0);
+  assert.equal(root25700.validate.findings[0].severity, 'note');
+  assert.equal(root25700.install.exitCode, 0);
+  assert.equal(root25700.install.stagedDirectory, '.gemini/config/plugins/samedaydesk');
+  assert.equal(root25700.mcpList.showsPluginServer, false);
+  assert.equal(root25700.hostLoad.exitCode, 0);
+  assert.equal(root25700.hostLoad.stdoutStatus, 'SUCCESS');
+  assert.equal(root25700.hostLoad.response, 'pong');
+  assert.equal(root25700.hostLoad.startupLogWasFinal, false);
+  assert.match(root25700.hostLoad.startupLog, /Not reloading plugin MCP servers/);
+  assert.deepEqual(root25700.hostLoad.transcriptSteps, ['USER_INPUT', 'PLANNER_RESPONSE']);
+  assert.equal(root25700.inventory.serverHeading, 'samedaydesk_samedaydesk');
+  assert.equal(root25700.inventory.prefix, 'mcp_samedaydesk_samedaydesk_');
+  assert.equal(root25700.inventory.prefixLength, 28);
+  assert.equal(root25700.inventory.prefixFormObserved, false);
+  assert.deepEqual(root25700.inventory.eager, []);
+  assert.equal(root25700.inventory.loaded, 30);
+  assert.equal(root25700.inventory.dropped, 0);
+  assert.deepEqual(root25700.inventory.lazy, reader.ids);
+  assert.equal(root25700.inventory.lazy.length, root25700.inventory.loaded);
+  for (const id of root25700.inventory.previouslyDroppedPresent) {
+    assert.equal(root25700.inventory.lazy.includes(id), true, id);
+    assert.equal(agyHostNameFits(manifest.name, serverName, id), true, id);
+  }
+  assert.equal(root25700.inventory.previouslyDroppedPresent.length, 7);
+  assert.equal(root25700.cleanup.exitCode, 0);
+  assert.equal(root25700.cleanup.unrelatedPluginPreserved, true);
+  assert.equal(root25700.cleanup.unrelatedDigest, '7ef6593e08290aa297063454449bf7beee6f99588f537423b66f8b45bda6e649');
+  assert.equal(root25700.cleanup.sentinelRemovedAfterProof, true);
+  assert.deepEqual(root25700.cleanup.pluginListAfterRestore, []);
+  assert.match(readPlugin('skills/samedaydesk-remote-mcp/SKILL.md'), /samedaydesk_samedaydesk/);
+  assert.match(readPlugin('skills/samedaydesk-remote-mcp/SKILL.md'), /Every remote id in that prompt was Lazy/);
+  assert.match(readPlugin('README.md'), /samedaydesk_samedaydesk/);
   assert.equal(observed.customerUsefulExecution.customerOrdinaryCall, 'trial_read');
   assert.equal(observed.customerUsefulExecution.taskAugmentation, false);
   assert.equal(observed.customerUsefulExecution.hostComplete, false);
   assert.equal(observed.customerUsefulExecution.globalNoCallBanResealed, false);
-  assert.equal(observed.hostLoadedExchange.received, false);
+  assert.equal(observed.hostLoadedExchange.received, true);
   assert.equal(observed.qualificationHistory[1].evidence.sha256, 'f223ae2ba7d8457b168aa8dfba1c6b5c4b7f1b43694c266bf14b26aa730c37b2');
 
   const boundary = 'a'.repeat(HOST_NAME_MAX - prefix.length);

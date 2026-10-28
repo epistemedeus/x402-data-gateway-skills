@@ -76,6 +76,8 @@ The remote tool id comes from `tools/list`. This skill does not rename it. Hidin
 
 An earlier machine name, `samedaydesk-antigravity`, made a 40-character prefix. Host qualification dropped every generated name longer than 64 characters. Twenty-two names loaded and seven were dropped. Do not call it a complete host load. That failure stays in `OBSERVED.json`. A saved id list is not the live inventory.
 
+agy 1.4.9, signed in, listed this renamed plugin under the server heading `samedaydesk_samedaydesk`. Every remote id in that prompt was Lazy. None were Eager. The prompt did not show `mcp_samedaydesk_samedaydesk_`. The seven ids dropped by the older prefix were present. That listing is not a `tools/call`.
+
 ## Payment boundary
 
 Stop on a payment challenge or HTTP 402. This plugin has no wallet, signer, payment header, or price. Do not turn that challenge into a purchase.
