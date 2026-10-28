@@ -6,19 +6,25 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import {
+  CUSTOMER_TASK_READY,
   ConfigError,
   HOST_NAME_MAX,
   OBSERVED_AGY_148_PLUGIN_STAGE_REL,
+  OPERATOR_DISCOVERY_QA,
   ProtocolError,
   SYNTHETIC_PLUGIN_STAGE_REL,
   TransportRefusal,
   agyHostNameFits,
   agyHostPrefix,
   agyHostToolName,
+  classifyListedTool,
+  customerTaskReadyCall,
   discover,
   loadAdapterConfig,
   probeUnsupported,
+  readInventory,
   readPluginState,
+  readToolBoundary,
   stagePlugin,
   startFixture,
   treeDigest,
@@ -104,6 +110,9 @@ test('license is scoped to the adapter directory', () => {
   const readme = readPlugin('README.md');
   assert.match(readme, /does not license the rest/);
   assert.match(readme, /Do not run `agy plugin import`/);
+  assert.match(readme, /operator discovery-QA/);
+  assert.match(readme, /customer task-ready/);
+  assert.match(readme, /`trial_read`/);
   assert.doesNotMatch(readme, /whole repository is MIT/i);
 });
 
@@ -122,8 +131,18 @@ test('skill states unpaid discovery, unqualified attribution, and no tool call',
   assert.match(skill, /Display name \| SameDayDesk/);
   assert.match(skill, /mcp_samedaydesk_samedaydesk_/);
   assert.match(skill, /Do not call it a complete host load/);
+  assert.match(skill, /operator discovery-QA/);
+  assert.match(skill, /customer task-ready/);
+  assert.match(skill, /authorized caller/);
+  assert.match(skill, /`trial_read`/);
+  assert.match(skill, /execution\.taskSupport/);
+  assert.match(skill, /forbidden/);
+  assert.match(skill, /markdownLimitChars/);
+  assert.match(skill, /Skill prose is not that filter/);
   assert.doesNotMatch(skill, /X-SameDayDesk-Agent-Source: claude-code-marketplace-v1/);
   assert.doesNotMatch(skill, /\b29 tools\b/);
+  assert.doesNotMatch(skill, /\b30 tools\b/);
+  assert.doesNotMatch(skill, /payTo|0x[a-fA-F0-9]{6,}/);
   assert.doesNotMatch(skill, /Authorization:|Bearer |api[_-]key|PRIVATE_KEY/i);
 });
 
@@ -252,6 +271,42 @@ test('generated host names after the agy prefix stay within 64 characters', () =
   assert.equal(longest.length, live.longestToolIdLength);
   assert.equal(prefix.length + longest.length, live.longestGeneratedLength);
   assert.equal(live.longestGeneratedLength <= HOST_NAME_MAX, true);
+  assert.equal(live.ids.includes('trial_read'), false);
+
+  const reader = observed.taskReadyReader;
+  assert.equal(reader.id, 'ROOT22600');
+  assert.equal(reader.separateFromAntigravityHost, true);
+  assert.equal(reader.toolsCallSent, false);
+  assert.equal(reader.trialPostSent, false);
+  assert.equal(reader.purchaseSent, false);
+  assert.equal(reader.notAPermanentInventory, true);
+  assert.equal(reader.notAHostLoad, true);
+  assert.equal(reader.hostLoadedAfterRename, false);
+  assert.equal(reader.pricesCopied, false);
+  assert.equal(reader.acceptsCopied, false);
+  assert.equal(reader.count, reader.ids.length);
+  assert.equal(new Set(reader.ids).size, reader.ids.length);
+  assert.equal(reader.ids.includes('trial_read'), true);
+  assert.deepEqual(new Set(reader.ids), new Set([...live.ids, 'trial_read']));
+  assert.equal(reader.free.includes('trial_read'), true);
+  assert.equal(reader.paid.includes('trial_read'), false);
+  assert.equal(reader.paid.includes('read'), true);
+  assert.equal(reader.classes.free, reader.free.length);
+  assert.equal(reader.classes.paid, reader.paid.length);
+  assert.equal(reader.classes.refusal, 0);
+  assert.equal(reader.classes.free + reader.classes.paid, reader.count);
+  assert.equal(reader.taskSupportForbidden, reader.count);
+  assert.equal(reader.trialRead.class, 'free');
+  assert.equal(reader.trialRead.called, false);
+  assert.equal(reader.trialRead.taskSupport, 'forbidden');
+  assert.deepEqual(reader.trialRead.inputRequired, ['url']);
+  assert.deepEqual(reader.trialRead.inputProperties, ['url', 'markdownLimitChars']);
+  assert.equal(reader.priorCountRetained, live.count);
+  for (const id of reader.ids) {
+    assert.equal(agyHostNameFits(manifest.name, serverName, id), true, id);
+  }
+  assert.equal(observed.qualificationHistory.at(-1).id, 'ROOT22600');
+  assert.equal(observed.qualificationHistory[1].evidence.sha256, 'f223ae2ba7d8457b168aa8dfba1c6b5c4b7f1b43694c266bf14b26aa730c37b2');
 
   const boundary = 'a'.repeat(HOST_NAME_MAX - prefix.length);
   assert.equal(agyHostNameFits(manifest.name, serverName, boundary), true);
@@ -274,5 +329,152 @@ test('generated host names after the agy prefix stay within 64 characters', () =
   for (const id of live.ids) {
     const oldLength = agyHostToolName(failed.pluginName, failed.serverName, id).length;
     assert.equal(oldLength > HOST_NAME_MAX, over.includes(id), id);
+  }
+});
+
+test('reader separates operator discovery from customer task-ready and drops prices', () => {
+  const trial = {
+    name: 'trial_read',
+    inputSchema: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['url'],
+      properties: {
+        url: { type: 'string', minLength: 1, maxLength: 2048 },
+        markdownLimitChars: { type: 'integer', minimum: 1, maximum: 40000 },
+      },
+    },
+    execution: { taskSupport: 'forbidden' },
+    _meta: { samedaydesk: { charged: false, paymentRequired: false } },
+  };
+  const paid = {
+    name: 'read',
+    inputSchema: { type: 'object', properties: { url: { type: 'string' } }, required: ['url'] },
+    execution: { taskSupport: 'allowed' },
+    _meta: {
+      x402: { paymentRequired: true, accepts: [{ amount: '5000', payTo: '0xfixture' }] },
+      samedaydesk: { operation: { id: 'read', price: '5000' } },
+    },
+  };
+  const operator = readToolBoundary(trial, OPERATOR_DISCOVERY_QA);
+  const customer = readToolBoundary(trial, CUSTOMER_TASK_READY);
+  assert.equal(operator.class, 'free');
+  assert.equal(customer.class, 'free');
+  assert.equal(operator.documentedNextAction, 'stop-after-unpaid-list');
+  assert.equal(customer.documentedNextAction, 'authorized-caller-live-trial-read-schema');
+  assert.equal(operator.toolsCallSent, false);
+  assert.equal(customer.toolsCallSent, false);
+  assert.equal(customer.trialPostSent, false);
+  assert.equal(customer.purchaseSent, false);
+  assert.equal(customer.taskSupportAuthorizesCall, false);
+  assert.equal(customer.taskSupport, 'forbidden');
+  const paidCustomer = readToolBoundary(paid, CUSTOMER_TASK_READY);
+  assert.equal(paidCustomer.class, 'paid');
+  assert.equal(paidCustomer.documentedNextAction, 'caller-authority');
+  assert.equal(paidCustomer.taskSupport, 'allowed');
+  assert.equal(paidCustomer.taskSupportAuthorizesCall, false);
+  assert.equal(paidCustomer.toolsCallSent, false);
+  assert.equal(JSON.stringify(paidCustomer).includes('5000'), false);
+  assert.equal(JSON.stringify(paidCustomer).includes('payTo'), false);
+  assert.equal(JSON.stringify(paidCustomer).includes('0xfixture'), false);
+  const otherFree = readToolBoundary({
+    name: 'page_change',
+    inputSchema: { type: 'object', properties: {} },
+    _meta: { samedaydesk: { charged: false, paymentRequired: false } },
+  }, CUSTOMER_TASK_READY);
+  assert.equal(otherFree.documentedNextAction, 'free-mark-is-not-a-call');
+  assert.equal(classifyListedTool({ name: 'broken' }).reason, 'missing-input-schema');
+  assert.equal(classifyListedTool({
+    name: 'half',
+    inputSchema: { type: 'object', properties: {} },
+    _meta: { samedaydesk: { charged: false } },
+  }).class, 'refusal');
+  assert.equal(classifyListedTool({
+    name: 'both',
+    inputSchema: { type: 'object', properties: {} },
+    _meta: {
+      x402: { paymentRequired: true, accepts: [{ amount: '1' }] },
+      samedaydesk: { paymentRequired: false, charged: false },
+    },
+  }).reason, 'contradictory-marks');
+  assert.equal(classifyListedTool({
+    name: 'odd',
+    inputSchema: { type: 'object', properties: {} },
+    _meta: { x402: { paymentRequired: false } },
+  }).class, 'refusal');
+  assert.throws(() => readToolBoundary(trial, 'host-task'), ProtocolError);
+  const inventory = readInventory([trial, paid, { name: 'broken' }], CUSTOMER_TASK_READY);
+  assert.deepEqual(inventory.free, ['trial_read']);
+  assert.deepEqual(inventory.paid, ['read']);
+  assert.deepEqual(inventory.refusal, ['broken']);
+  assert.equal(inventory.toolsCallSent, false);
+});
+
+test('customer task-ready prose cannot send tools/call or consume a trial', async () => {
+  let fetches = 0;
+  const fetchImpl = async () => {
+    fetches += 1;
+    throw new Error('fetch must not run');
+  };
+  assert.throws(
+    () => customerTaskReadyCall('tools/call', 'https://agents.samedaydesk.com/trial/read', { fetchImpl }),
+    (error) => error instanceof ProtocolError && /paid tool request refused before send/.test(error.message),
+  );
+  assert.throws(
+    () => customerTaskReadyCall('tools/list', 'https://agents.samedaydesk.com/trial/extract', { fetchImpl }),
+    (error) => error instanceof ProtocolError && /trial consumption refused before send/.test(error.message),
+  );
+  assert.throws(
+    () => customerTaskReadyCall('tools/list', `${ENDPOINT}?trial=1`, { fetchImpl }),
+    (error) => error instanceof ProtocolError && /customer task-ready does not send from this client/.test(error.message),
+  );
+  await assert.rejects(
+    () => discover('https://agents.samedaydesk.com/trial/read', { fetchImpl }),
+    (error) => error instanceof ProtocolError && /trial consumption refused before send/.test(error.message),
+  );
+  await assert.rejects(
+    () => probeUnsupported('https://agents.samedaydesk.com/trial/read', 'prompts/list', { fetchImpl }),
+    (error) => error instanceof ProtocolError && /trial consumption refused before send/.test(error.message),
+  );
+  assert.equal(fetches, 0);
+});
+
+test('reader list classifies free paid and refusal without tools/call', async () => {
+  const fixture = await startFixture('reader-list');
+  try {
+    const found = await discover(fixture.url);
+    assert.deepEqual(found.sent, ['initialize', 'notifications/initialized', 'tools/list']);
+    const inventory = readInventory(found.tools, CUSTOMER_TASK_READY);
+    assert.deepEqual(inventory.free, ['trial_read', 'page_change']);
+    assert.deepEqual(inventory.paid, ['read']);
+    assert.deepEqual(inventory.refusal, ['contradictory']);
+    assert.equal(inventory.rows.find((row) => row.name === 'trial_read').documentedNextAction, 'authorized-caller-live-trial-read-schema');
+    assert.equal(inventory.rows.find((row) => row.name === 'read').documentedNextAction, 'caller-authority');
+    assert.equal(inventory.rows.find((row) => row.name === 'read').taskSupportAuthorizesCall, false);
+    assert.equal(JSON.stringify(inventory).includes('5000'), false);
+    assert.equal(JSON.stringify(inventory).includes('payTo'), false);
+    const operator = readInventory(found.tools, OPERATOR_DISCOVERY_QA);
+    assert.equal(operator.rows.every((row) => row.documentedNextAction === 'stop-after-unpaid-list'), true);
+    assert.equal(fixture.requests.some((message) => message.method === 'tools/call'), false);
+    assert.equal(JSON.stringify(fixture.requests).includes('/trial/'), false);
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('a listed tool without an input schema stops before tools/call', async () => {
+  const fixture = await startFixture('missing-schema');
+  try {
+    await assert.rejects(
+      () => discover(fixture.url),
+      (error) => error instanceof ProtocolError && /tool missing inputSchema: broken/.test(error.message),
+    );
+    assert.deepEqual(fixture.requests.map((message) => message.method), [
+      'initialize',
+      'notifications/initialized',
+      'tools/list',
+    ]);
+  } finally {
+    await fixture.close();
   }
 });

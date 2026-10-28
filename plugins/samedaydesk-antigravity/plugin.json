@@ -2,8 +2,8 @@
   "$schema": "https://antigravity.google/schemas/v1/plugin.json",
   "name": "samedaydesk",
   "displayName": "SameDayDesk",
-  "version": "0.1.1",
-  "description": "Binds the existing SameDayDesk remote MCP for unpaid tool discovery. Does not pay, start a trial, or install other skills.",
+  "version": "0.1.2",
+  "description": "Binds the existing SameDayDesk remote MCP and reads free, paid, and refusal marks. Does not pay, call a tool, start a trial, or install other skills.",
   "author": {
     "name": "SameDayDesk",
     "url": "https://samedaydesk.com"

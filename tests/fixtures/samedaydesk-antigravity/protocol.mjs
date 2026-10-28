@@ -13,6 +13,17 @@ export const DISCOVERY_METHODS = Object.freeze([
   'tools/list',
 ]);
 
+/** Unpaid inventory only. This mode never becomes a customer call. */
+export const OPERATOR_DISCOVERY_QA = 'operator-discovery-qa';
+
+/**
+ * Documents the authorized caller's next action.
+ * This client still does not send that action.
+ */
+export const CUSTOMER_TASK_READY = 'customer-task-ready';
+
+const TRIAL_CONSUMPTION = /\/trial\/(?:read|extract)(?:$|[/?#])/;
+
 /**
  * Directory this fixture uses when it stages a plugin.
  * This is not the path agy 1.4.8 wrote. That observed path is
@@ -112,6 +123,129 @@ function refusePaid(method) {
   }
 }
 
+function refuseTrialTarget(target) {
+  if (typeof target === 'string' && TRIAL_CONSUMPTION.test(target)) {
+    throw new ProtocolError('trial consumption refused before send');
+  }
+}
+
+function isRecord(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+/**
+ * Names a free, paid, or refusal class from one tools/list entry.
+ * Accept entries and prices are dropped here. The result is not a request.
+ */
+export function classifyListedTool(tool) {
+  const refused = (reason, name) => ({
+    name,
+    class: 'refusal',
+    reason,
+    toolsCallSent: false,
+    trialPostSent: false,
+    purchaseSent: false,
+    priceCopied: false,
+    acceptsCopied: false,
+    taskSupportAuthorizesCall: false,
+  });
+  if (!isRecord(tool) || typeof tool.name !== 'string' || tool.name.length === 0) {
+    return refused('missing-name', null);
+  }
+  if (!isRecord(tool.inputSchema)) {
+    return refused('missing-input-schema', tool.name);
+  }
+  const meta = isRecord(tool._meta) ? tool._meta : null;
+  const x402 = meta && isRecord(meta.x402) ? meta.x402 : null;
+  const samedaydesk = meta && isRecord(meta.samedaydesk) ? meta.samedaydesk : null;
+  const x402Paid = Boolean(x402 && x402.paymentRequired === true);
+  const x402Other = Boolean(x402) && x402.paymentRequired !== true;
+  const freePair = Boolean(
+    samedaydesk
+    && samedaydesk.paymentRequired === false
+    && samedaydesk.charged === false,
+  );
+  const hasFreeKeys = Boolean(
+    samedaydesk
+    && (Object.prototype.hasOwnProperty.call(samedaydesk, 'paymentRequired')
+      || Object.prototype.hasOwnProperty.call(samedaydesk, 'charged')),
+  );
+  let klass = 'refusal';
+  let reason = 'unknown-payment-mark';
+  if (x402Other || (hasFreeKeys && !freePair)) {
+    klass = 'refusal';
+    reason = 'unknown-payment-mark';
+  } else if (x402Paid && freePair) {
+    klass = 'refusal';
+    reason = 'contradictory-marks';
+  } else if (x402Paid) {
+    klass = 'paid';
+    reason = 'x402-payment-required';
+  } else if (freePair && !x402) {
+    klass = 'free';
+    reason = 'samedaydesk-uncharged';
+  }
+  const taskSupport = isRecord(tool.execution) && typeof tool.execution.taskSupport === 'string'
+    ? tool.execution.taskSupport
+    : null;
+  return {
+    name: tool.name,
+    class: klass,
+    reason,
+    toolsCallSent: false,
+    trialPostSent: false,
+    purchaseSent: false,
+    priceCopied: false,
+    acceptsCopied: false,
+    taskSupport,
+    taskSupportAuthorizesCall: false,
+  };
+}
+
+export function readToolBoundary(tool, mode) {
+  if (mode !== OPERATOR_DISCOVERY_QA && mode !== CUSTOMER_TASK_READY) {
+    throw new ProtocolError('unknown reader mode');
+  }
+  const classified = classifyListedTool(tool);
+  let documentedNextAction = 'stop';
+  if (mode === OPERATOR_DISCOVERY_QA) {
+    documentedNextAction = 'stop-after-unpaid-list';
+  } else if (classified.class === 'free' && classified.name === 'trial_read') {
+    documentedNextAction = 'authorized-caller-live-trial-read-schema';
+  } else if (classified.class === 'paid') {
+    documentedNextAction = 'caller-authority';
+  } else if (classified.class === 'free') {
+    documentedNextAction = 'free-mark-is-not-a-call';
+  }
+  return { mode, documentedNextAction, ...classified };
+}
+
+export function readInventory(tools, mode) {
+  if (!Array.isArray(tools)) throw new ProtocolError('tools/list missing tools array');
+  const rows = tools.map((tool) => readToolBoundary(tool, mode));
+  return {
+    mode,
+    toolsCallSent: false,
+    trialPostSent: false,
+    purchaseSent: false,
+    rows,
+    free: rows.filter((row) => row.class === 'free').map((row) => row.name),
+    paid: rows.filter((row) => row.class === 'paid').map((row) => row.name),
+    refusal: rows.filter((row) => row.class === 'refusal').map((row) => row.name),
+  };
+}
+
+/**
+ * Customer task-ready prose is not a send path.
+ * tools/call is refused first. A trial URL is refused before any other method.
+ */
+export function customerTaskReadyCall(method, url, { fetchImpl = globalThis.fetch } = {}) {
+  refusePaid(method);
+  refuseTrialTarget(url);
+  void fetchImpl;
+  throw new ProtocolError('customer task-ready does not send from this client');
+}
+
 function parseRpcBody(text) {
   const trimmed = text.trim();
   if (!trimmed) return null;
@@ -128,6 +262,7 @@ function parseRpcBody(text) {
 }
 
 export async function discover(url, { fetchImpl = globalThis.fetch } = {}) {
+  refuseTrialTarget(url);
   const sent = [];
   let session = null;
 
@@ -212,6 +347,7 @@ export async function discover(url, { fetchImpl = globalThis.fetch } = {}) {
 
 export async function probeUnsupported(url, method, { fetchImpl = globalThis.fetch } = {}) {
   refusePaid(method);
+  refuseTrialTarget(url);
   const response = await fetchImpl(url, {
     method: 'POST',
     headers: {
@@ -227,6 +363,60 @@ export async function probeUnsupported(url, method, { fetchImpl = globalThis.fet
 
 function positiveResult(id, result) {
   return { jsonrpc: '2.0', id, result };
+}
+
+function readerListTools() {
+  return [
+    {
+      name: 'trial_read',
+      description: 'Fixture free trial_read. Do not call it.',
+      inputSchema: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['url'],
+        properties: {
+          url: { type: 'string', minLength: 1, maxLength: 2048 },
+          markdownLimitChars: { type: 'integer', minimum: 1, maximum: 40000 },
+        },
+      },
+      execution: { taskSupport: 'forbidden' },
+      _meta: { samedaydesk: { charged: false, paymentRequired: false } },
+    },
+    {
+      name: 'read',
+      description: 'Fixture paid read. Do not call it.',
+      inputSchema: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['url'],
+        properties: { url: { type: 'string' } },
+      },
+      execution: { taskSupport: 'allowed' },
+      _meta: {
+        x402: {
+          paymentRequired: true,
+          accepts: [{ scheme: 'exact', amount: '5000', payTo: '0xfixture' }],
+        },
+        samedaydesk: { operation: { id: 'read', price: '5000' } },
+      },
+    },
+    {
+      name: 'page_change',
+      description: 'Fixture free tool that is not the page reader.',
+      inputSchema: { type: 'object', additionalProperties: false, properties: {} },
+      execution: { taskSupport: 'forbidden' },
+      _meta: { samedaydesk: { charged: false, paymentRequired: false } },
+    },
+    {
+      name: 'contradictory',
+      description: 'Fixture tool with both paid and free marks.',
+      inputSchema: { type: 'object', properties: {} },
+      _meta: {
+        x402: { paymentRequired: true, accepts: [{ amount: '1', payTo: '0xother' }] },
+        samedaydesk: { charged: false, paymentRequired: false },
+      },
+    },
+  ];
 }
 
 export function startFixture(mode) {
@@ -277,19 +467,22 @@ export function startFixture(mode) {
       }
       if (message.method === 'tools/list') {
         res.writeHead(200, { 'content-type': 'text/event-stream' });
-        const payload = positiveResult(message.id, {
-          tools: [
-            {
-              name: 'extract',
-              description: 'Paid page extract. The fixture must not be asked to call it.',
-              inputSchema: {
-                type: 'object',
-                properties: { url: { type: 'string' } },
-                required: ['url'],
+        const tools = mode === 'reader-list'
+          ? readerListTools()
+          : mode === 'missing-schema'
+            ? [{ name: 'broken', description: 'no schema' }]
+            : [
+              {
+                name: 'extract',
+                description: 'Paid page extract. The fixture must not be asked to call it.',
+                inputSchema: {
+                  type: 'object',
+                  properties: { url: { type: 'string' } },
+                  required: ['url'],
+                },
               },
-            },
-          ],
-        });
+            ];
+        const payload = positiveResult(message.id, { tools });
         res.end(`event: message\ndata: ${JSON.stringify(payload)}\n\n`);
         return;
       }
