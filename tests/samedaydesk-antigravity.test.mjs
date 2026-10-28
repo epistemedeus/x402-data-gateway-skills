@@ -18,6 +18,7 @@ import {
   agyHostPrefix,
   agyHostToolName,
   classifyListedTool,
+  currentHostQualification,
   customerFreeRead,
   discover,
   loadAdapterConfig,
@@ -89,6 +90,139 @@ test('qualification record keeps the SDK probe separate from host execution', ()
   assert.match(observed.hostLoadedExchange.reason, /No tools\/call was sent/);
 });
 
+test('current qualification reads ROOT25700 and leaves earlier failures recorded', () => {
+  const observed = JSON.parse(readPlugin('OBSERVED.json'));
+  const before = JSON.stringify(observed.qualificationHistory);
+  const current = currentHostQualification(observed);
+  assert.equal(JSON.stringify(observed.qualificationHistory), before);
+  assert.equal(observed.currentQualification.id, 'ROOT25700');
+  assert.equal(observed.currentQualification.source, 'qualificationHistory');
+  assert.equal(current.id, 'ROOT25700');
+  assert.equal(current.source, 'qualificationHistory');
+  const entry = observed.qualificationHistory.find((row) => row.id === 'ROOT25700');
+  assert.equal(entry.hostComplete, true);
+  assert.equal(current.hostComplete, entry.hostComplete);
+  assert.equal(current.hostLoadedAfterRename, entry.hostLoadedAfterRename);
+  assert.equal(current.hostLoadedExchangeReceived, entry.hostLoadedExchangeReceived);
+  assert.equal(current.agyVersion, entry.agyVersion);
+  assert.equal(current.agyVersion, '1.4.9');
+  assert.equal(current.stagedDirectory, entry.install.stagedDirectory);
+  assert.equal(current.stagedDirectory, '.gemini/config/plugins/samedaydesk');
+  assert.equal(current.serverHeading, entry.inventory.serverHeading);
+  assert.equal(current.serverHeading, 'samedaydesk_samedaydesk');
+  assert.equal(current.loaded, 30);
+  assert.equal(current.dropped, 0);
+  assert.equal(observed.qualificationHistory[0].id, 'ROOT17500');
+  assert.equal(observed.qualificationHistory[0].hostLoadedExchangeReceived, false);
+  assert.equal(observed.qualificationHistory[1].id, 'ROOT19120');
+  assert.equal(observed.qualificationHistory[1].notCompleteHostLoad, true);
+  assert.equal(observed.qualificationHistory[1].loaded, 22);
+  assert.equal(observed.qualificationHistory[1].dropped, 7);
+  const root23200 = observed.qualificationHistory.find((row) => row.id === 'ROOT23200');
+  const root24420 = observed.qualificationHistory.find((row) => row.id === 'ROOT24420');
+  assert.equal(root23200.hostComplete, false);
+  assert.equal(root24420.hostComplete, false);
+  assert.equal(root24420.hostLoadedAfterRename, false);
+  assert.equal(root24420.hostLoadedExchangeReceived, false);
+  assert.equal(observed.customerUsefulExecution.hostComplete, false);
+  assert.equal(observed.customerUsefulExecution.id, 'ROOT23200');
+  assert.equal(observed.cli.version, '1.4.8');
+  assert.equal(observed.install.stagedDirectory, '.gemini/config/plugins/samedaydesk-antigravity');
+  assert.equal(observed.githubInstall.branchSubpathInstall.ref, 'codex/root17500-client-native-distribution-20261028');
+  assert.equal(observed.githubInstall.branchSubpathInstall.pinsCommit, false);
+  assert.equal(observed.githubInstall.pinnedOneCommandUrl, false);
+  assert.notEqual(current.id, observed.qualificationHistory[0].id);
+  assert.deepEqual(current.earlierEntriesRemain, [
+    'ROOT17500',
+    'ROOT19120',
+    'ROOT22600',
+    'ROOT23200',
+    'ROOT24420',
+  ]);
+  assert.throws(
+    () => currentHostQualification({ qualificationHistory: observed.qualificationHistory }),
+    ProtocolError,
+  );
+  assert.throws(
+    () => currentHostQualification({
+      currentQualification: { id: 'ROOT99999' },
+      qualificationHistory: observed.qualificationHistory,
+    }),
+    ProtocolError,
+  );
+  const failedPointer = currentHostQualification({
+    currentQualification: { id: 'ROOT24420' },
+    qualificationHistory: observed.qualificationHistory,
+  });
+  assert.equal(failedPointer.hostComplete, false);
+  assert.equal(failedPointer.hostLoadedAfterRename, false);
+  assert.equal(failedPointer.hostLoadedExchangeReceived, false);
+});
+
+test('public acquisition pins the released commit and records no marketplace listing', () => {
+  const distribution = JSON.parse(readPlugin('DISTRIBUTION.json'));
+  const readme = readPlugin('README.md');
+  const manifest = JSON.parse(readPlugin('plugin.json'));
+  const repoReadme = readFileSync(join(repoRoot, 'README.md'), 'utf8');
+  assert.equal(distribution.schema, 'samedaydesk.antigravity-public-acquisition.v0');
+  assert.equal(distribution.releasedCommit, '41ff445d93cab50fb6e96d9f70bcffa08ad3cab7');
+  assert.equal(distribution.releasedTree, '9bcd68d9609d9ded8c8aea901360cbe0abf89a43');
+  assert.equal(distribution.documentationCommitIsNotThePin, true);
+  assert.equal(distribution.pluginDirectory, 'plugins/samedaydesk-antigravity');
+  assert.equal(distribution.machineName, manifest.name);
+  assert.equal(distribution.displayName, manifest.displayName);
+  assert.equal(distribution.version, manifest.version);
+  assert.equal(distribution.mcpServerUrl, 'https://agents.samedaydesk.com/mcp');
+  assert.equal(distribution.measuredStageDirectory, '.gemini/config/plugins/samedaydesk');
+  assert.equal(distribution.listing.listed, false);
+  assert.equal(distribution.listing.marketplace, 'antigravity-plugins-official');
+  assert.equal(distribution.listing.submissionStored, false);
+  assert.equal(distribution.listing.interestFormSubmitted, false);
+  assert.equal(distribution.listing.interestForm, 'https://forms.gle/2EX5RFYPoJe1UgxR9');
+  assert.equal(distribution.suppliedUrlIsAgyInstallArgument, false);
+  assert.equal(
+    distribution.suppliedUrl,
+    'https://github.com/epistemedeus/x402-data-gateway-skills/tree/41ff445d93cab50fb6e96d9f70bcffa08ad3cab7/plugins/samedaydesk-antigravity',
+  );
+  assert.equal(distribution.notInstallTargets.treeOrBranchUrlPinsCommit, false);
+  assert.equal(distribution.notInstallTargets.historicalBranchSubpath.isAcquisitionPin, false);
+  assert.equal(distribution.notInstallTargets.historicalBranchSubpath.pinsCommit, false);
+  assert.equal(distribution.notInstallTargets.historicalBranchSubpath.ref, 'codex/root17500-client-native-distribution-20261028');
+  assert.equal(distribution.sparseCheckoutEnough, true);
+  assert.equal(distribution.installCommands.includes('git checkout 41ff445d93cab50fb6e96d9f70bcffa08ad3cab7'), true);
+  assert.equal(distribution.installCommands.some((line) => line.includes('agy plugin import')), false);
+  assert.equal(distribution.installCommands.some((line) => /agy plugin install https:/.test(line)), false);
+  assert.equal(distribution.installCommands.some((line) => line.includes('codex/root17500')), false);
+  assert.equal(
+    distribution.installCommands.some((line) => line === 'agy plugin install "$PWD/plugins/samedaydesk-antigravity"'),
+    true,
+  );
+  assert.deepEqual(distribution.removeCurrent, [
+    'agy plugin disable samedaydesk',
+    'agy plugin uninstall samedaydesk',
+  ]);
+  assert.equal(distribution.uninstallPreviousMachineName, 'agy plugin uninstall samedaydesk-antigravity');
+  const fence = readme.split('```bash')[1].split('```')[0];
+  assert.match(fence, /git checkout 41ff445d93cab50fb6e96d9f70bcffa08ad3cab7/);
+  assert.match(fence, /agy plugin validate "\$PWD\/plugins\/samedaydesk-antigravity" --strict/);
+  assert.match(fence, /agy plugin install "\$PWD\/plugins\/samedaydesk-antigravity"/);
+  assert.match(fence, /agy plugin list --json/);
+  assert.doesNotMatch(fence, /agy plugin import/);
+  assert.doesNotMatch(fence, /<pinned-commit>/);
+  assert.doesNotMatch(fence, /codex\/root17500/);
+  assert.match(readme, /not listed/);
+  assert.match(readme, /antigravity-plugins-official/);
+  assert.match(readme, /https:\/\/forms\.gle\/2EX5RFYPoJe1UgxR9/);
+  assert.match(readme, /not an `agy plugin install` argument/);
+  assert.match(readme, /currentQualification/);
+  assert.match(readme, /ROOT25700/);
+  assert.match(readme, /Do not run `agy plugin import`/);
+  assert.doesNotMatch(readme, /<pinned-commit>/);
+  assert.match(repoReadme, /plugins\/samedaydesk-antigravity/);
+  assert.match(repoReadme, /not a listing in `antigravity-plugins-official`/);
+  assert.match(repoReadme, /npx skills add/);
+});
+
 test('adapter manifest has no hooks file', () => {
   const names = readdirSync(pluginRoot);
   assert.equal(names.includes('hooks.json'), false);
@@ -149,6 +283,7 @@ test('customer skill allows one free trial_read and keeps no-call in discovery o
   assert.match(skill, /forbidden/);
   assert.match(skill, /markdownLimitChars/);
   assert.match(skill, /does not forbid this ordinary `tools\/call`/);
+  assert.match(skill, /not an Antigravity Marketplace listing/);
   assert.match(skill, /not idempotent/);
   assert.match(customer, /Send one ordinary `tools\/call`/);
   assert.match(customer, /original shared budget/);

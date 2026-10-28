@@ -86,6 +86,44 @@ export class ProtocolError extends Error {
   }
 }
 
+/**
+ * Read the one history entry named by currentQualification.id.
+ * Earlier entries stay in the record. A false on another entry stays false.
+ * This does not contact a host and does not add a model turn.
+ */
+export function currentHostQualification(observed) {
+  if (!observed || typeof observed !== 'object' || Array.isArray(observed)) {
+    throw new ProtocolError('qualification record missing');
+  }
+  const pointer = observed.currentQualification;
+  if (!pointer || typeof pointer !== 'object' || Array.isArray(pointer)) {
+    throw new ProtocolError('current qualification id missing');
+  }
+  if (typeof pointer.id !== 'string' || pointer.id.length === 0) {
+    throw new ProtocolError('current qualification id missing');
+  }
+  const history = observed.qualificationHistory;
+  if (!Array.isArray(history)) throw new ProtocolError('qualification history missing');
+  const matches = history.filter((entry) => entry && entry.id === pointer.id);
+  if (matches.length !== 1) throw new ProtocolError('current qualification id is not one history entry');
+  const entry = matches[0];
+  const install = entry.install && typeof entry.install === 'object' ? entry.install : null;
+  const inventory = entry.inventory && typeof entry.inventory === 'object' ? entry.inventory : null;
+  return {
+    id: entry.id,
+    source: 'qualificationHistory',
+    hostComplete: entry.hostComplete === true,
+    hostLoadedAfterRename: entry.hostLoadedAfterRename === true,
+    hostLoadedExchangeReceived: entry.hostLoadedExchangeReceived === true,
+    agyVersion: typeof entry.agyVersion === 'string' ? entry.agyVersion : null,
+    stagedDirectory: install && typeof install.stagedDirectory === 'string' ? install.stagedDirectory : null,
+    serverHeading: inventory && typeof inventory.serverHeading === 'string' ? inventory.serverHeading : null,
+    loaded: inventory && Number.isInteger(inventory.loaded) ? inventory.loaded : null,
+    dropped: inventory && Number.isInteger(inventory.dropped) ? inventory.dropped : null,
+    earlierEntriesRemain: history.filter((row) => row && row.id !== pointer.id).map((row) => row.id),
+  };
+}
+
 const SERVER_FIELDS = new Set(['serverUrl']);
 
 export function loadAdapterConfig(config) {

@@ -5,7 +5,7 @@ description: Read one caller-supplied public URL with the live free SameDayDesk 
 
 # Read one public page
 
-This is the only skill in this plugin. The source directory is `plugins/samedaydesk-antigravity`. The machine name is `samedaydesk`. It does not install the other skills in this repository.
+This is the only skill in this plugin. The source directory is `plugins/samedaydesk-antigravity`. The machine name is `samedaydesk`. It does not install the other skills in this repository. Public install is the pinned checkout in the plugin README. This directory is not an Antigravity Marketplace listing.
 
 Use customer task-ready when the user supplies a public URL and asks for a read. Use operator discovery-QA only as a separate measurement. Implementation tests use a synthetic local fixture and do not call production.
 
