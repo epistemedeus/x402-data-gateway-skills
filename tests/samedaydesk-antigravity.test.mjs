@@ -53,6 +53,9 @@ test('qualification record keeps the SDK probe separate from host execution', ()
   assert.equal(observed.attribution, 'unqualified');
   assert.equal(observed.sourceHeader, null);
   assert.equal(observed.githubInstall.pinnedOneCommandUrl, false);
+  assert.equal(observed.githubInstall.branchSubpathInstall.received, true);
+  assert.equal(observed.githubInstall.branchSubpathInstall.pinsCommit, false);
+  assert.equal(observed.githubInstall.branchSubpathInstall.followsBranchTip, true);
 });
 
 test('adapter manifest has no hooks file', () => {

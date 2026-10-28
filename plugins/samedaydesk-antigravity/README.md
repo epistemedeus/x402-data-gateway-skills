@@ -13,7 +13,13 @@ agy --version
 
 Do not run `agy plugin import`. That migrates Gemini or Claude profiles, tokens, and keyrings. This adapter does not need that migration. Do not start a paid API, Vertex project, enterprise plan, or trial to install it.
 
-`agy plugin install` accepts a local directory or a GitHub URL. On the qualified CLI, a tree URL `https://github.com/<owner>/<repo>/tree/<branch>/<subpath>` is parsed as a subpath, and `<branch>` must be a remote branch name. A commit SHA is not a branch. `owner/repo:subpath` is rejected. The repository root is the wrong target: it is not this plugin, and installing it would not be this directory.
+`agy plugin install` accepts a local directory or a GitHub URL. On agy 1.4.8, a tree URL `https://github.com/<owner>/<repo>/tree/<branch>/<subpath>` is parsed as a subpath. `<branch>` must be a remote branch name, and this build accepted a slash inside the branch name. A commit SHA is not a branch. `owner/repo:subpath` is rejected. The repository root is the wrong target: it is not this plugin, and installing it would not be this directory.
+
+On that same build, this URL installed this directory and followed the branch tip. It does not pin a commit:
+
+```text
+https://github.com/epistemedeus/x402-data-gateway-skills/tree/codex/root17500-client-native-distribution-20261028/plugins/samedaydesk-antigravity
+```
 
 Install this directory from a pinned checkout:
 

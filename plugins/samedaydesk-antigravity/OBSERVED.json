@@ -36,7 +36,14 @@
     "commitShaIsABranch": false,
     "ownerRepoColonSubpath": "rejected: install target must be a directory",
     "fragmentSubpathSelectsPlugin": false,
-    "pinnedOneCommandUrl": false
+    "pinnedOneCommandUrl": false,
+    "branchSubpathInstall": {
+      "received": true,
+      "ref": "codex/root17500-client-native-distribution-20261028",
+      "slashInBranchName": true,
+      "followsBranchTip": true,
+      "pinsCommit": false
+    }
   },
   "hostLoadedExchange": {
     "received": false,
