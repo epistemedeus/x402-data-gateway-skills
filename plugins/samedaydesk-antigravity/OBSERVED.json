@@ -49,7 +49,7 @@
     "received": false,
     "pluginListReadsComponents": true,
     "mcpListShowsPluginServer": false,
-    "reason": "agy mcp list stays empty for a server declared only by this plugin and does not open the endpoint. No plugin subcommand performs initialize. agy --print was not run."
+    "reason": "agy mcp list stays empty for a server declared only by this plugin and does not open the endpoint. No plugin subcommand performs initialize. ROOT24420 ran agy --print on agy 1.4.8 after installing the renamed plugin. The host did not reload plugin MCP servers: cannot get the signed-in user: error getting token source: You are not logged into Antigravity. The CLI exited 1 with authentication timed out. No loaded tool names were received."
   },
   "directSdkProbe": {
     "sdk": "@modelcontextprotocol/sdk",
@@ -158,6 +158,81 @@
         }
       ],
       "note": "Customer skill may send one ordinary free trial_read. Discovery mode still refuses tools/call. agy is not installed on this host, so the renamed namespace was not host-loaded. Direct SDK listing was not used as a host load. No production tools/call, trial POST, or purchase."
+    },
+    {
+      "id": "ROOT24420",
+      "pluginVersion": "0.1.3",
+      "agyVersion": "1.4.8",
+      "model": "grok-4.7",
+      "effort": "xhigh",
+      "installerScriptSha256": "62966c07365423bd4dc209355060744058fb30d60f5323e2d360e39de64e5042",
+      "installerScriptMatched": true,
+      "installerManifestVersion": "1.4.9",
+      "installerNotExecuted": true,
+      "pinnedBinary": {
+        "url": "https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.8-5447777392656384/linux-x64/cli_linux_x64.tar.gz",
+        "sha512": "b23683771438e72bffe0a2231168f65a16a0d73ed2c7a8460b311dc5fe0c3c9d9dfc6cbfb7d8755173340071aa4cc5c7a552fb5d1be3fdd31c2b7559d67e404a",
+        "bytes": 66039384
+      },
+      "autoUpdateDisabled": true,
+      "isolatedHome": true,
+      "realGeminiUntouched": true,
+      "hostLoadedExchangeReceived": false,
+      "hostInstallReRunAfterRename": true,
+      "hostLoadedAfterRename": false,
+      "hostComplete": false,
+      "productionToolsCallSent": false,
+      "trialPostSent": false,
+      "purchaseSent": false,
+      "globalNoCallBanResealed": false,
+      "discoveryNoCallRemains": true,
+      "sdkProbeUsedAsHostLoad": false,
+      "lengthOnlyFixtureUsedAsHostLoad": false,
+      "loginUrlFollowed": false,
+      "authorizationCodePasted": false,
+      "validate": {
+        "command": "agy plugin validate /home/ubuntu/ae14-work/root24420/plugins/samedaydesk-antigravity --strict --json",
+        "exitCode": 0,
+        "findings": [],
+        "name": "samedaydesk",
+        "mcpServers": 1,
+        "skills": 1
+      },
+      "install": {
+        "command": "agy plugin install /home/ubuntu/ae14-work/root24420/plugins/samedaydesk-antigravity",
+        "exitCode": 0,
+        "stagedDirectory": ".gemini/config/plugins/samedaydesk",
+        "skill": "samedaydesk-remote-mcp",
+        "mcpServer": "samedaydesk"
+      },
+      "mcpList": {
+        "command": "agy mcp list",
+        "exitCode": 0,
+        "stdout": "No MCP servers configured.",
+        "showsPluginServer": false
+      },
+      "hostLoad": {
+        "command": "agy -p 'Reply with exactly the word pong. Do not call any tool. Do not use MCP. Do not browse. Do not run commands.' --output-format stream-json --print-timeout 15s",
+        "exitCode": 1,
+        "stdoutError": "authentication failed or timed out",
+        "stderr": "Authentication required. Please visit the URL to log in:\n  https://accounts.google.com/o/oauth2/auth?<redacted>\n\nWaiting for authentication (timeout 60s)...\nOr, paste the authorization code here and press Enter:\nError: authentication timed out.\nerror: authentication failed or timed out\n",
+        "stderrSha256": "32822ab41de2b279e28491b75b7f2c7177821e428faf9bc3687097d79602ca5f",
+        "oauthQueryRedacted": true,
+        "log": "Not reloading plugin MCP servers: cannot get the signed-in user: error getting token source: You are not logged into Antigravity.",
+        "loadedToolNames": null,
+        "loadedCount": null,
+        "droppedCount": null,
+        "prefixObserved": false
+      },
+      "cleanup": {
+        "command": "agy plugin uninstall samedaydesk",
+        "exitCode": 0,
+        "stdout": "Uninstalled plugin \"samedaydesk\"",
+        "unrelatedPluginPreserved": true,
+        "unrelatedName": "unrelated-notes",
+        "unrelatedDigest": "b882e0794722d6decd6a3efd91f8db4c3dc1fd886dc03f901cca2c56e68be2ab"
+      },
+      "note": "Renamed plugin validated and installed on agy 1.4.8 in an isolated HOME. agy plugin list read the skill and the MCP component. agy mcp list did not show the plugin server and did not open the endpoint. The headless host refused to reload plugin MCP servers without a signed-in Antigravity user, then exited 1 after the 60s login wait. The login URL was not followed and no authorization code was pasted. No loaded inventory, no production tools/call, no trial POST, and no purchase. Uninstall removed samedaydesk and left unrelated-notes in place. This is not a host load. The official installer script still matches the recorded sha256, and its current manifest is 1.4.9, so that script was not executed."
     }
   ],
   "hostName": {
@@ -175,7 +250,8 @@
     "schemaCheckedAt": "2026-10-28",
     "schemaUrl": "https://antigravity.google/schemas/v1/plugin.json",
     "whyToolIdsStay": "Remote tool ids are merchant identifiers. The published plugin manifest has displayName for humans and no tool-id alias. mcp_config.json server fields used here are serverUrl only. enabledTools and disabledTools hide tools. A tools.eager flag, where a build has one, selects registration and still uses the remote tool id. A local renaming proxy would replace serverUrl and forward tools/call. This adapter does not do that.",
-    "installReRun": false,
+    "installReRun": true,
+    "installReRunStagedDirectory": ".gemini/config/plugins/samedaydesk",
     "hostLoadedAfterRename": false,
     "liveUnpaidList": {
       "measuredAt": "2026-10-28T04:22:17Z",

@@ -78,8 +78,10 @@ test('qualification record keeps the SDK probe separate from host execution', ()
   assert.equal(observed.qualificationHistory[1].dropped, 7);
   assert.equal(observed.qualificationHistory[1].evidence.sha256, 'f223ae2ba7d8457b168aa8dfba1c6b5c4b7f1b43694c266bf14b26aa730c37b2');
   assert.equal(observed.hostName.hostLoadedAfterRename, false);
-  assert.equal(observed.hostName.installReRun, false);
+  assert.equal(observed.hostName.installReRun, true);
+  assert.equal(observed.hostName.installReRunStagedDirectory, '.gemini/config/plugins/samedaydesk');
   assert.equal(observed.hostName.schemaHasToolIdAlias, false);
+  assert.match(observed.hostLoadedExchange.reason, /Not reloading plugin MCP servers|does not reload plugin MCP servers|cannot get the signed-in user/);
 });
 
 test('adapter manifest has no hooks file', () => {
@@ -317,15 +319,57 @@ test('generated host names after the agy prefix stay within 64 characters', () =
   for (const id of reader.ids) {
     assert.equal(agyHostNameFits(manifest.name, serverName, id), true, id);
   }
-  assert.equal(observed.qualificationHistory.at(-2).id, 'ROOT22600');
-  assert.equal(observed.qualificationHistory.at(-1).id, 'ROOT23200');
-  assert.equal(observed.qualificationHistory.at(-1).globalNoCallBanResealed, false);
-  assert.equal(observed.qualificationHistory.at(-1).productionToolsCallSent, false);
-  assert.equal(observed.qualificationHistory.at(-1).hostComplete, false);
-  assert.equal(observed.qualificationHistory.at(-1).commands[0].exitCode, 127);
+  assert.deepEqual(observed.qualificationHistory.map((entry) => entry.id), [
+    'ROOT17500',
+    'ROOT19120',
+    'ROOT22600',
+    'ROOT23200',
+    'ROOT24420',
+  ]);
+  const root23200 = observed.qualificationHistory.find((entry) => entry.id === 'ROOT23200');
+  assert.equal(root23200.globalNoCallBanResealed, false);
+  assert.equal(root23200.productionToolsCallSent, false);
+  assert.equal(root23200.hostComplete, false);
+  assert.equal(root23200.commands[0].exitCode, 127);
+  const root24420 = observed.qualificationHistory.at(-1);
+  assert.equal(root24420.id, 'ROOT24420');
+  assert.equal(root24420.hostComplete, false);
+  assert.equal(root24420.hostLoadedAfterRename, false);
+  assert.equal(root24420.hostLoadedExchangeReceived, false);
+  assert.equal(root24420.hostInstallReRunAfterRename, true);
+  assert.equal(root24420.globalNoCallBanResealed, false);
+  assert.equal(root24420.productionToolsCallSent, false);
+  assert.equal(root24420.trialPostSent, false);
+  assert.equal(root24420.purchaseSent, false);
+  assert.equal(root24420.discoveryNoCallRemains, true);
+  assert.equal(root24420.sdkProbeUsedAsHostLoad, false);
+  assert.equal(root24420.lengthOnlyFixtureUsedAsHostLoad, false);
+  assert.equal(root24420.loginUrlFollowed, false);
+  assert.equal(root24420.authorizationCodePasted, false);
+  assert.equal(root24420.agyVersion, '1.4.8');
+  assert.equal(root24420.installerNotExecuted, true);
+  assert.equal(root24420.installerManifestVersion, '1.4.9');
+  assert.equal(root24420.validate.exitCode, 0);
+  assert.equal(root24420.validate.findings.length, 0);
+  assert.equal(root24420.install.exitCode, 0);
+  assert.equal(root24420.install.stagedDirectory, '.gemini/config/plugins/samedaydesk');
+  assert.equal(root24420.mcpList.exitCode, 0);
+  assert.equal(root24420.mcpList.showsPluginServer, false);
+  assert.equal(root24420.hostLoad.exitCode, 1);
+  assert.equal(root24420.hostLoad.stdoutError, 'authentication failed or timed out');
+  assert.match(root24420.hostLoad.stderr, /Error: authentication timed out\./);
+  assert.match(root24420.hostLoad.stderr, /accounts\.google\.com\/o\/oauth2\/auth\?<redacted>/);
+  assert.equal(root24420.hostLoad.oauthQueryRedacted, true);
+  assert.match(root24420.hostLoad.log, /Not reloading plugin MCP servers/);
+  assert.equal(root24420.hostLoad.prefixObserved, false);
+  assert.equal(root24420.hostLoad.loadedCount, null);
+  assert.equal(root24420.cleanup.exitCode, 0);
+  assert.equal(root24420.cleanup.unrelatedPluginPreserved, true);
+  assert.equal(root24420.cleanup.unrelatedName, 'unrelated-notes');
   assert.equal(observed.customerUsefulExecution.customerOrdinaryCall, 'trial_read');
   assert.equal(observed.customerUsefulExecution.taskAugmentation, false);
   assert.equal(observed.customerUsefulExecution.hostComplete, false);
+  assert.equal(observed.customerUsefulExecution.globalNoCallBanResealed, false);
   assert.equal(observed.hostLoadedExchange.received, false);
   assert.equal(observed.qualificationHistory[1].evidence.sha256, 'f223ae2ba7d8457b168aa8dfba1c6b5c4b7f1b43694c266bf14b26aa730c37b2');
 
