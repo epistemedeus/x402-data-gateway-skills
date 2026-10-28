@@ -1,0 +1,19 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "samedaydesk",
+  "displayName": "SameDayDesk",
+  "version": "0.1.3",
+  "description": "Binds the existing SameDayDesk remote MCP. A supplied public URL may use one free trial_read tools/call. Does not pay, start an HTTP trial, or install other skills.",
+  "author": {
+    "name": "SameDayDesk",
+    "url": "https://samedaydesk.com"
+  },
+  "homepage": "https://agents.samedaydesk.com/",
+  "repository": "https://github.com/epistemedeus/x402-data-gateway-skills",
+  "license": "MIT",
+  "keywords": [
+    "samedaydesk",
+    "mcp",
+    "antigravity"
+  ]
+}
