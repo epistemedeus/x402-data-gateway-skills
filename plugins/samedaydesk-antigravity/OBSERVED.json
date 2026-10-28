@@ -1,6 +1,6 @@
 {
   "schema": "samedaydesk.antigravity-qualification.v0",
-  "note": "One qualification of this directory. It is not a compatibility promise for a later agy build, and the tool count is not a package contract.",
+  "note": "One qualification of this directory. It is not a compatibility promise for a later agy build, and the tool count is not a package contract. Read currentQualification for the current host result. That id names one qualificationHistory entry and does not replace earlier entries. cli.version and install.stagedDirectory stay the earlier measurement.",
   "cli": {
     "command": "agy",
     "version": "1.4.8",
@@ -376,6 +376,11 @@
       "note": "HOME-inherit of profile tpotalpha on the enrolled agy 1.4.9 binary. doctor reported tpotalpha_authenticated. The renamed plugin validated and installed under .gemini/config/plugins/samedaydesk. agy mcp list did not show the plugin server. The headless print authenticated without a login URL and answered pong. Its prompt listed all 30 remote ids as Lazy tools under server samedaydesk_samedaydesk, including the seven ids the older 40-character prefix had dropped. The prompt did not contain the function prefix mcp_samedaydesk_samedaydesk_. A startup log line still said plugin MCP servers were not reloaded because the signed-in user was not visible yet; that line was not the end of the session. The transcript steps were USER_INPUT and PLANNER_RESPONSE. No production tools/call, trial POST, or purchase. Discovery mode still refuses tools/call in the local fixture only. Uninstall removed samedaydesk and left unrelated-notes in place with the same tree digest. The sentinel was then removed so the inherited profile's plugin list returned to empty. The official installer was not executed. This listing is the host inventory. It is not an SDK probe and not a length-only fixture."
     }
   ],
+  "currentQualification": {
+    "id": "ROOT25700",
+    "source": "qualificationHistory",
+    "read": "The current host result is the qualificationHistory entry with this id. Earlier entries stay as recorded. cli.version and install.stagedDirectory above the history are the earlier measurement. customerUsefulExecution.hostComplete is ROOT23200 and is not this result. This pointer does not add a host load or a model turn."
+  },
   "hostName": {
     "rule": "^[a-zA-Z0-9_-]{1,64}$",
     "maxLength": 64,

@@ -24,6 +24,10 @@ Install one skill with:
 npx skills add epistemedeus/x402-data-gateway-skills --skill wallet-enrich --yes
 ```
 
+## Antigravity
+
+`plugins/samedaydesk-antigravity` is the Antigravity CLI plugin. `npx skills add` does not install it. It is not a listing in `antigravity-plugins-official`. The pinned checkout and the no-listing boundary are in that plugin's README.
+
 ## Skills
 
 | Skill | Capability family | Paid routes |

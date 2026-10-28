@@ -1,0 +1,58 @@
+{
+  "schema": "samedaydesk.antigravity-public-acquisition.v0",
+  "releasedCommit": "41ff445d93cab50fb6e96d9f70bcffa08ad3cab7",
+  "releasedTree": "9bcd68d9609d9ded8c8aea901360cbe0abf89a43",
+  "documentationCommitIsNotThePin": true,
+  "repository": "https://github.com/epistemedeus/x402-data-gateway-skills.git",
+  "pluginDirectory": "plugins/samedaydesk-antigravity",
+  "machineName": "samedaydesk",
+  "displayName": "SameDayDesk",
+  "version": "0.1.3",
+  "mcpServerUrl": "https://agents.samedaydesk.com/mcp",
+  "measuredStageDirectory": ".gemini/config/plugins/samedaydesk",
+  "minimumMeasuredAgy": "1.4.8",
+  "listing": {
+    "listed": false,
+    "marketplace": "antigravity-plugins-official",
+    "submissionStored": false,
+    "interestFormSubmitted": false,
+    "interestForm": "https://forms.gle/2EX5RFYPoJe1UgxR9",
+    "boundary": "The Antigravity Marketplace is a curated catalog. Docs checked on 2026-10-28 name only antigravity-plugins-official. A bare agy plugin install <name> installs from that catalog. The publisher step on the Marketplace page is an interest form, not a free submission that returns a listing id. No agy plugin publish command is documented. This package was not submitted and has no marketplace listing."
+  },
+  "docs": {
+    "checkedAt": "2026-10-28",
+    "marketplace": "https://antigravity.google/docs/marketplace",
+    "plugins": "https://antigravity.google/docs/plugins",
+    "cliInstall": "https://antigravity.google/docs/cli/install",
+    "cliFeatures": "https://antigravity.google/docs/cli/features"
+  },
+  "notInstallTargets": {
+    "agyPluginImport": "migrates Gemini or Claude profiles; do not use",
+    "catalogName": "agy plugin install samedaydesk",
+    "repositoryRootUrl": "https://github.com/epistemedeus/x402-data-gateway-skills",
+    "treeOrBranchUrlPinsCommit": false,
+    "historicalBranchSubpath": {
+      "ref": "codex/root17500-client-native-distribution-20261028",
+      "pinsCommit": false,
+      "isAcquisitionPin": false
+    }
+  },
+  "suppliedUrl": "https://github.com/epistemedeus/x402-data-gateway-skills/tree/41ff445d93cab50fb6e96d9f70bcffa08ad3cab7/plugins/samedaydesk-antigravity",
+  "suppliedUrlIsAgyInstallArgument": false,
+  "sparseCheckoutEnough": true,
+  "installCommands": [
+    "curl -fsSL https://antigravity.google/cli/install.sh | bash",
+    "agy --version",
+    "git clone https://github.com/epistemedeus/x402-data-gateway-skills.git",
+    "cd x402-data-gateway-skills",
+    "git checkout 41ff445d93cab50fb6e96d9f70bcffa08ad3cab7",
+    "agy plugin validate \"$PWD/plugins/samedaydesk-antigravity\" --strict",
+    "agy plugin install \"$PWD/plugins/samedaydesk-antigravity\"",
+    "agy plugin list --json"
+  ],
+  "uninstallPreviousMachineName": "agy plugin uninstall samedaydesk-antigravity",
+  "removeCurrent": [
+    "agy plugin disable samedaydesk",
+    "agy plugin uninstall samedaydesk"
+  ]
+}
