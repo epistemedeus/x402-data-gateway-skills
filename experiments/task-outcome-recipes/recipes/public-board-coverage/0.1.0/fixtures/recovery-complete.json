@@ -1,0 +1,18 @@
+{
+  "schema": "public-careers-board.supplied-seed.v1",
+  "responses": [
+    {
+      "httpStatus": 200,
+      "body": {
+        "jobs": [
+          {
+            "title": "LiveRamp Only Role",
+            "location": "Remote",
+            "isListed": true,
+            "jobUrl": "https://jobs.ashbyhq.com/liveramp-inc/role-1"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,162 @@
+{
+  "schema": "h64006.task-outcome-recipes.inventory.v1",
+  "base": "2f5c1466ddf5fb5f57b39d2045cb25afc32bba64",
+  "branch": "codex/root64006-heavy-window-20261029",
+  "releasedCommitPreserved": "41ff445d93cab50fb6e96d9f70bcffa08ad3cab7",
+  "network": "loopback-mcp-fixture-only",
+  "files": [
+    {
+      "path": "LICENSE",
+      "bytes": 1071,
+      "sha256": "044d7291c37a2ead106ea4b4c26f713e63b7834637ed634da640f74e8cbe4625"
+    },
+    {
+      "path": "NEXT.md",
+      "bytes": 1304,
+      "sha256": "a6c78a5d0a8ff8274d8877e4aa5e040a8e907a72c631f9faa0a66bf30d14ac75"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1179,
+      "sha256": "8450eaccee4ef8fe65b1adc61f72c3070ec30e28370d0c6ec8c142f64bf3b9f8"
+    },
+    {
+      "path": "RESULT.md",
+      "bytes": 4459,
+      "sha256": "5945ad863bcb4cb793966bc10035cf75903ec37fc58a12d2bedbaf2871516866"
+    },
+    {
+      "path": "check.mjs",
+      "bytes": 11253,
+      "sha256": "40e0ca8e5d508ff233d7e87ab89ed403a245d374118e3c9e0482f6354ef308d1"
+    },
+    {
+      "path": "lib/cli.mjs",
+      "bytes": 871,
+      "sha256": "2294847d843289743f023805b512cdfce86d74dd7e5ff22066dcbcef1d5457aa"
+    },
+    {
+      "path": "lib/offline-guard.mjs",
+      "bytes": 666,
+      "sha256": "aa10bb0b14cbd5e82f1cb8992fbcd93dc047cb832581654b7bfc2510592dd5fb"
+    },
+    {
+      "path": "recipes/caller-result-retention/0.1.0/RECIPE.md",
+      "bytes": 1982,
+      "sha256": "850f9cd5fa29c93688e97272737f8e0fbda2dc6dcc0cf333efb7f94ecebabb79"
+    },
+    {
+      "path": "recipes/caller-result-retention/0.1.0/direct.mjs",
+      "bytes": 532,
+      "sha256": "070a80d45dc2986f1c08dd909a19ebdc6596fee2368556fe28d0f0fb4b0232ac"
+    },
+    {
+      "path": "recipes/caller-result-retention/0.1.0/fixtures/first-use.json",
+      "bytes": 75,
+      "sha256": "f281ed63b253642512711dbd554a3954b452a54f2454be8ed05ef58fe1dd02d3"
+    },
+    {
+      "path": "recipes/caller-result-retention/0.1.0/fixtures/repeat.json",
+      "bytes": 88,
+      "sha256": "e72746d9e08446142d0b08dd66d4d002125e534194fc5a338b0607f52b4282f4"
+    },
+    {
+      "path": "recipes/caller-result-retention/0.1.0/fixtures/tool-error.json",
+      "bytes": 106,
+      "sha256": "d8783f69f76d91599a6ec943aef461aa2e603dcde6d63f69eddf586fad0c2555"
+    },
+    {
+      "path": "recipes/caller-result-retention/0.1.0/recipe.json",
+      "bytes": 2006,
+      "sha256": "ecf580a15901fe5d9a26ed1a44900279e900e5c639849ad8fa321decb7e45d00"
+    },
+    {
+      "path": "recipes/caller-result-retention/0.1.0/run.mjs",
+      "bytes": 2324,
+      "sha256": "6517ec93f93a48290a68baf6dcfeb6b5007edcbd96eafa13c82146c9a50f44c8"
+    },
+    {
+      "path": "recipes/free-mcp-page-read/0.1.0/RECIPE.md",
+      "bytes": 2270,
+      "sha256": "d884bd2e347a714dad7d527402ad1bea271385869fb642b0ae079cf449d9abdf"
+    },
+    {
+      "path": "recipes/free-mcp-page-read/0.1.0/direct.mjs",
+      "bytes": 516,
+      "sha256": "4a80aff6dffd76a28aee5cc2b2e1ac15c7eb1a5ef92cc84b5584c18aa1d1e544"
+    },
+    {
+      "path": "recipes/free-mcp-page-read/0.1.0/recipe.json",
+      "bytes": 2040,
+      "sha256": "808af0e7c7421d14943539f63e1f6945e5c7320e92c966567086d5bd3cd87e0f"
+    },
+    {
+      "path": "recipes/free-mcp-page-read/0.1.0/run.mjs",
+      "bytes": 2826,
+      "sha256": "d9bf73d3f9ff32e0295022ec67eee7baeeb29e0b9c450957ecacb5d2c39983e6"
+    },
+    {
+      "path": "recipes/public-board-coverage/0.1.0/RECIPE.md",
+      "bytes": 2234,
+      "sha256": "d3566c5887c91587e8368d9265b314f57f93487587248644e85c1429617a291c"
+    },
+    {
+      "path": "recipes/public-board-coverage/0.1.0/direct.mjs",
+      "bytes": 1466,
+      "sha256": "080c487a8389d7c86419282314c61139481c561dd7dc95c24a36fd1044c890a0"
+    },
+    {
+      "path": "recipes/public-board-coverage/0.1.0/fixtures/first-use.json",
+      "bytes": 611,
+      "sha256": "183ef38d689cfbd2e6b320dcb780e7a290235ea4628ef8bc9037becdfb447a04"
+    },
+    {
+      "path": "recipes/public-board-coverage/0.1.0/fixtures/partial.json",
+      "bytes": 440,
+      "sha256": "571c9d5648da3e02f36ec52609f270e032cfea9f09f7460972e87746fa3a7fed"
+    },
+    {
+      "path": "recipes/public-board-coverage/0.1.0/fixtures/recovery-complete.json",
+      "bytes": 367,
+      "sha256": "cd21576098a5da458fa76cd41b4c7797c1da0b7b00bf1e9741eb58e0b2cfa437"
+    },
+    {
+      "path": "recipes/public-board-coverage/0.1.0/fixtures/recovery-failure.json",
+      "bytes": 197,
+      "sha256": "9cb426da0dad39fdf5de12abaaf5434f4e90bf3fb0ab7e972a1d68172a12b612"
+    },
+    {
+      "path": "recipes/public-board-coverage/0.1.0/fixtures/repeat-changed.json",
+      "bytes": 925,
+      "sha256": "075dfa0c94eadba4eddb793bae8fabe39fc3f7146033b6d7d8a56b59bede2ec3"
+    },
+    {
+      "path": "recipes/public-board-coverage/0.1.0/fixtures/repeat-no-change.json",
+      "bytes": 611,
+      "sha256": "183ef38d689cfbd2e6b320dcb780e7a290235ea4628ef8bc9037becdfb447a04"
+    },
+    {
+      "path": "recipes/public-board-coverage/0.1.0/recipe.json",
+      "bytes": 1879,
+      "sha256": "ef2de74743c4c9e207d7677d770919afc0e8863b905ced2324288169e52802f9"
+    },
+    {
+      "path": "recipes/public-board-coverage/0.1.0/run.mjs",
+      "bytes": 1748,
+      "sha256": "b8f7f8bbf2a83c7839ec19b5bdb1b32bbe0b066af1febed93d62905940bb0223"
+    }
+  ],
+  "sources": {
+    "skills/public-careers-board/scripts/cli.mjs": "7065c42cb62fd0f20e0bec039f7be0a682f8ef6c70f8a3b11347a9350817c662",
+    "skills/public-careers-board/SKILL.md": "676b0996fadb238bc60a30be22966b42441928a90d2e8b9c2bafe59d837baf6f",
+    "skills/public-careers-board/LICENSE": "c3966a2f6f7dd40dd063823038503a38e6b273fe1062eff9028b24425b43bea6",
+    "skills/samedaydesk-task-result/scripts/task-result.mjs": "d1bc056d8a08d912c11803f69c5d85d82348801ed28494bc870d7c4c72b714c3",
+    "skills/samedaydesk-task-result/SKILL.md": "83fd65e53ffd93c45e7915afa0fd7e271ce226cb2a63e6d17e32b644bad66254",
+    "skills/samedaydesk-task-result/LICENSE": "044d7291c37a2ead106ea4b4c26f713e63b7834637ed634da640f74e8cbe4625",
+    "skills/samedaydesk-task-result/references/LICENSE.txt": "044d7291c37a2ead106ea4b4c26f713e63b7834637ed634da640f74e8cbe4625",
+    "tests/fixtures/samedaydesk-antigravity/protocol.mjs": "4679c2fe9a82e165646c5c92ac5af1aa0cb60a66521287137f5b2fc6e65748f3",
+    "plugins/samedaydesk-antigravity/DISTRIBUTION.json": "340f1d93557683ff4a5d9cab6b4eb00841b122f973b1af01b3b2a5a31feb8df1",
+    "plugins/samedaydesk-antigravity/mcp_config.json": "3d0b8f57561e671c04ec37aa9989b728a74d28846b5995365b273f782c016a8e",
+    "plugins/samedaydesk-antigravity/LICENSE": "f79701a9558c9d053e5413caf359250b0044341e92996ad682a5c55c5e75c12f"
+  }
+}

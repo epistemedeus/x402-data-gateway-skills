@@ -1,0 +1,41 @@
+{
+  "schema": "public-careers-board.supplied-seed.v1",
+  "responses": [
+    {
+      "httpStatus": 200,
+      "body": {
+        "total": 2,
+        "jobPostings": [
+          {
+            "title": "Acxiom Only Role",
+            "externalPath": "/job/A/Acxiom_1",
+            "locationsText": "Remote"
+          },
+          {
+            "title": "Acxiom Later Role",
+            "externalPath": "/job/A/Acxiom_2",
+            "locationsText": "Little Rock"
+          }
+        ]
+      }
+    },
+    {
+      "httpStatus": 200,
+      "body": {
+        "total": 2,
+        "jobPostings": [
+          {
+            "title": "Acxiom Only Role",
+            "externalPath": "/job/A/Acxiom_1",
+            "locationsText": "Remote"
+          },
+          {
+            "title": "Acxiom Later Role",
+            "externalPath": "/job/A/Acxiom_2",
+            "locationsText": "Little Rock"
+          }
+        ]
+      }
+    }
+  ]
+}

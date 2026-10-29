@@ -1,0 +1,12 @@
+{
+  "schema": "public-careers-board.supplied-seed.v1",
+  "responses": [
+    {
+      "httpStatus": 403,
+      "body": {
+        "errorCode": "forbidden",
+        "message": "no"
+      }
+    }
+  ]
+}

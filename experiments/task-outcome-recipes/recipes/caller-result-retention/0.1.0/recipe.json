@@ -1,0 +1,34 @@
+{
+  "schema": "h64006.task-outcome-recipe.v1",
+  "id": "caller-result-retention",
+  "version": "0.1.0",
+  "task": "Keep an already delivered MCP tool result for this task, then keep a second task's result without replacing the first. A tool error is not a successful keep.",
+  "consumer": "An agent that already holds a CallToolResult JSON and needs the bytes retained with an explicit tool-error class.",
+  "capability": {
+    "skill": "samedaydesk-task-result",
+    "skillVersion": "0.1.0",
+    "callerPackage": "samedaydesk-caller-result",
+    "callerVersion": "0.1.1",
+    "acquisition": "cli",
+    "sdk": "@modelcontextprotocol/sdk@1.30.0",
+    "sdkInstalled": false,
+    "command": "node scripts/task-result.mjs retain --result RESULT.json --out COPY.json",
+    "documentedInstall": "npx skills add epistemedeus/x402-data-gateway-skills --skill samedaydesk-task-result --yes",
+    "installExecuted": false,
+    "acquireExecuted": false,
+    "reason": "retain is source-closed. acquire and SDK recovery need the published caller archive and are not run."
+  },
+  "inputs": ["--result caller-owned CallToolResult JSON", "--out a new file"],
+  "outputs": ["outcome retained or tool_refusal", "sha256", "retainedBytesMatch", "isError", "usefulness", "paymentCreated"],
+  "license": {
+    "spdx": "MIT",
+    "path": "skills/samedaydesk-task-result/LICENSE",
+    "callerLicense": "skills/samedaydesk-task-result/references/LICENSE.txt"
+  },
+  "directAlternative": "Copy the result file to a new path. The copy keeps the bytes and does not classify isError or refuse a second write.",
+  "fixtures": ["first-use", "repeat", "refusal-tool-error", "refusal-payment", "refusal-overwrite", "recovery-missing-result", "recovery-missing-caller"],
+  "sourcePins": {
+    "skills/samedaydesk-task-result/scripts/task-result.mjs": "d1bc056d8a08d912c11803f69c5d85d82348801ed28494bc870d7c4c72b714c3",
+    "skills/samedaydesk-task-result/SKILL.md": "83fd65e53ffd93c45e7915afa0fd7e271ce226cb2a63e6d17e32b644bad66254"
+  }
+}

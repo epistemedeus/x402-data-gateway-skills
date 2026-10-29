@@ -1,0 +1,31 @@
+{
+  "schema": "public-careers-board.supplied-seed.v1",
+  "responses": [
+    {
+      "httpStatus": 200,
+      "body": {
+        "total": 1,
+        "jobPostings": [
+          {
+            "title": "Acxiom Only Role",
+            "externalPath": "/job/A/Acxiom_1",
+            "locationsText": "Remote"
+          }
+        ]
+      }
+    },
+    {
+      "httpStatus": 200,
+      "body": {
+        "total": 1,
+        "jobPostings": [
+          {
+            "title": "Acxiom Only Role",
+            "externalPath": "/job/A/Acxiom_1",
+            "locationsText": "Remote"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "schema": "h64006.task-outcome-recipe.v1",
+  "id": "free-mcp-page-read",
+  "version": "0.1.0",
+  "task": "Read one caller-supplied public HTTPS page through the existing free MCP trial_read, then stop. A lost or paid response is not a retry and not a purchase.",
+  "consumer": "An agent whose host already binds the SameDayDesk remote MCP server and needs one ordinary free read with an explicit stop.",
+  "capability": {
+    "skill": "samedaydesk-remote-mcp",
+    "pluginVersion": "0.1.3",
+    "acquisition": "mcp",
+    "documentedServer": "https://agents.samedaydesk.com/mcp",
+    "executedServer": "127.0.0.1 fixture in tests/fixtures/samedaydesk-antigravity/protocol.mjs",
+    "productionCall": false,
+    "marketplaceSubmission": false,
+    "releasedCommitPreserved": "41ff445d93cab50fb6e96d9f70bcffa08ad3cab7",
+    "installExecuted": false
+  },
+  "inputs": ["synthetic local MCP URL", "public https URL", "no task field"],
+  "outputs": ["outcome", "reason", "consumingRequests", "toolsCallSent", "purchaseSent", "paidRequestSent", "retried", "structured.markdown", "structured.charged"],
+  "license": {
+    "spdx": "MIT",
+    "path": "plugins/samedaydesk-antigravity/LICENSE",
+    "note": "This recipe does not republish the plugin. The released pin stays 41ff445d."
+  },
+  "directAlternative": "Read the markdown already present on a delivered tool result. A live HTTPS GET of the page is the stronger outside baseline and is not performed here.",
+  "fixtures": ["first-use", "repeat-local-body", "refusal-second-call", "refusal-missing-tool", "refusal-payment", "refusal-task-field", "recovery-lost", "recovery-explicit-reread"],
+  "sourcePins": {
+    "tests/fixtures/samedaydesk-antigravity/protocol.mjs": "4679c2fe9a82e165646c5c92ac5af1aa0cb60a66521287137f5b2fc6e65748f3",
+    "plugins/samedaydesk-antigravity/DISTRIBUTION.json": "340f1d93557683ff4a5d9cab6b4eb00841b122f973b1af01b3b2a5a31feb8df1",
+    "plugins/samedaydesk-antigravity/mcp_config.json": "3d0b8f57561e671c04ec37aa9989b728a74d28846b5995365b273f782c016a8e"
+  }
+}
