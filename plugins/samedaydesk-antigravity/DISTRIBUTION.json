@@ -14,10 +14,19 @@
   "listing": {
     "listed": false,
     "marketplace": "antigravity-plugins-official",
-    "submissionStored": false,
-    "interestFormSubmitted": false,
+    "submissionStored": true,
+    "interestFormSubmitted": true,
     "interestForm": "https://forms.gle/2EX5RFYPoJe1UgxR9",
-    "boundary": "The Antigravity Marketplace is a curated catalog. Docs checked on 2026-10-28 name only antigravity-plugins-official. A bare agy plugin install <name> installs from that catalog. The publisher step on the Marketplace page is an interest form, not a free submission that returns a listing id. No agy plugin publish command is documented. This package was not submitted and has no marketplace listing."
+    "boundary": "The Antigravity Marketplace is a curated catalog. The official publisher interest form was submitted on 2026-10-29 and Google confirmed receipt. The form requests plugin review; no provider review decision, submission identifier or marketplace listing is received. A form confirmation does not make agy plugin install samedaydesk a valid catalog install. The released acquisition pin remains unchanged.",
+    "submissionEvidence": {
+      "scope": "publisher-interest-form",
+      "kind": "google-form-confirmation",
+      "form": "https://forms.gle/2EX5RFYPoJe1UgxR9",
+      "observedAt": "2026-10-29T13:10:13Z",
+      "confirmation": "Your response has been recorded.",
+      "providerSubmissionId": null,
+      "providerDecision": "unreceived"
+    }
   },
   "docs": {
     "checkedAt": "2026-10-28",

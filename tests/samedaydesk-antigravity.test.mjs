@@ -176,8 +176,13 @@ test('public acquisition pins the released commit and records no marketplace lis
   assert.equal(distribution.measuredStageDirectory, '.gemini/config/plugins/samedaydesk');
   assert.equal(distribution.listing.listed, false);
   assert.equal(distribution.listing.marketplace, 'antigravity-plugins-official');
-  assert.equal(distribution.listing.submissionStored, false);
-  assert.equal(distribution.listing.interestFormSubmitted, false);
+  assert.equal(distribution.listing.submissionStored, true);
+  assert.equal(distribution.listing.interestFormSubmitted, true);
+  assert.equal(distribution.listing.submissionEvidence.scope, 'publisher-interest-form');
+  assert.equal(distribution.listing.submissionEvidence.confirmation, 'Your response has been recorded.');
+  assert.equal(distribution.listing.submissionEvidence.providerSubmissionId, null);
+  assert.equal(distribution.listing.submissionEvidence.providerDecision, 'unreceived');
+  assert.match(readme, /not approval or a catalog entry/);
   assert.equal(distribution.listing.interestForm, 'https://forms.gle/2EX5RFYPoJe1UgxR9');
   assert.equal(distribution.suppliedUrlIsAgyInstallArgument, false);
   assert.equal(
