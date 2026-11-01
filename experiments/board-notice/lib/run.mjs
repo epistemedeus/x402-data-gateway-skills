@@ -1,9 +1,9 @@
 import { resolve, sep } from 'node:path';
-import { mkdir } from 'node:fs/promises';
+import { access, mkdir } from 'node:fs/promises';
 import { assertLoopbackSink, postNotice } from './deliver.mjs';
 import { canonicalPhrases, journeyKey, phraseError, titleMatches } from './match.mjs';
 import { observeBoard } from './observe.mjs';
-import { readState, writeState } from './state.mjs';
+import { readState, withStateOwner } from './state.mjs';
 
 const BOARDS = new Set(['acxiom', 'acxiomllc', 'liveramp', 'liveramp-inc', 'liverampashby', 'liveramp-ashby', 'magnite', 'magnite-careers']);
 
@@ -74,6 +74,14 @@ function baseResult(extra) {
   };
 }
 
+function readerFields(observation) {
+  return {
+    seeded: observation?.seeded === true,
+    sourceCoverage: typeof observation?.sourceCoverage === 'string' ? observation.sourceCoverage : null,
+    requestCount: Array.isArray(observation?.coverage?.requests) ? observation.coverage.requests.length : null,
+  };
+}
+
 export async function runJourney(options) {
   const board = options.board;
   if (!BOARDS.has(board)) throw fail('board_required');
@@ -84,10 +92,37 @@ export async function runJourney(options) {
   const timeoutMs = options.timeoutMs;
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 100 || timeoutMs > 30000) throw fail('timeout_rejected');
   const skill = resolve(options.skill);
-  const seed = resolve(options.seed);
+  const seed = options.seed == null ? null : resolve(options.seed);
+  if (seed) {
+    try { await access(seed); }
+    catch { throw fail('seed_rejected'); }
+  }
   const stateFile = resolve(options.state);
   if (stateFile === skill || stateFile.startsWith(`${skill}${sep}`)) throw fail('state_rejected');
   await mkdir(resolve(stateFile, '..'), { recursive: true });
+  const owned = await withStateOwner(stateFile, (owner) => ownedJourney({
+    board, phrases, skill, seed, stateFile, sink: options.sink, timeoutMs, commit: owner.commit,
+  }));
+  if (owned.busy) {
+    return {
+      code: 0,
+      body: baseResult({
+        outcome: 'busy',
+        reason: 'state_busy',
+        notices: [],
+        stateChanged: false,
+        statePreserved: true,
+        board: null,
+        seeded: null,
+        sourceCoverage: null,
+        requestCount: null,
+      }),
+    };
+  }
+  return owned.value;
+}
+
+async function ownedJourney({ board, phrases, skill, seed, stateFile, sink, timeoutMs, commit }) {
   const loaded = await readState(stateFile);
   const observed = await observeBoard({ skill, board, seed, timeoutMs });
   if (observed.code !== 0 || !observed.body) {
@@ -101,6 +136,7 @@ export async function runJourney(options) {
         notices: [],
         stateChanged: false,
         statePreserved: true,
+        ...readerFields(observed.body),
       }),
     };
   }
@@ -121,6 +157,7 @@ export async function runJourney(options) {
         stateChanged: false,
         statePreserved: true,
         duplicateUrls: 0,
+        ...readerFields(observation),
       }),
     };
   }
@@ -139,6 +176,7 @@ export async function runJourney(options) {
         notices: [],
         stateChanged: false,
         statePreserved: true,
+        ...readerFields(observation),
       }),
     };
   }
@@ -157,6 +195,7 @@ export async function runJourney(options) {
         stateChanged: false,
         statePreserved: true,
         unknownRows: collected.unknownRows,
+        ...readerFields(observation),
       }),
     };
   }
@@ -182,7 +221,7 @@ export async function runJourney(options) {
     prior.seen = urls;
     prior.pending = [];
     state.journeys[key] = prior;
-    await writeState(stateFile, state);
+    await commit(state);
     return {
       code: 0,
       body: baseResult({
@@ -199,6 +238,7 @@ export async function runJourney(options) {
         stateChanged: true,
         statePreserved: true,
         baselined: true,
+        ...readerFields(observation),
       }),
     };
   }
@@ -216,7 +256,7 @@ export async function runJourney(options) {
   prior.seen = [...seen].sort();
   prior.pending = [...pending.values()];
   state.journeys[key] = prior;
-  if (changed) await writeState(stateFile, state);
+  if (changed) await commit(state);
 
   const matching = fresh.filter((url) => titleMatches(byUrl.get(url).title, phrases)).sort();
   const notices = [];
@@ -230,8 +270,14 @@ export async function runJourney(options) {
       url: row.url,
       phrases,
     };
-    const sent = await postNotice(options.sink, payload, timeoutMs);
-    const record = { url, title: row.title, delivery: sent.delivery, status: sent.status ?? null };
+    const sent = await postNotice(sink, payload, timeoutMs);
+    const record = {
+      url,
+      title: row.title,
+      delivery: sent.delivery,
+      status: sent.status ?? null,
+      reason: sent.reason ?? null,
+    };
     notices.push(record);
     if (sent.delivery === 'accepted') {
       seen.add(url);
@@ -242,7 +288,7 @@ export async function runJourney(options) {
     prior.seen = [...seen].sort();
     prior.pending = [...pending.values()].sort((a, b) => a.url.localeCompare(b.url));
     state.journeys[key] = prior;
-    await writeState(stateFile, state);
+    await commit(state);
     changed = true;
   }
 
@@ -264,6 +310,7 @@ export async function runJourney(options) {
       statePreserved: true,
       baselined: true,
       duplicatePossible: notices.some((notice) => notice.delivery !== 'accepted'),
+      ...readerFields(observation),
     }),
   };
 }

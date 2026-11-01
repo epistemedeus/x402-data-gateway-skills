@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import http from 'node:http';
-import { mkdtemp, readFile, rm, writeFile, mkdir } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, rm, writeFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,6 +12,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(here, '..');
 const repoRoot = path.resolve(packageRoot, '../..');
 const journeyBin = path.join(packageRoot, 'bin/journey.mjs');
+const runnerBin = path.join(packageRoot, 'bin/loopback-runner.mjs');
 const fixtures = path.join(packageRoot, 'fixtures');
 const skillSource = path.join(repoRoot, 'skills/public-careers-board');
 const evidence = [];
@@ -111,6 +112,119 @@ function args(extra) {
     '--timeout-ms', String(extra.timeoutMs || 15000),
     ...extra.phrases.flatMap((phrase) => ['--phrase', phrase]),
   ];
+}
+
+function startRun(runArgs) {
+  const child = spawn(process.execPath, [journeyBin, ...runArgs], { stdio: ['ignore', 'pipe', 'pipe'] });
+  const stdout = [];
+  const stderr = [];
+  child.stdout.on('data', (chunk) => stdout.push(chunk));
+  child.stderr.on('data', (chunk) => stderr.push(chunk));
+  const done = new Promise((resolve, reject) => {
+    child.on('error', reject);
+    child.on('close', (code) => {
+      const text = Buffer.concat(stdout).toString('utf8');
+      let body = null;
+      try { body = JSON.parse(text); } catch { body = null; }
+      resolve({ code, body, text, stderr: Buffer.concat(stderr).toString('utf8'), pid: child.pid });
+    });
+  });
+  return { pid: child.pid, child, done };
+}
+
+async function absent(file) {
+  try {
+    await readFile(file);
+    return false;
+  } catch (error) {
+    return error?.code === 'ENOENT';
+  }
+}
+
+function postJson(url, payload) {
+  const body = Buffer.from(JSON.stringify(payload));
+  const target = new URL(url);
+  return new Promise((resolve, reject) => {
+    const req = http.request({
+      hostname: '127.0.0.1',
+      port: target.port,
+      path: `${target.pathname}${target.search}`,
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'content-length': String(body.length) },
+    }, (res) => {
+      const chunks = [];
+      res.on('data', (chunk) => chunks.push(chunk));
+      res.on('end', () => {
+        const text = Buffer.concat(chunks).toString('utf8');
+        let parsed = null;
+        try { parsed = JSON.parse(text); } catch { parsed = null; }
+        resolve({ status: res.statusCode, body: parsed, text });
+      });
+    });
+    req.on('error', reject);
+    req.end(body);
+  });
+}
+
+function startRunner() {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [runnerBin], { stdio: ['ignore', 'pipe', 'pipe'] });
+    let buf = '';
+    const timer = setTimeout(() => {
+      child.kill('SIGKILL');
+      reject(new Error('runner_silent'));
+    }, 5000);
+    child.stderr.on('data', () => {});
+    child.stdout.on('data', (chunk) => {
+      buf += chunk.toString('utf8');
+      const line = buf.split('\n')[0];
+      if (!line) return;
+      clearTimeout(timer);
+      try {
+        const info = JSON.parse(line);
+        resolve({
+          url: info.url,
+          async close() {
+            if (child.exitCode !== null || child.signalCode !== null) return;
+            child.kill('SIGTERM');
+            await new Promise((done) => child.on('close', done));
+          },
+        });
+      } catch (error) {
+        child.kill('SIGKILL');
+        reject(error);
+      }
+    });
+    child.on('error', (error) => {
+      clearTimeout(timer);
+      reject(error);
+    });
+  });
+}
+
+async function installControlledChild(logFile) {
+  const dest = await copySkill();
+  const body = `import { writeFileSync } from 'node:fs';
+const argv = process.argv.slice(1);
+writeFileSync(${JSON.stringify(logFile)}, JSON.stringify(argv));
+const seeded = argv.includes('--seed');
+process.stdout.write(JSON.stringify({
+  schema: 'public-careers-board.result.v1',
+  result: 'observation',
+  reason: 'complete_controlled',
+  board: 'acxiom',
+  reader: 'controlled-child',
+  sourceCoverage: 'controlled_child',
+  seeded,
+  rows: [{ url: 'https://jobs.example.invalid/controlled/1', title: 'Account Executive, Controlled', location: null }],
+  coverage: { status: 'complete_controlled', duplicateCount: 0, requests: [{ url: 'controlled://offline' }] },
+  boardClaim: 'complete',
+  emptyBoard: false,
+  complete: true,
+}) + '\\n');
+`;
+  await writeFile(path.join(dest, 'scripts/cli.mjs'), body);
+  return dest;
 }
 
 test('refuses a missing board, missing criteria, and a non-loopback sink before writing state', async () => {
@@ -513,14 +627,425 @@ test('the packaged skill and plugin bytes stay unchanged', async () => {
   }
 });
 
+test('omitting --seed reaches the child reader, and a present or invalid seed stays explicit', async () => {
+  const logFile = path.join(work, 'controlled-argv.json');
+  const stub = await installControlledChild(logFile);
+  const sink = 'http://127.0.0.1:9/notice';
+  const phrase = ['--phrase', 'account executive'];
+  try {
+    const absentState = path.join(work, 'noseed.json');
+    const absentRun = await run([
+      '--skill', stub, '--board', 'acxiom', '--state', absentState, '--sink', sink, ...phrase,
+    ]);
+    assert.equal(absentRun.code, 0, absentRun.text + absentRun.stderr);
+    assert.equal(absentRun.body.outcome, 'baseline');
+    assert.equal(absentRun.body.notices.length, 0);
+    assert.equal(absentRun.body.seeded, false);
+    assert.equal(absentRun.body.sourceCoverage, 'controlled_child');
+    assert.equal(absentRun.body.requestCount, 1);
+    const absentArgv = JSON.parse(await readFile(logFile, 'utf8'));
+    assert.equal(absentArgv.includes('--seed'), false);
+    assert.equal(absentArgv.includes('--board'), true);
+
+    const seed = path.join(fixtures, 'acxiom-empty.seed.json');
+    await rm(logFile, { force: true });
+    const presentState = path.join(work, 'present-seed.json');
+    const presentRun = await run([
+      '--skill', stub, '--board', 'acxiom', '--seed', seed, '--state', presentState, '--sink', sink, ...phrase,
+    ]);
+    assert.equal(presentRun.code, 0, presentRun.text + presentRun.stderr);
+    assert.equal(presentRun.body.seeded, true);
+    assert.equal(presentRun.body.sourceCoverage, 'controlled_child');
+    const presentArgv = JSON.parse(await readFile(logFile, 'utf8'));
+    assert.equal(presentArgv[presentArgv.indexOf('--seed') + 1], path.resolve(seed));
+
+    await rm(logFile, { force: true });
+    const missingSeed = path.join(work, 'missing-seed.json');
+    const missingState = path.join(work, 'missing-seed-state.json');
+    const missingRun = await run([
+      '--skill', stub, '--board', 'acxiom', '--seed', missingSeed, '--state', missingState, '--sink', sink, ...phrase,
+    ]);
+    assert.equal(missingRun.code, 2);
+    assert.equal(missingRun.body.reason, 'seed_rejected');
+    assert.equal(await absent(logFile), true);
+    assert.equal(await absent(missingState), true);
+    assert.equal(await absent(`${missingState}.lock`), true);
+
+    const bareState = path.join(work, 'bare-seed-state.json');
+    const bareRun = await run([
+      '--skill', stub, '--board', 'acxiom', '--state', bareState, '--sink', sink, ...phrase, '--seed',
+    ]);
+    assert.equal(bareRun.code, 2);
+    assert.equal(bareRun.body.reason, 'seed_rejected');
+    assert.equal(await absent(logFile), true);
+    assert.equal(await absent(bareState), true);
+
+    const flagState = path.join(work, 'flag-seed-state.json');
+    const flagRun = await run([
+      '--skill', stub, '--board', 'acxiom', '--state', flagState, '--sink', sink, '--timeout-ms', '15000', ...phrase, '--seed', '--phrase',
+    ]);
+    assert.equal(flagRun.code, 2);
+    assert.equal(flagRun.body.reason, 'seed_rejected');
+    assert.equal(await absent(logFile), true);
+    assert.equal(await absent(flagState), true);
+    evidence.push({
+      case: 'no-seed-argv',
+      scope: 'controlled-child-argv',
+      liveGet: false,
+      absentSeed: absentArgv.includes('--seed') === false && absentRun.body.seeded === false,
+      presentSeed: presentRun.body.seeded === true,
+      invalidSeedRejected: true,
+      childSpawnedForInvalidSeed: false,
+    });
+  } finally {
+    await rm(stub, { recursive: true, force: true });
+  }
+});
+
+test('the loopback runner treats seed as an optional job field', async () => {
+  const logFile = path.join(work, 'runner-argv.json');
+  const stub = await installControlledChild(logFile);
+  const runner = await startRunner();
+  const sink = 'http://127.0.0.1:9/notice';
+  try {
+    const noSeedState = path.join(work, 'runner-noseed.json');
+    const noSeed = await postJson(runner.url, {
+      skill: stub,
+      board: 'acxiom',
+      phrases: ['account executive'],
+      state: noSeedState,
+      sink,
+    });
+    assert.equal(noSeed.status, 200, noSeed.text);
+    assert.equal(noSeed.body.runnerExit, 0);
+    assert.equal(noSeed.body.journey.outcome, 'baseline');
+    assert.equal(noSeed.body.journey.seeded, false);
+    assert.equal(noSeed.body.journey.sourceCoverage, 'controlled_child');
+    const noSeedArgv = JSON.parse(await readFile(logFile, 'utf8'));
+    assert.equal(noSeedArgv.includes('--seed'), false);
+
+    await rm(logFile, { force: true });
+    const seed = path.join(fixtures, 'acxiom-empty.seed.json');
+    const withSeed = await postJson(runner.url, {
+      skill: stub,
+      board: 'acxiom',
+      phrases: ['account executive'],
+      seed,
+      state: path.join(work, 'runner-seed.json'),
+      sink,
+    });
+    assert.equal(withSeed.body.runnerExit, 0, withSeed.text);
+    assert.equal(withSeed.body.journey.seeded, true);
+    const withSeedArgv = JSON.parse(await readFile(logFile, 'utf8'));
+    assert.equal(withSeedArgv[withSeedArgv.indexOf('--seed') + 1], path.resolve(seed));
+
+    await rm(logFile, { force: true });
+    const rejected = await postJson(runner.url, {
+      skill: stub,
+      board: 'acxiom',
+      phrases: ['account executive'],
+      seed: path.join(work, 'runner-missing-seed.json'),
+      state: path.join(work, 'runner-rejected.json'),
+      sink,
+    });
+    assert.equal(rejected.status, 200);
+    assert.equal(rejected.body.runnerExit, 2);
+    assert.equal(rejected.body.journey.reason, 'seed_rejected');
+    assert.equal(await absent(logFile), true);
+    assert.equal(await absent(path.join(work, 'runner-rejected.json')), true);
+
+    const shaped = await postJson(runner.url, {
+      skill: stub,
+      board: 'acxiom',
+      phrases: ['account executive'],
+      seed: '',
+      state: path.join(work, 'runner-empty-seed.json'),
+      sink,
+    });
+    assert.equal(shaped.status, 400);
+    assert.equal(shaped.body.reason, 'job_shape');
+    const omitted = await postJson(runner.url, {
+      skill: stub,
+      board: 'acxiom',
+      phrases: ['account executive'],
+      sink,
+    });
+    assert.equal(omitted.status, 400);
+    assert.equal(omitted.body.reason, 'job_shape');
+    assert.equal(await absent(logFile), true);
+    evidence.push({
+      case: 'runner-seed',
+      scope: 'controlled-child-argv',
+      liveGet: false,
+      absentSeed: noSeedArgv.includes('--seed') === false,
+      presentSeed: withSeed.body.journey.seeded === true,
+      invalidSeedRejected: rejected.body.journey.reason === 'seed_rejected',
+      emptySeedShape: shaped.status === 400,
+    });
+  } finally {
+    await runner.close();
+    await rm(stub, { recursive: true, force: true });
+  }
+});
+
+test('a cut-off 200 body is not accepted and response reads stay bounded', async () => {
+  let mode = 'accept';
+  const sink = await startSink((req, res, body) => {
+    req.on('error', () => {});
+    res.on('error', () => {});
+    if (mode === 'partial') {
+      res.writeHead(200, { 'content-type': 'application/json' });
+      const full = JSON.stringify({ delivery: 'accepted', noticeId: body.url });
+      res.write(full.slice(0, -1));
+      res.destroy();
+      return;
+    }
+    if (mode === 'stall') {
+      res.writeHead(200, { 'content-type': 'application/json' });
+      res.write('{');
+      return;
+    }
+    if (mode === 'huge') {
+      res.writeHead(200, { 'content-type': 'application/json' });
+      res.write(`x`.repeat(70000));
+      res.end();
+      return;
+    }
+    accept(req, res, body);
+  });
+  try {
+    const partialState = path.join(work, 'partial-body.json');
+    const partialCommon = { sink: sink.url, state: partialState, board: 'acxiom', phrases: ['account executive'] };
+    const baseline = await run(args({ ...partialCommon, seed: path.join(fixtures, 'acxiom-baseline.seed.json') }));
+    assert.equal(baseline.body.outcome, 'baseline');
+    mode = 'partial';
+    const partial = await run(args({ ...partialCommon, seed: path.join(fixtures, 'acxiom-new.seed.json') }));
+    assert.equal(partial.code, 0, partial.text + partial.stderr);
+    assert.equal(partial.body.notices.length, 1);
+    assert.equal(partial.body.notices[0].delivery, 'ambiguous');
+    assert.notEqual(partial.body.notices[0].delivery, 'accepted');
+    assert.equal(partial.body.exactlyOnce, false);
+    const partialUrl = partial.body.notices[0].url;
+    let stored = await stateOf(partialState);
+    assert.equal(seenUrls(stored, 'acxiom').includes(partialUrl), false);
+    assert.equal(stored.journeys[Object.keys(stored.journeys)[0]].pending.some((item) => item.url === partialUrl), true);
+    mode = 'accept';
+    const retried = await run(args({ ...partialCommon, seed: path.join(fixtures, 'acxiom-new.seed.json') }));
+    assert.equal(retried.body.notices[0].delivery, 'accepted');
+    stored = await stateOf(partialState);
+    assert.equal(seenUrls(stored, 'acxiom').includes(partialUrl), true);
+    const partialPosts = sink.received.filter((item) => item.body.title === 'Account Executive, New Role');
+    assert.equal(partialPosts.length, 2);
+
+    const stallState = path.join(work, 'stall.json');
+    mode = 'accept';
+    await run(args({
+      sink: sink.url, state: stallState, board: 'acxiom', phrases: ['account executive'],
+      seed: path.join(fixtures, 'acxiom-baseline.seed.json'),
+    }));
+    mode = 'stall';
+    const stallStarted = Date.now();
+    const stalled = await run(args({
+      sink: sink.url, state: stallState, board: 'acxiom', phrases: ['account executive'],
+      seed: path.join(fixtures, 'acxiom-new.seed.json'), timeoutMs: 400,
+    }));
+    const stallMs = Date.now() - stallStarted;
+    assert.equal(stalled.code, 0, stalled.text + stalled.stderr);
+    assert.equal(stalled.body.notices[0].delivery, 'ambiguous');
+    assert.equal(stalled.body.notices[0].reason, 'timeout');
+    assert.equal(stallMs < 3000, true, `deadline took ${stallMs}ms`);
+    assert.equal(seenUrls(await stateOf(stallState), 'acxiom').includes(stalled.body.notices[0].url), false);
+
+    const hugeState = path.join(work, 'huge.json');
+    mode = 'accept';
+    await run(args({
+      sink: sink.url, state: hugeState, board: 'acxiom', phrases: ['account executive'],
+      seed: path.join(fixtures, 'acxiom-baseline.seed.json'),
+    }));
+    mode = 'huge';
+    const huge = await run(args({
+      sink: sink.url, state: hugeState, board: 'acxiom', phrases: ['account executive'],
+      seed: path.join(fixtures, 'acxiom-new.seed.json'),
+    }));
+    assert.equal(huge.code, 0, huge.text + huge.stderr);
+    assert.equal(huge.body.notices[0].delivery, 'ambiguous');
+    assert.equal(huge.body.notices[0].reason, 'response_limited');
+    assert.notEqual(huge.body.notices[0].delivery, 'accepted');
+    assert.equal(seenUrls(await stateOf(hugeState), 'acxiom').includes(huge.body.notices[0].url), false);
+    evidence.push({
+      case: 'partial-response',
+      partial: partial.body.notices[0].delivery,
+      partialReason: partial.body.notices[0].reason,
+      retryAccepted: true,
+      retryPosts: partialPosts.length,
+      deadline: stalled.body.notices[0].reason,
+      deadlineMs: stallMs,
+      limited: huge.body.notices[0].reason,
+      acceptedFromPartial: false,
+    });
+  } finally {
+    await sink.close();
+  }
+});
+
+test('overlapping callers on one state file get busy, and separate files do not', async () => {
+  let opened;
+  const arrived = new Promise((resolve) => { opened = resolve; });
+  const sink = await startSink((req, res, body) => {
+    opened({ res, body });
+  });
+  const holder = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000);'], { stdio: 'ignore' });
+  let first;
+  try {
+    const state = path.join(work, 'overlap.json');
+    const baseline = await run(args({
+      sink: sink.url, state, board: 'acxiom', phrases: ['account executive'],
+      seed: path.join(fixtures, 'acxiom-baseline.seed.json'),
+    }));
+    assert.equal(baseline.body.outcome, 'baseline');
+    const stored = await stateOf(state);
+    const key = Object.keys(stored.journeys)[0];
+    stored.journeys[key].pending.push({ url: 'https://jobs.example.invalid/pending-kept', delivery: 'ambiguous', status: null });
+    stored.journeys[key].seen.push('https://jobs.example.invalid/seen-kept');
+    stored.journeys.kept = {
+      board: 'magnite',
+      phrases: ['kept phrase'],
+      baselined: true,
+      seen: ['https://jobs.example.invalid/foreign-seen'],
+      pending: [{ url: 'https://jobs.example.invalid/foreign-pending', delivery: 'rejected', status: 500 }],
+    };
+    await writeFile(state, `${JSON.stringify(stored)}\n`);
+    const snapshot = await readFile(state, 'utf8');
+    first = startRun(args({
+      sink: sink.url, state, board: 'acxiom', phrases: ['account executive'],
+      seed: path.join(fixtures, 'acxiom-new.seed.json'),
+    }));
+    const arrival = await Promise.race([
+      arrived,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('notice_not_started')), 5000)),
+    ]);
+    const lock = JSON.parse(await readFile(`${state}.lock`, 'utf8'));
+    assert.equal(lock.schema, 'board-notice.lock.v1');
+    assert.equal(lock.pid, first.pid);
+    const duplicateStarted = Date.now();
+    const duplicate = await run(args({
+      sink: sink.url, state, board: 'acxiom', phrases: ['account executive'],
+      seed: path.join(fixtures, 'acxiom-new.seed.json'),
+    }));
+    const duplicateMs = Date.now() - duplicateStarted;
+    assert.equal(duplicate.code, 0, duplicate.text + duplicate.stderr);
+    assert.equal(duplicate.body.outcome, 'busy');
+    assert.equal(duplicate.body.reason, 'state_busy');
+    assert.equal(duplicate.body.notices.length, 0);
+    assert.equal(duplicate.body.stateChanged, false);
+    assert.equal(duplicateMs < 2000, true, `duplicate waited ${duplicateMs}ms`);
+    const other = await run(args({
+      sink: sink.url, state, board: 'liveramp', phrases: ['account executive'],
+      seed: path.join(fixtures, 'liveramp-one.seed.json'),
+    }));
+    assert.equal(other.body.outcome, 'busy');
+    assert.equal(other.body.reason, 'state_busy');
+    assert.equal(sink.received.length, 1);
+    assert.equal(await readFile(state, 'utf8'), snapshot);
+    const lockAfter = JSON.parse(await readFile(`${state}.lock`, 'utf8'));
+    assert.equal(lockAfter.pid, first.pid);
+    assert.equal(lockAfter.token, lock.token);
+    accept(null, arrival.res, arrival.body);
+    const finished = await first.done;
+    assert.equal(finished.body.outcome, 'notice', finished.text + finished.stderr);
+    assert.equal(finished.body.notices[0].delivery, 'accepted');
+    assert.equal(await absent(`${state}.lock`), true);
+    const after = await stateOf(state);
+    assert.deepEqual(after.journeys.kept, stored.journeys.kept);
+    assert.equal(after.journeys[key].seen.includes('https://jobs.example.invalid/seen-kept'), true);
+    assert.equal(after.journeys[key].pending.some((item) => item.url === 'https://jobs.example.invalid/pending-kept'), true);
+    assert.equal(after.journeys[key].seen.includes(finished.body.notices[0].url), true);
+    assert.equal(Object.values(after.journeys).some((item) => item.board === 'liveramp'), false);
+
+    const foreignState = path.join(work, 'foreign.json');
+    await writeFile(`${foreignState}.lock`, `${JSON.stringify({
+      schema: 'board-notice.lock.v1',
+      pid: holder.pid,
+      token: 'foreign-token-0123456789abcdef',
+      createdAt: new Date().toISOString(),
+    })}\n`);
+    const foreign = await run(args({
+      sink: sink.url, state: foreignState, board: 'acxiom', phrases: ['account executive'],
+      seed: path.join(fixtures, 'acxiom-baseline.seed.json'),
+    }));
+    assert.equal(foreign.body.outcome, 'busy');
+    assert.equal(foreign.body.reason, 'state_busy');
+    assert.equal(await absent(foreignState), true);
+    const foreignLock = JSON.parse(await readFile(`${foreignState}.lock`, 'utf8'));
+    assert.equal(foreignLock.pid, holder.pid);
+    process.kill(holder.pid, 0);
+
+    const ended = spawnSync(process.execPath, ['-e', 'process.exit(0)']);
+    assert.equal(ended.status, 0);
+    let deadAlive = true;
+    try { process.kill(ended.pid, 0); } catch (error) { deadAlive = error?.code !== 'ESRCH'; }
+    assert.equal(deadAlive, false);
+    const deadState = path.join(work, 'dead.json');
+    await writeFile(`${deadState}.lock`, `${JSON.stringify({
+      schema: 'board-notice.lock.v1',
+      pid: ended.pid,
+      token: 'dead-token-0123456789abcdef',
+      createdAt: new Date().toISOString(),
+    })}\n`);
+    const recovered = await run(args({
+      sink: sink.url, state: deadState, board: 'acxiom', phrases: ['account executive'],
+      seed: path.join(fixtures, 'acxiom-baseline.seed.json'),
+    }));
+    assert.equal(recovered.code, 0, recovered.text + recovered.stderr);
+    assert.equal(recovered.body.outcome, 'baseline');
+    assert.equal(recovered.body.notices.length, 0);
+    const names = await readdir(work);
+    assert.equal(names.some((name) => name.startsWith('dead.json.lock')), false);
+
+    const leftState = path.join(work, 'independent-a.json');
+    const rightState = path.join(work, 'independent-b.json');
+    const [left, right] = await Promise.all([
+      run(args({
+        sink: sink.url, state: leftState, board: 'acxiom', phrases: ['account executive'],
+        seed: path.join(fixtures, 'acxiom-baseline.seed.json'),
+      })),
+      run(args({
+        sink: sink.url, state: rightState, board: 'liveramp', phrases: ['account executive'],
+        seed: path.join(fixtures, 'liveramp-one.seed.json'),
+      })),
+    ]);
+    assert.equal(left.body.outcome, 'baseline', left.text);
+    assert.equal(right.body.outcome, 'baseline', right.text);
+    assert.equal(left.body.outcome === 'busy' || right.body.outcome === 'busy', false);
+    assert.equal(seenUrls(await stateOf(leftState), 'liveramp'), null);
+    assert.equal(seenUrls(await stateOf(rightState), 'acxiom'), null);
+    assert.equal(seenUrls(await stateOf(leftState), 'acxiom').length, 2);
+    evidence.push({
+      case: 'state-overlap',
+      duplicate: 'busy',
+      duplicateMs,
+      otherBoardWhileHeld: 'busy',
+      foreignLiveStolen: false,
+      deadOwnerRecovered: recovered.body.outcome === 'baseline',
+      independentBusy: false,
+      preservedForeignJourney: true,
+    });
+  } finally {
+    try { holder.kill('SIGKILL'); } catch { /* already exited */ }
+    if (first && first.child.exitCode === null && first.child.signalCode === null) first.child.kill('SIGKILL');
+    await sink.close();
+  }
+});
+
 test('writes the direct-route evidence', async () => {
   await mkdir(path.join(packageRoot, 'evidence'), { recursive: true });
   const body = {
-    schema: 'board-notice.direct-evidence.v1',
+    schema: 'board-notice.direct-amendment.v1',
+    amends: 'evidence/direct-journey.json',
     node: process.version,
     cases: evidence,
   };
-  await writeFile(path.join(packageRoot, 'evidence/direct-journey.json'), `${JSON.stringify(body, null, 2)}\n`);
+  await writeFile(path.join(packageRoot, 'evidence/direct-journey-amendment.json'), `${JSON.stringify(body, null, 2)}\n`);
   assert.equal(evidence.length >= 6, true);
 });
 

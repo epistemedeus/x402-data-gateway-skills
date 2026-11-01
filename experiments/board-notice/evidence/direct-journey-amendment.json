@@ -1,0 +1,111 @@
+{
+  "schema": "board-notice.direct-amendment.v1",
+  "amends": "evidence/direct-journey.json",
+  "node": "v22.23.4",
+  "cases": [
+    {
+      "case": "refuse",
+      "exits": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "case": "baseline-repeat",
+      "setupMs": 114,
+      "repeatMs": 108,
+      "exits": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "new-match",
+      "executionMs": 223,
+      "notices": 1,
+      "exits": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "empty-vs-failure",
+      "empty": "empty_board",
+      "failure": "source_failure"
+    },
+    {
+      "case": "partial-shape",
+      "partial": "partial",
+      "laterNotices": 0
+    },
+    {
+      "case": "duplicate-urls",
+      "seenCount": 1,
+      "duplicateUrls": 1
+    },
+    {
+      "case": "delivery",
+      "rejectedThenAccepted": true,
+      "unknown": "unknown",
+      "ambiguous": "ambiguous",
+      "droppedRetryPosts": 2,
+      "redirect": "not_followed",
+      "exactlyOnce": false,
+      "exactlyOnceMail": false
+    },
+    {
+      "case": "kill-restart",
+      "signal": "SIGKILL",
+      "recoveredNotices": 1
+    },
+    {
+      "case": "adapt",
+      "ms": 447,
+      "boards": [
+        "acxiom",
+        "liveramp",
+        "magnite"
+      ]
+    },
+    {
+      "case": "no-seed-argv",
+      "scope": "controlled-child-argv",
+      "liveGet": false,
+      "absentSeed": true,
+      "presentSeed": true,
+      "invalidSeedRejected": true,
+      "childSpawnedForInvalidSeed": false
+    },
+    {
+      "case": "runner-seed",
+      "scope": "controlled-child-argv",
+      "liveGet": false,
+      "absentSeed": true,
+      "presentSeed": true,
+      "invalidSeedRejected": true,
+      "emptySeedShape": true
+    },
+    {
+      "case": "partial-response",
+      "partial": "ambiguous",
+      "partialReason": "ECONNRESET",
+      "retryAccepted": true,
+      "retryPosts": 2,
+      "deadline": "timeout",
+      "deadlineMs": 520,
+      "limited": "response_limited",
+      "acceptedFromPartial": false
+    },
+    {
+      "case": "state-overlap",
+      "duplicate": "busy",
+      "duplicateMs": 42,
+      "otherBoardWhileHeld": "busy",
+      "foreignLiveStolen": false,
+      "deadOwnerRecovered": true,
+      "independentBusy": false,
+      "preservedForeignJourney": true
+    }
+  ]
+}

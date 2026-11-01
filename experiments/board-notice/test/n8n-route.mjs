@@ -7,19 +7,22 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const repo = '/home/ubuntu/ae14-work/h98310';
-const experiment = path.join(repo, 'experiments/board-notice');
+const experiment = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const repo = path.resolve(experiment, '../..');
 const skill = path.join(repo, 'skills/public-careers-board');
 const fixtures = path.join(experiment, 'fixtures');
-const node24 = '/tmp/h98310-tools/node-v24.22.2-linux-x64/bin/node';
-const n8nBin = '/tmp/h98310-tools/n8n-app/node_modules/n8n/bin/n8n';
+const node24 = process.env.H98310_NODE24 || '/tmp/h98310-tools/node-v24.22.2-linux-x64/bin/node';
+const n8nBin = process.env.H98310_N8N || '/tmp/h98310-tools/n8n-app/node_modules/n8n/bin/n8n';
 const node22 = process.execPath;
 const ADMISSION_KIB = 2097152;
 const workflowFile = path.join(experiment, 'workflow/board-notice.inactive.n8n.json');
 
 const report = {
-  schema: 'board-notice.n8n-evidence.v1',
+  schema: 'board-notice.n8n-amendment.v1',
+  amends: 'evidence/n8n-route.json',
+  repo,
   startedAt: new Date().toISOString(),
   node22: process.version,
   publicGets: 0,
@@ -116,7 +119,7 @@ function sampleRss(where) {
 
 function n8nEnv(folder) {
   return {
-    PATH: `/tmp/h98310-tools/node-v24.22.2-linux-x64/bin:${process.env.PATH || ''}`,
+    PATH: `${path.dirname(node24)}:${process.env.PATH || ''}`,
     HOME: process.env.HOME,
     TMPDIR: '/tmp',
     LANG: process.env.LANG || 'C.UTF-8',
@@ -628,7 +631,7 @@ async function main() {
   report.finishedAt = new Date().toISOString();
   report.caseCount = report.cases.length;
   report.mismatchCount = report.cases.filter((item) => !item.same || !item.sameState).length;
-  const evidence = path.join(experiment, 'evidence/n8n-route.json');
+  const evidence = path.join(experiment, 'evidence/n8n-route-amendment.json');
   fs.writeFileSync(evidence, `${JSON.stringify(report, null, 2)}\n`);
   note(`wrote ${evidence}`);
 }

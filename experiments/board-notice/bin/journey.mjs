@@ -34,12 +34,17 @@ function take(argv) {
   if (!options.board) {
     throw Object.assign(new Error('board_required'), { code: 'board_required' });
   }
-  if (!options.skill || !options.seed || !options.state || !options.sink) {
+  if (!options.skill || !options.state || !options.sink) {
     throw Object.assign(new Error('usage'), { code: 'usage' });
+  }
+  if (Object.hasOwn(options, 'seed')) {
+    if (typeof options.seed !== 'string' || options.seed.length === 0 || options.seed.startsWith('--')) {
+      throw Object.assign(new Error('seed_rejected'), { code: 'seed_rejected' });
+    }
+    options.seed = resolve(options.seed);
   }
   if (options.timeoutMs === undefined) options.timeoutMs = 15000;
   options.skill = resolve(options.skill);
-  options.seed = resolve(options.seed);
   options.state = resolve(options.state);
   return options;
 }

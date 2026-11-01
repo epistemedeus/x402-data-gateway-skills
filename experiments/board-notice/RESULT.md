@@ -1,16 +1,16 @@
 # RESULT
 
-A cold caller can name one supported board and explicit phrases, baseline the
-current feed with no notice, receive one loopback notice for a new match,
-repeat without a second notice, and keep that state across a new process.
-The same journey runs through the Node 22 CLI and through installed n8n 2.44.0.
-n8n does not own the seen-set. `exactlyOnce` and `exactlyOnceMail` stay false.
+The original fixture run remains `evidence/direct-journey.json` and
+`evidence/n8n-route.json`. A caller can name one supported board and explicit
+phrases, baseline with no notice, receive one loopback notice for a new match,
+stay quiet on repeat, and keep that state across a new process. That run did
+not exercise a no-seed live fetch, a cut-off sink body, or two overlapping
+callers. It is scoped fixture evidence, not client mail and not a commission.
 
-The packaged careers skill, Claude plugin, and pins are byte-identical
-(`git diff --exit-code` exit 0). No public board GET, mail, scheduler, signup,
-or resident process was left behind.
+The packaged careers skill, Claude plugin, and pins stayed byte-identical
+(`git diff --exit-code` exit 0) after both runs.
 
-## Measured effort
+## Original fixture measurements
 
 | Phase | What ran | Result |
 | --- | --- | --- |
@@ -21,22 +21,67 @@ or resident process was left behind.
 | Adaptation | acxiom phrases, then liveramp, then magnite on the direct route | 439 ms. n8n changed-board case matched the direct state. |
 | Review | skill diff, 12 paired states, RSS, delivery labels | after the runs. |
 
-Direct check: `node --test --test-concurrency=1 experiments/board-notice/test/journey.test.mjs`, exit 0, 11 passed, 0 failed, 7826 ms, Node v22.23.4.
-n8n comparison: `node experiments/board-notice/test/n8n-route.mjs`, exit 0, 12 cases, 0 mismatches, 34 recorded commands, all exit 0.
-Peak owned RSS 1076772 KiB across 6 processes (command shell, proof, loopback runner, `n8n start` 733456 KiB, `n8n task-runner` 136524 KiB, journey CLI). Admission is 2097152 KiB.
+Direct check then: exit 0, 11 passed, 0 failed, 7826 ms, Node v22.23.4.
+n8n comparison: exit 0, 12 cases, 0 mismatches, 34 commands, all exit 0.
+Peak owned RSS 1076772 KiB across 6 processes. Admission is 2097152 KiB.
+That run made no public board GET.
+
+## What the amendment tests prove
+
+Seed is optional on the journey CLI, the observer, and the loopback runner.
+The direct suite drives those commands. A controlled child records argv
+(scope `controlled-child-argv`, no public GET). Omitting `--seed` leaves it
+off argv, with `seeded` false and `sourceCoverage` `controlled_child`. A
+present path is forwarded. A missing file, a bare `--seed`, or a following
+flag is `seed_rejected`, exit 2, and does not spawn the child or write state.
+The runner does the same for a job with no seed, and an empty seed is HTTP
+400 `job_shape`.
+
+One credential-free LiveRamp Ashby GET then used the unchanged reader.
+Board `liveramp`, reader `fetchAshby`, 2026-11-01T02:18:30Z. `seeded` false,
+`sourceCoverage` `live_public_https`, `requestCount` 1, outcome `baseline`
+(`initial_seen_set`), 0 notices, 0 local sink posts. Stored as the projection
+in `evidence/live-baseline.json`. The suite does not run that command again.
+
+A sink that sends 200 and a partial accept JSON, then destroys the response,
+returns `ambiguous` (this run: `ECONNRESET`). The URL stays pending and is
+not called accepted. The next full accept commits it and POSTs a second time.
+A body that never ends returns `timeout` (520 ms, under 3 s) and does not
+commit. A body over 65536 bytes returns `response_limited` and does not
+commit. Accepted, unknown, rejected, socket-drop, and 302 cases still match
+the original labels. `exactlyOnce` and `exactlyOnceMail` stay false.
+
+On one state file, a second caller returned `busy` / `state_busy` in 42 ms
+while the first waited on the sink. It did not POST and did not change the
+file. A different board on that file was also busy. The unrelated journey,
+its seen URL, and its pending record remained, and the held notice was
+accepted after the sink answered. A live foreign pid kept its lock. A dead
+pid was recovered into a baseline. Two state files both baselined together.
+The existing SIGKILL-during-sink case still recovers one later notice.
+
+Direct amendment: exit 0, 15 passed, 0 failed, 10260 ms, Node v22.23.4.
+Evidence: `evidence/direct-journey-amendment.json`.
+
+n8n amendment: exit 0. The script's repo input was its own checkout,
+`/home/ubuntu/ae14-work/h98310`. 12 cases, 0 mismatches, 34 commands, all
+exit 0. Setup 20375 ms, engine ready 25339 ms, execution 811 ms, recovery
+5444 ms. Peak owned RSS 1041576 KiB, 6 processes, within 2097152 KiB.
+`publicGets` 0. Workflow file stayed `active: false`. Evidence:
+`evidence/n8n-route-amendment.json`.
 
 ## What transfers
 
-The CLI flags, state file, accept body, and inactive n8n HTTP workflow transfer
-to another operator who uses these three boards and brings phrases plus a
-loopback sink. The board list does not transfer to a fourth ATS. A live fetch
-without `--seed` is the existing reader and was not run here. A destination
-other than `http://127.0.0.1` does not transfer.
+The CLI flags, optional seed, per-file owner, accept body, and inactive n8n
+HTTP workflow transfer to another operator who uses these three boards and
+brings phrases plus a loopback sink. The board list does not transfer to a
+fourth ATS. A destination other than `http://127.0.0.1` does not transfer.
+Loopback acceptance is not a mail contract. Accepting this source is not a
+commission and not a hosted service.
 
 ## Limits
 
-Partial or wrong-shaped reads do not baseline. The next complete read baselines
-every row then present, including rows that were on the partial page, and sends
-nothing for them. Unknown, rejected, dropped, and 3xx answers are not treated
-as delivered. A retry can POST again. Root still owns real mail, criteria, and
-any account.
+Partial or wrong-shaped reads do not baseline. The next complete read
+baselines every row then present and sends nothing for those rows. Unknown,
+rejected, dropped, cut-off, oversized, and 3xx answers are not delivered. A
+later run can POST again. A busy caller is not queued. Root still owns real
+mail, criteria, and any account.

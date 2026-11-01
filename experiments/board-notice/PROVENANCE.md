@@ -24,9 +24,14 @@ Runtime that was actually started:
   2461696 bytes. The folder was removed at the end of the script.
 - Owner and encryption key were process environment only. They are not in git.
 - Webhook path `h98310-board-notice` on `127.0.0.1:18771`. Broker `127.0.0.1:18772`.
-- No public careers GET. H98210's six Greenhouse, Lever, and Ashby reads were
-  not repeated. The changedetection `LICENSE` and the n8n static-data doc were
-  read for the reuse decision.
+- The comparison script resolves this repo from its own path. `H98310_NODE24`
+  and `H98310_N8N` override the Node 24 binary and the n8n bin.
+- Original comparison: no public careers GET. H98210's six Greenhouse, Lever,
+  and Ashby reads were not repeated. The changedetection `LICENSE` and the
+  n8n static-data doc were read for the reuse decision.
+- Amendment: one credential-free LiveRamp Ashby GET (`fetchAshby`, one
+  request) at 2026-11-01T02:18:30Z, projected in `evidence/live-baseline.json`.
+  The direct and n8n amendment suites added no further public reads.
 
 Seeds are local `public-careers-board.supplied-seed.v1` fixtures. Magnite's
 fixture includes a shell token so the test can assert the journey output does

@@ -6,7 +6,7 @@ a restart, with an honest delivery result. No second board parser was added.
 
 | Option | Source and acquisition | License | Seam | Decision |
 | --- | --- | --- | --- | --- |
-| public-careers-board 0.1.3 | this repo, `skills/public-careers-board`, recipe revision `7d01bfb09c530430933dec1f07c5c0b8517cffa8` | MIT. Recipe copyright SameDayDesk. CLI copyright Neomorphic LLC. | `node scripts/cli.mjs run --board --seed` | Used unchanged as the only reader. |
+| public-careers-board 0.1.3 | this repo, `skills/public-careers-board`, recipe revision `7d01bfb09c530430933dec1f07c5c0b8517cffa8` | MIT. Recipe copyright SameDayDesk. CLI copyright Neomorphic LLC. | `node scripts/cli.mjs run --board [--seed]` | Used unchanged as the only reader. Omitting `--seed` is its live fetch. |
 | n8n 2.44.0 | `npm install n8n@2.44.0`. Engines: Node `>=24`. Installed copy under `/tmp/h98310-tools/n8n-app`. | Sustainable Use License v1.0. The npm field is `SEE LICENSE IN LICENSE.md`. | Inactive workflow, Webhook to HTTP Request to the loopback runner. | Selected as the optional caller. Not the seen-set. |
 | Node-RED 4.1.0 | `node-red` on npm. Not installed. | Apache-2.0, from its package.json. | A second runtime around the same CLI. | Not selected. It would repeat the n8n proof. |
 | Apprise 1.9.4 | notification library. Not installed. | BSD-2-Clause, copyright 2025 Chris Caron. | Sends a message after someone else decides it is new. | Not selected. No baseline or seen-set. |

@@ -9,18 +9,20 @@ export async function observeBoard({ skill, board, seed, timeoutMs }) {
   } catch {
     throw Object.assign(new Error('skill_missing'), { code: 'skill_missing' });
   }
-  try {
-    await access(seed);
-  } catch {
-    throw Object.assign(new Error('seed_rejected'), { code: 'seed_rejected' });
-  }
   const args = [
     cli,
     'run',
     '--board', board,
-    '--seed', seed,
     '--timeout-ms', String(timeoutMs),
   ];
+  if (seed != null) {
+    try {
+      await access(seed);
+    } catch {
+      throw Object.assign(new Error('seed_rejected'), { code: 'seed_rejected' });
+    }
+    args.push('--seed', seed);
+  }
   return await new Promise((resolvePromise, reject) => {
     const child = spawn(process.execPath, args, {
       cwd: resolve(skill),

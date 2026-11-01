@@ -14,10 +14,10 @@ function runJob(job) {
     journey,
     '--skill', job.skill,
     '--board', job.board,
-    '--seed', job.seed,
     '--state', job.state,
     '--sink', job.sink,
   ];
+  if (typeof job.seed === 'string') args.push('--seed', job.seed);
   if (job.timeoutMs !== undefined) args.push('--timeout-ms', String(job.timeoutMs));
   for (const phrase of job.phrases) args.push('--phrase', phrase);
   return new Promise((resolvePromise) => {
@@ -48,7 +48,9 @@ const server = http.createServer((req, res) => {
     try { job = JSON.parse(Buffer.concat(chunks).toString('utf8')); }
     catch { job = null; }
     const keys = job && typeof job === 'object' ? Object.keys(job) : [];
-    if (!job || keys.some((key) => !allowed.has(key)) || !Array.isArray(job.phrases)) {
+    const required = ['skill', 'board', 'phrases', 'state', 'sink'];
+    const seedOk = job?.seed === undefined || (typeof job.seed === 'string' && job.seed.length > 0);
+    if (!job || keys.some((key) => !allowed.has(key)) || !required.every((key) => key in job) || !Array.isArray(job.phrases) || !seedOk) {
       res.writeHead(400, { 'content-type': 'application/json' });
       res.end(JSON.stringify({ outcome: 'refused', reason: 'job_shape' }));
       return;
