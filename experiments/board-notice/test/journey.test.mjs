@@ -891,16 +891,20 @@ test('a cut-off 200 body is not accepted and response reads stay bounded', async
 
 function ownerScript(stateFile, entered, release, out) {
   return `
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile, rename } from 'node:fs/promises';
 import { withStateOwner } from ${JSON.stringify(path.join(packageRoot, 'lib/state.mjs'))};
 const entered = ${JSON.stringify(entered)};
 const release = ${JSON.stringify(release)};
 const out = ${JSON.stringify(out)};
+async function publish(file, value) {
+  await writeFile(file + ".next", value);
+  await rename(file + ".next", file);
+}
 try {
   let did = false;
   const owned = await withStateOwner(${JSON.stringify(stateFile)}, async () => {
     did = true;
-    await writeFile(entered, String(process.pid));
+    await publish(entered, String(process.pid));
     const deadline = Date.now() + 8000;
     while (Date.now() < deadline) {
       try { await readFile(release); break; }
@@ -911,9 +915,9 @@ try {
     }
     return 'held';
   });
-  await writeFile(out, JSON.stringify({ busy: owned.busy, entered: did }));
+  await publish(out, JSON.stringify({ busy: owned.busy, entered: did }));
 } catch (error) {
-  await writeFile(out, JSON.stringify({ busy: null, entered: false, error: String(error && error.stack || error) }));
+  await publish(out, JSON.stringify({ busy: null, entered: false, error: String(error && error.stack || error) }));
 }
 `;
 }
