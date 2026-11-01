@@ -1,0 +1,93 @@
+{
+  "name": "H98310 board notice",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "Inactive import for n8n 2.44.0. The caller posts runnerUrl and job. The HTTP node calls the task-owned loopback, which execs bin/journey.mjs. No schedule, no SMTP, no Execute Command node. Publish only on a disposable local instance.",
+        "height": 180,
+        "width": 420
+      },
+      "id": "b9831001-0000-4000-8000-000000000001",
+      "name": "Limits",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [0, -200]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "h98310-board-notice",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b9831001-0000-4000-8000-000000000002",
+      "name": "Caller job",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "h98310-board-notice"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.body.runnerUrl }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body.job }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "b9831001-0000-4000-8000-000000000003",
+      "name": "Run journey",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [280, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "b9831001-0000-4000-8000-000000000004",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [560, 0]
+    }
+  ],
+  "connections": {
+    "Caller job": {
+      "main": [
+        [
+          {
+            "node": "Run journey",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run journey": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}

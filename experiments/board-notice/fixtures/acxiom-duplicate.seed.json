@@ -1,0 +1,36 @@
+{
+  "schema": "public-careers-board.supplied-seed.v1",
+  "responses": [
+    {
+      "httpStatus": 200,
+      "body": {
+        "total": 1,
+        "jobPostings": [
+          {
+            "title": "Account Executive, Duplicate",
+            "externalPath": "/job/Remote/Account-Executive-Duplicate_R-9",
+            "locationsText": "Remote"
+          },
+          {
+            "title": "Account Executive, Duplicate",
+            "externalPath": "/job/Remote/Account-Executive-Duplicate_R-9",
+            "locationsText": "Remote"
+          }
+        ]
+      }
+    },
+    {
+      "httpStatus": 200,
+      "body": {
+        "total": 1,
+        "jobPostings": [
+          {
+            "title": "Account Executive, Duplicate",
+            "externalPath": "/job/Remote/Account-Executive-Duplicate_R-9",
+            "locationsText": "Remote"
+          }
+        ]
+      }
+    }
+  ]
+}

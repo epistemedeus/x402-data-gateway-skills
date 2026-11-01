@@ -1,0 +1,71 @@
+{
+  "schema": "board-notice.direct-evidence.v1",
+  "node": "v22.23.4",
+  "cases": [
+    {
+      "case": "refuse",
+      "exits": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "case": "baseline-repeat",
+      "setupMs": 112,
+      "repeatMs": 105,
+      "exits": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "new-match",
+      "executionMs": 224,
+      "notices": 1,
+      "exits": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "empty-vs-failure",
+      "empty": "empty_board",
+      "failure": "source_failure"
+    },
+    {
+      "case": "partial-shape",
+      "partial": "partial",
+      "laterNotices": 0
+    },
+    {
+      "case": "duplicate-urls",
+      "seenCount": 1,
+      "duplicateUrls": 1
+    },
+    {
+      "case": "delivery",
+      "rejectedThenAccepted": true,
+      "unknown": "unknown",
+      "ambiguous": "ambiguous",
+      "droppedRetryPosts": 2,
+      "redirect": "not_followed",
+      "exactlyOnce": false,
+      "exactlyOnceMail": false
+    },
+    {
+      "case": "kill-restart",
+      "signal": "SIGKILL",
+      "recoveredNotices": 1
+    },
+    {
+      "case": "adapt",
+      "ms": 439,
+      "boards": [
+        "acxiom",
+        "liveramp",
+        "magnite"
+      ]
+    }
+  ]
+}

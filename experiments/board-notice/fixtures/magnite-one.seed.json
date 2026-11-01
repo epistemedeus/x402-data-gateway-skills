@@ -1,0 +1,43 @@
+{
+  "schema": "public-careers-board.supplied-seed.v1",
+  "responses": [
+    {
+      "httpStatus": 200,
+      "raw": "Crawl-delay: 0\nUser-agent: *\nDisallow:\n"
+    },
+    {
+      "httpStatus": 200,
+      "raw": "<a href=\"https://osv-rubicon.wd5.myworkdayjobs.com/MagniteCareers\">Search Jobs</a><a href=\"https://osv-rubicon.wd5.myworkdayjobs.com/MagniteCareers/\">Search Jobs</a>"
+    },
+    {
+      "httpStatus": 200,
+      "raw": "tenant: \"osv_rubicon\",\nsiteId: \"MagniteCareers\",\nappName: \"cxs\",\nisExternal: true,\ntoken: \"super-secret-token-value\",\n"
+    },
+    {
+      "httpStatus": 200,
+      "body": {
+        "total": 1,
+        "jobPostings": [
+          {
+            "title": "Account Executive, Magnite",
+            "externalPath": "/job/Remote/Account-Executive-Magnite_R-1",
+            "locationsText": "Remote"
+          }
+        ]
+      }
+    },
+    {
+      "httpStatus": 200,
+      "body": {
+        "total": 1,
+        "jobPostings": [
+          {
+            "title": "Account Executive, Magnite",
+            "externalPath": "/job/Remote/Account-Executive-Magnite_R-1",
+            "locationsText": "Remote"
+          }
+        ]
+      }
+    }
+  ]
+}
