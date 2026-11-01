@@ -1,0 +1,20 @@
+{
+  "schema": "board-notice.live-baseline.v1",
+  "scope": "one credential-free LiveRamp Ashby GET through the unchanged reader",
+  "board": "liveramp",
+  "reader": "fetchAshby",
+  "outcome": "baseline",
+  "reason": "initial_seen_set",
+  "boardClaim": "complete",
+  "seeded": false,
+  "sourceCoverage": "live_public_https",
+  "requestCount": 1,
+  "notices": 0,
+  "sinkPosts": 0,
+  "exactlyOnce": false,
+  "exactlyOnceMail": false,
+  "exit": 0,
+  "stderrBytes": 164,
+  "publicGets": 1,
+  "fetchedAt": "2026-11-01T02:18:30.373Z"
+}

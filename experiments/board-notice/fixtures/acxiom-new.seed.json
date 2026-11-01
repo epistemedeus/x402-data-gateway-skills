@@ -1,0 +1,51 @@
+{
+  "schema": "public-careers-board.supplied-seed.v1",
+  "responses": [
+    {
+      "httpStatus": 200,
+      "body": {
+        "total": 3,
+        "jobPostings": [
+          {
+            "title": "Account Executive, Existing",
+            "externalPath": "/job/Remote/Account-Executive-Existing_R-1",
+            "locationsText": "Remote"
+          },
+          {
+            "title": "Office Manager",
+            "externalPath": "/job/Remote/Office-Manager_R-2",
+            "locationsText": "Remote"
+          },
+          {
+            "title": "Account Executive, New Role",
+            "externalPath": "/job/Remote/Account-Executive-New_R-3",
+            "locationsText": "Remote"
+          }
+        ]
+      }
+    },
+    {
+      "httpStatus": 200,
+      "body": {
+        "total": 3,
+        "jobPostings": [
+          {
+            "title": "Account Executive, Existing",
+            "externalPath": "/job/Remote/Account-Executive-Existing_R-1",
+            "locationsText": "Remote"
+          },
+          {
+            "title": "Office Manager",
+            "externalPath": "/job/Remote/Office-Manager_R-2",
+            "locationsText": "Remote"
+          },
+          {
+            "title": "Account Executive, New Role",
+            "externalPath": "/job/Remote/Account-Executive-New_R-3",
+            "locationsText": "Remote"
+          }
+        ]
+      }
+    }
+  ]
+}

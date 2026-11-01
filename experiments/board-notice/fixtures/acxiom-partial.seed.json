@@ -1,0 +1,24 @@
+{
+  "schema": "public-careers-board.supplied-seed.v1",
+  "responses": [
+    {
+      "httpStatus": 200,
+      "body": {
+        "total": 2,
+        "jobPostings": [
+          {
+            "title": "Account Executive, Existing",
+            "externalPath": "/job/Remote/Account-Executive-Existing_R-1",
+            "locationsText": "Remote"
+          }
+        ]
+      }
+    },
+    {
+      "httpStatus": 500,
+      "body": {
+        "message": "later failed"
+      }
+    }
+  ]
+}

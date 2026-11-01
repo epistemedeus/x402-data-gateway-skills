@@ -1,0 +1,11 @@
+{
+  "schema": "public-careers-board.supplied-seed.v1",
+  "responses": [
+    {
+      "httpStatus": 200,
+      "body": {
+        "not": "jobs"
+      }
+    }
+  ]
+}
