@@ -1,0 +1,1089 @@
+{
+  "schema": "board-notice.n8n-lock.v1",
+  "amends": "evidence/n8n-route-amendment.json",
+  "repo": "/home/ubuntu/ae14-work/h98310",
+  "startedAt": "2026-11-01T02:44:45.204Z",
+  "node22": "v22.23.4",
+  "publicGets": 0,
+  "exactlyOnce": false,
+  "exactlyOnceMail": false,
+  "transport": "loopback-http",
+  "scheduler": false,
+  "commands": [
+    {
+      "cmd": "node24 /tmp/h98310-tools/n8n-app/node_modules/n8n/bin/n8n --version",
+      "exit": 0,
+      "signal": null,
+      "ms": 24
+    },
+    {
+      "cmd": "node24 /tmp/h98310-tools/n8n-app/node_modules/n8n/bin/n8n import:workflow --input /home/ubuntu/ae14-work/h98310/experiments/board-notice/workflow/board-notice.inactive.n8n.json",
+      "exit": 0,
+      "signal": null,
+      "ms": 3712
+    },
+    {
+      "cmd": "node24 /tmp/h98310-tools/n8n-app/node_modules/n8n/bin/n8n list:workflow --onlyId",
+      "exit": 0,
+      "signal": null,
+      "ms": 1793
+    },
+    {
+      "cmd": "node24 /tmp/h98310-tools/n8n-app/node_modules/n8n/bin/n8n list:workflow --active=true --onlyId",
+      "exit": 0,
+      "signal": null,
+      "ms": 1800
+    },
+    {
+      "cmd": "node24 /tmp/h98310-tools/n8n-app/node_modules/n8n/bin/n8n export:workflow --all --output /tmp/h98310-n8n-kifSi6/work/export-a.json",
+      "exit": 0,
+      "signal": null,
+      "ms": 1778
+    },
+    {
+      "cmd": "node24 /tmp/h98310-tools/n8n-app/node_modules/n8n/bin/n8n import:workflow --input /tmp/h98310-n8n-kifSi6/work/export-a.json",
+      "exit": 0,
+      "signal": null,
+      "ms": 3679
+    },
+    {
+      "cmd": "node24 /tmp/h98310-tools/n8n-app/node_modules/n8n/bin/n8n export:workflow --all --output /tmp/h98310-n8n-kifSi6/work/export-b.json",
+      "exit": 0,
+      "signal": null,
+      "ms": 1794
+    },
+    {
+      "cmd": "node24 /tmp/h98310-tools/n8n-app/node_modules/n8n/bin/n8n list:workflow --onlyId",
+      "exit": 0,
+      "signal": null,
+      "ms": 1797
+    },
+    {
+      "cmd": "node24 /tmp/h98310-tools/n8n-app/node_modules/n8n/bin/n8n publish:workflow --id ZsbX6nt9d2LslMjT",
+      "exit": 0,
+      "signal": null,
+      "ms": 1791
+    },
+    {
+      "cmd": "node24 /tmp/h98310-tools/n8n-app/node_modules/n8n/bin/n8n list:workflow --active=true --onlyId",
+      "exit": 0,
+      "signal": null,
+      "ms": 1832
+    },
+    {
+      "cmd": "POST /webhook/h98310-board-notice board=acxiom",
+      "exit": 0,
+      "http": 200,
+      "ms": 371
+    },
+    {
+      "cmd": "node22 bin/journey.mjs --board acxiom",
+      "exit": 0,
+      "signal": null,
+      "ms": 113
+    },
+    {
+      "cmd": "POST /webhook/h98310-board-notice board=acxiom",
+      "exit": 0,
+      "http": 200,
+      "ms": 129
+    },
+    {
+      "cmd": "node22 bin/journey.mjs --board acxiom",
+      "exit": 0,
+      "signal": null,
+      "ms": 109
+    },
+    {
+      "cmd": "POST /webhook/h98310-board-notice board=acxiom",
+      "exit": 0,
+      "http": 200,
+      "ms": 136
+    },
+    {
+      "cmd": "node22 bin/journey.mjs --board acxiom",
+      "exit": 0,
+      "signal": null,
+      "ms": 112
+    },
+    {
+      "cmd": "POST /webhook/h98310-board-notice board=acxiom",
+      "exit": 0,
+      "http": 200,
+      "ms": 148
+    },
+    {
+      "cmd": "node22 bin/journey.mjs --board acxiom",
+      "exit": 0,
+      "signal": null,
+      "ms": 116
+    },
+    {
+      "cmd": "POST /webhook/h98310-board-notice board=acxiom",
+      "exit": 0,
+      "http": 200,
+      "ms": 130
+    },
+    {
+      "cmd": "node22 bin/journey.mjs --board acxiom",
+      "exit": 0,
+      "signal": null,
+      "ms": 108
+    },
+    {
+      "cmd": "POST /webhook/h98310-board-notice board=liveramp",
+      "exit": 0,
+      "http": 200,
+      "ms": 128
+    },
+    {
+      "cmd": "node22 bin/journey.mjs --board liveramp",
+      "exit": 0,
+      "signal": null,
+      "ms": 114
+    },
+    {
+      "cmd": "POST /webhook/h98310-board-notice board=acxiom",
+      "exit": 0,
+      "http": 200,
+      "ms": 126
+    },
+    {
+      "cmd": "node22 bin/journey.mjs --board acxiom",
+      "exit": 0,
+      "signal": null,
+      "ms": 105
+    },
+    {
+      "cmd": "POST /webhook/h98310-board-notice board=liveramp",
+      "exit": 0,
+      "http": 200,
+      "ms": 133
+    },
+    {
+      "cmd": "node22 bin/journey.mjs --board liveramp",
+      "exit": 0,
+      "signal": null,
+      "ms": 106
+    },
+    {
+      "cmd": "POST /webhook/h98310-board-notice board=acxiom",
+      "exit": 0,
+      "http": 200,
+      "ms": 127
+    },
+    {
+      "cmd": "node22 bin/journey.mjs --board acxiom",
+      "exit": 0,
+      "signal": null,
+      "ms": 104
+    },
+    {
+      "cmd": "POST /webhook/h98310-board-notice board=acxiom",
+      "exit": 0,
+      "http": 200,
+      "ms": 126
+    },
+    {
+      "cmd": "node22 bin/journey.mjs --board acxiom",
+      "exit": 0,
+      "signal": null,
+      "ms": 109
+    },
+    {
+      "cmd": "POST /webhook/h98310-board-notice board=liveramp",
+      "exit": 0,
+      "http": 200,
+      "ms": 127
+    },
+    {
+      "cmd": "node22 bin/journey.mjs --board liveramp",
+      "exit": 0,
+      "signal": null,
+      "ms": 105
+    },
+    {
+      "cmd": "POST /webhook/h98310-board-notice board=magnite",
+      "exit": 0,
+      "http": 200,
+      "ms": 133
+    },
+    {
+      "cmd": "node22 bin/journey.mjs --board magnite",
+      "exit": 0,
+      "signal": null,
+      "ms": 117
+    }
+  ],
+  "cases": [
+    {
+      "name": "baseline",
+      "same": true,
+      "sameState": true,
+      "n8nHttp": 200,
+      "directExit": 0,
+      "n8n": {
+        "outcome": "baseline",
+        "reason": "initial_seen_set",
+        "board": "acxiom",
+        "boardClaim": "complete",
+        "notices": [],
+        "seenCount": 2,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": true
+      },
+      "direct": {
+        "outcome": "baseline",
+        "reason": "initial_seen_set",
+        "board": "acxiom",
+        "boardClaim": "complete",
+        "notices": [],
+        "seenCount": 2,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": true
+      }
+    },
+    {
+      "name": "repeat",
+      "same": true,
+      "sameState": true,
+      "n8nHttp": 200,
+      "directExit": 0,
+      "n8n": {
+        "outcome": "unchanged",
+        "reason": null,
+        "board": "acxiom",
+        "boardClaim": "complete",
+        "notices": [],
+        "seenCount": 2,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": false
+      },
+      "direct": {
+        "outcome": "unchanged",
+        "reason": null,
+        "board": "acxiom",
+        "boardClaim": "complete",
+        "notices": [],
+        "seenCount": 2,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": false
+      }
+    },
+    {
+      "name": "notice-rejected",
+      "same": true,
+      "sameState": true,
+      "n8nHttp": 200,
+      "directExit": 0,
+      "n8n": {
+        "outcome": "notice_failed",
+        "reason": null,
+        "board": "acxiom",
+        "boardClaim": "complete",
+        "notices": [
+          {
+            "title": "Account Executive, New Role",
+            "delivery": "rejected",
+            "url": "https://acxiomllc.wd5.myworkdayjobs.com/en-US/AcxiomUSA/job/Remote/Account-Executive-New_R-3"
+          }
+        ],
+        "seenCount": 2,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": true
+      },
+      "direct": {
+        "outcome": "notice_failed",
+        "reason": null,
+        "board": "acxiom",
+        "boardClaim": "complete",
+        "notices": [
+          {
+            "title": "Account Executive, New Role",
+            "delivery": "rejected",
+            "url": "https://acxiomllc.wd5.myworkdayjobs.com/en-US/AcxiomUSA/job/Remote/Account-Executive-New_R-3"
+          }
+        ],
+        "seenCount": 2,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": true
+      }
+    },
+    {
+      "name": "notice-after-restart",
+      "same": true,
+      "sameState": true,
+      "n8nHttp": 200,
+      "directExit": 0,
+      "n8n": {
+        "outcome": "notice",
+        "reason": null,
+        "board": "acxiom",
+        "boardClaim": "complete",
+        "notices": [
+          {
+            "title": "Account Executive, New Role",
+            "delivery": "accepted",
+            "url": "https://acxiomllc.wd5.myworkdayjobs.com/en-US/AcxiomUSA/job/Remote/Account-Executive-New_R-3"
+          }
+        ],
+        "seenCount": 3,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": true
+      },
+      "direct": {
+        "outcome": "notice",
+        "reason": null,
+        "board": "acxiom",
+        "boardClaim": "complete",
+        "notices": [
+          {
+            "title": "Account Executive, New Role",
+            "delivery": "accepted",
+            "url": "https://acxiomllc.wd5.myworkdayjobs.com/en-US/AcxiomUSA/job/Remote/Account-Executive-New_R-3"
+          }
+        ],
+        "seenCount": 3,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": true
+      }
+    },
+    {
+      "name": "repeat-after-notice",
+      "same": true,
+      "sameState": true,
+      "n8nHttp": 200,
+      "directExit": 0,
+      "n8n": {
+        "outcome": "unchanged",
+        "reason": null,
+        "board": "acxiom",
+        "boardClaim": "complete",
+        "notices": [],
+        "seenCount": 3,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": false
+      },
+      "direct": {
+        "outcome": "unchanged",
+        "reason": null,
+        "board": "acxiom",
+        "boardClaim": "complete",
+        "notices": [],
+        "seenCount": 3,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": false
+      }
+    },
+    {
+      "name": "changed-board",
+      "same": true,
+      "sameState": true,
+      "n8nHttp": 200,
+      "directExit": 0,
+      "n8n": {
+        "outcome": "baseline",
+        "reason": "initial_seen_set",
+        "board": "liveramp",
+        "boardClaim": "complete",
+        "notices": [],
+        "seenCount": 1,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": true
+      },
+      "direct": {
+        "outcome": "baseline",
+        "reason": "initial_seen_set",
+        "board": "liveramp",
+        "boardClaim": "complete",
+        "notices": [],
+        "seenCount": 1,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": true
+      }
+    },
+    {
+      "name": "empty",
+      "same": true,
+      "sameState": true,
+      "n8nHttp": 200,
+      "directExit": 0,
+      "n8n": {
+        "outcome": "baseline",
+        "reason": "empty_board",
+        "board": "acxiom",
+        "boardClaim": "empty",
+        "notices": [],
+        "seenCount": 0,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": true
+      },
+      "direct": {
+        "outcome": "baseline",
+        "reason": "empty_board",
+        "board": "acxiom",
+        "boardClaim": "empty",
+        "notices": [],
+        "seenCount": 0,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": true
+      }
+    },
+    {
+      "name": "source-failure",
+      "same": true,
+      "sameState": true,
+      "n8nHttp": 200,
+      "directExit": 0,
+      "n8n": {
+        "outcome": "source_failure",
+        "reason": "source_failure",
+        "board": "liveramp",
+        "boardClaim": "source_failure",
+        "notices": [],
+        "seenCount": null,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": false
+      },
+      "direct": {
+        "outcome": "source_failure",
+        "reason": "source_failure",
+        "board": "liveramp",
+        "boardClaim": "source_failure",
+        "notices": [],
+        "seenCount": null,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": false
+      }
+    },
+    {
+      "name": "partial",
+      "same": true,
+      "sameState": true,
+      "n8nHttp": 200,
+      "directExit": 0,
+      "n8n": {
+        "outcome": "incomplete",
+        "reason": "partial",
+        "board": "acxiom",
+        "boardClaim": "partial",
+        "notices": [],
+        "seenCount": null,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": false
+      },
+      "direct": {
+        "outcome": "incomplete",
+        "reason": "partial",
+        "board": "acxiom",
+        "boardClaim": "partial",
+        "notices": [],
+        "seenCount": null,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": false
+      }
+    },
+    {
+      "name": "duplicate",
+      "same": true,
+      "sameState": true,
+      "n8nHttp": 200,
+      "directExit": 0,
+      "n8n": {
+        "outcome": "baseline",
+        "reason": "initial_seen_set",
+        "board": "acxiom",
+        "boardClaim": "complete",
+        "notices": [],
+        "seenCount": 1,
+        "duplicateUrls": 1,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": true
+      },
+      "direct": {
+        "outcome": "baseline",
+        "reason": "initial_seen_set",
+        "board": "acxiom",
+        "boardClaim": "complete",
+        "notices": [],
+        "seenCount": 1,
+        "duplicateUrls": 1,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": true
+      }
+    },
+    {
+      "name": "wrong-shape",
+      "same": true,
+      "sameState": true,
+      "n8nHttp": 200,
+      "directExit": 0,
+      "n8n": {
+        "outcome": "incomplete",
+        "reason": "wrong_schema",
+        "board": "liveramp",
+        "boardClaim": "wrong_schema",
+        "notices": [],
+        "seenCount": null,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": false
+      },
+      "direct": {
+        "outcome": "incomplete",
+        "reason": "wrong_schema",
+        "board": "liveramp",
+        "boardClaim": "wrong_schema",
+        "notices": [],
+        "seenCount": null,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": false
+      }
+    },
+    {
+      "name": "magnite",
+      "same": true,
+      "sameState": true,
+      "n8nHttp": 200,
+      "directExit": 0,
+      "n8n": {
+        "outcome": "baseline",
+        "reason": "initial_seen_set",
+        "board": "magnite",
+        "boardClaim": "complete",
+        "notices": [],
+        "seenCount": 1,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": true
+      },
+      "direct": {
+        "outcome": "baseline",
+        "reason": "initial_seen_set",
+        "board": "magnite",
+        "boardClaim": "complete",
+        "notices": [],
+        "seenCount": 1,
+        "duplicateUrls": 0,
+        "exactlyOnce": false,
+        "exactlyOnceMail": false,
+        "stateChanged": true
+      }
+    }
+  ],
+  "memory": [
+    {
+      "where": "before-import",
+      "at": "2026-11-01T02:44:45.259Z",
+      "ownedRssKiB": 77216,
+      "processCount": 2,
+      "withinAdmission": true,
+      "processes": [
+        {
+          "pid": 66687,
+          "ppid": 62678,
+          "rss": 12384,
+          "command": "/bin/bash -O extglob -c IFS= builtin read -r -d '' __grok_user_cmd <&5; exec 5<&-; builtin set -- \"$__grok_user_cmd\" \"$@\"; builtin unset __grok_user_cmd; snap=$"
+        },
+        {
+          "pid": 66691,
+          "ppid": 66687,
+          "rss": 64832,
+          "command": "node experiments/board-notice/test/n8n-route.mjs"
+        }
+      ]
+    },
+    {
+      "where": "engine-ready",
+      "at": "2026-11-01T02:45:10.262Z",
+      "ownedRssKiB": 970840,
+      "processCount": 5,
+      "withinAdmission": true,
+      "processes": [
+        {
+          "pid": 66687,
+          "ppid": 62678,
+          "rss": 12384,
+          "command": "/bin/bash -O extglob -c IFS= builtin read -r -d '' __grok_user_cmd <&5; exec 5<&-; builtin set -- \"$__grok_user_cmd\" \"$@\"; builtin unset __grok_user_cmd; snap=$"
+        },
+        {
+          "pid": 66691,
+          "ppid": 66687,
+          "rss": 68768,
+          "command": "node experiments/board-notice/test/n8n-route.mjs"
+        },
+        {
+          "pid": 66819,
+          "ppid": 66691,
+          "rss": 57480,
+          "command": "/exec-daemon/node /home/ubuntu/ae14-work/h98310/experiments/board-notice/bin/loopback-runner.mjs"
+        },
+        {
+          "pid": 66827,
+          "ppid": 66691,
+          "rss": 695072,
+          "command": "n8n start"
+        },
+        {
+          "pid": 66839,
+          "ppid": 66827,
+          "rss": 137136,
+          "command": "n8n task-runner"
+        }
+      ]
+    },
+    {
+      "where": "sink-reject",
+      "at": "2026-11-01T02:45:11.111Z",
+      "ownedRssKiB": 1042488,
+      "processCount": 8,
+      "withinAdmission": true,
+      "processes": [
+        {
+          "pid": 66687,
+          "ppid": 62678,
+          "rss": 12384,
+          "command": "/bin/bash -O extglob -c IFS= builtin read -r -d '' __grok_user_cmd <&5; exec 5<&-; builtin set -- \"$__grok_user_cmd\" \"$@\"; builtin unset __grok_user_cmd; snap=$"
+        },
+        {
+          "pid": 66691,
+          "ppid": 66687,
+          "rss": 72136,
+          "command": "node experiments/board-notice/test/n8n-route.mjs"
+        },
+        {
+          "pid": 66819,
+          "ppid": 66691,
+          "rss": 58928,
+          "command": "/exec-daemon/node /home/ubuntu/ae14-work/h98310/experiments/board-notice/bin/loopback-runner.mjs"
+        },
+        {
+          "pid": 66827,
+          "ppid": 66691,
+          "rss": 699164,
+          "command": "n8n start"
+        },
+        {
+          "pid": 66839,
+          "ppid": 66827,
+          "rss": 137136,
+          "command": "n8n task-runner"
+        },
+        {
+          "pid": 66961,
+          "ppid": 66819,
+          "rss": 58672,
+          "command": "/exec-daemon/node /home/ubuntu/ae14-work/h98310/experiments/board-notice/bin/journey.mjs --skill /home/ubuntu/ae14-work/h98310/skills/public-careers-board --boa"
+        },
+        {
+          "pid": 66973,
+          "ppid": 66961,
+          "rss": 2116,
+          "command": "/usr/bin/flock -n -E 11 -- /tmp/h98310-n8n-kifSi6/work/main-n8n.json.lock /bin/sh -c printf '%s\\n' ready; exec cat"
+        },
+        {
+          "pid": 66974,
+          "ppid": 66973,
+          "rss": 1952,
+          "command": "cat"
+        }
+      ]
+    },
+    {
+      "where": "sink-reject",
+      "at": "2026-11-01T02:45:11.228Z",
+      "ownedRssKiB": 1039292,
+      "processCount": 8,
+      "withinAdmission": true,
+      "processes": [
+        {
+          "pid": 66687,
+          "ppid": 62678,
+          "rss": 12384,
+          "command": "/bin/bash -O extglob -c IFS= builtin read -r -d '' __grok_user_cmd <&5; exec 5<&-; builtin set -- \"$__grok_user_cmd\" \"$@\"; builtin unset __grok_user_cmd; snap=$"
+        },
+        {
+          "pid": 66691,
+          "ppid": 66687,
+          "rss": 72184,
+          "command": "node experiments/board-notice/test/n8n-route.mjs"
+        },
+        {
+          "pid": 66819,
+          "ppid": 66691,
+          "rss": 58976,
+          "command": "/exec-daemon/node /home/ubuntu/ae14-work/h98310/experiments/board-notice/bin/loopback-runner.mjs"
+        },
+        {
+          "pid": 66827,
+          "ppid": 66691,
+          "rss": 695868,
+          "command": "n8n start"
+        },
+        {
+          "pid": 66839,
+          "ppid": 66827,
+          "rss": 137136,
+          "command": "n8n task-runner"
+        },
+        {
+          "pid": 66987,
+          "ppid": 66691,
+          "rss": 58672,
+          "command": "/exec-daemon/node /home/ubuntu/ae14-work/h98310/experiments/board-notice/bin/journey.mjs --skill /home/ubuntu/ae14-work/h98310/skills/public-careers-board --boa"
+        },
+        {
+          "pid": 66999,
+          "ppid": 66987,
+          "rss": 2120,
+          "command": "/usr/bin/flock -n -E 11 -- /tmp/h98310-n8n-kifSi6/work/main-direct.json.lock /bin/sh -c printf '%s\\n' ready; exec cat"
+        },
+        {
+          "pid": 67000,
+          "ppid": 66999,
+          "rss": 1952,
+          "command": "cat"
+        }
+      ]
+    },
+    {
+      "where": "after-restart",
+      "at": "2026-11-01T02:45:16.526Z",
+      "ownedRssKiB": 982212,
+      "processCount": 5,
+      "withinAdmission": true,
+      "processes": [
+        {
+          "pid": 66687,
+          "ppid": 62678,
+          "rss": 12384,
+          "command": "/bin/bash -O extglob -c IFS= builtin read -r -d '' __grok_user_cmd <&5; exec 5<&-; builtin set -- \"$__grok_user_cmd\" \"$@\"; builtin unset __grok_user_cmd; snap=$"
+        },
+        {
+          "pid": 66691,
+          "ppid": 66687,
+          "rss": 70184,
+          "command": "node experiments/board-notice/test/n8n-route.mjs"
+        },
+        {
+          "pid": 66819,
+          "ppid": 66691,
+          "rss": 57072,
+          "command": "/exec-daemon/node /home/ubuntu/ae14-work/h98310/experiments/board-notice/bin/loopback-runner.mjs"
+        },
+        {
+          "pid": 67013,
+          "ppid": 66691,
+          "rss": 706612,
+          "command": "n8n start"
+        },
+        {
+          "pid": 67025,
+          "ppid": 67013,
+          "rss": 135960,
+          "command": "n8n task-runner"
+        }
+      ]
+    },
+    {
+      "where": "sink-accept",
+      "at": "2026-11-01T02:45:16.657Z",
+      "ownedRssKiB": 1053952,
+      "processCount": 8,
+      "withinAdmission": true,
+      "processes": [
+        {
+          "pid": 66687,
+          "ppid": 62678,
+          "rss": 12384,
+          "command": "/bin/bash -O extglob -c IFS= builtin read -r -d '' __grok_user_cmd <&5; exec 5<&-; builtin set -- \"$__grok_user_cmd\" \"$@\"; builtin unset __grok_user_cmd; snap=$"
+        },
+        {
+          "pid": 66691,
+          "ppid": 66687,
+          "rss": 70668,
+          "command": "node experiments/board-notice/test/n8n-route.mjs"
+        },
+        {
+          "pid": 66819,
+          "ppid": 66691,
+          "rss": 57212,
+          "command": "/exec-daemon/node /home/ubuntu/ae14-work/h98310/experiments/board-notice/bin/loopback-runner.mjs"
+        },
+        {
+          "pid": 67013,
+          "ppid": 66691,
+          "rss": 714972,
+          "command": "n8n start"
+        },
+        {
+          "pid": 67025,
+          "ppid": 67013,
+          "rss": 135960,
+          "command": "n8n task-runner"
+        },
+        {
+          "pid": 67041,
+          "ppid": 66819,
+          "rss": 58684,
+          "command": "/exec-daemon/node /home/ubuntu/ae14-work/h98310/experiments/board-notice/bin/journey.mjs --skill /home/ubuntu/ae14-work/h98310/skills/public-careers-board --boa"
+        },
+        {
+          "pid": 67053,
+          "ppid": 67041,
+          "rss": 2120,
+          "command": "/usr/bin/flock -n -E 11 -- /tmp/h98310-n8n-kifSi6/work/main-n8n.json.lock /bin/sh -c printf '%s\\n' ready; exec cat"
+        },
+        {
+          "pid": 67054,
+          "ppid": 67053,
+          "rss": 1952,
+          "command": "cat"
+        }
+      ]
+    },
+    {
+      "where": "sink-accept",
+      "at": "2026-11-01T02:45:16.784Z",
+      "ownedRssKiB": 1051484,
+      "processCount": 8,
+      "withinAdmission": true,
+      "processes": [
+        {
+          "pid": 66687,
+          "ppid": 62678,
+          "rss": 12384,
+          "command": "/bin/bash -O extglob -c IFS= builtin read -r -d '' __grok_user_cmd <&5; exec 5<&-; builtin set -- \"$__grok_user_cmd\" \"$@\"; builtin unset __grok_user_cmd; snap=$"
+        },
+        {
+          "pid": 66691,
+          "ppid": 66687,
+          "rss": 71388,
+          "command": "node experiments/board-notice/test/n8n-route.mjs"
+        },
+        {
+          "pid": 66819,
+          "ppid": 66691,
+          "rss": 57260,
+          "command": "/exec-daemon/node /home/ubuntu/ae14-work/h98310/experiments/board-notice/bin/loopback-runner.mjs"
+        },
+        {
+          "pid": 67013,
+          "ppid": 66691,
+          "rss": 711780,
+          "command": "n8n start"
+        },
+        {
+          "pid": 67025,
+          "ppid": 67013,
+          "rss": 135960,
+          "command": "n8n task-runner"
+        },
+        {
+          "pid": 67067,
+          "ppid": 66691,
+          "rss": 58648,
+          "command": "/exec-daemon/node /home/ubuntu/ae14-work/h98310/experiments/board-notice/bin/journey.mjs --skill /home/ubuntu/ae14-work/h98310/skills/public-careers-board --boa"
+        },
+        {
+          "pid": 67079,
+          "ppid": 67067,
+          "rss": 2116,
+          "command": "/usr/bin/flock -n -E 11 -- /tmp/h98310-n8n-kifSi6/work/main-direct.json.lock /bin/sh -c printf '%s\\n' ready; exec cat"
+        },
+        {
+          "pid": 67080,
+          "ppid": 67079,
+          "rss": 1948,
+          "command": "cat"
+        }
+      ]
+    },
+    {
+      "where": "after-cases",
+      "at": "2026-11-01T02:45:18.691Z",
+      "ownedRssKiB": 1001772,
+      "processCount": 5,
+      "withinAdmission": true,
+      "processes": [
+        {
+          "pid": 66687,
+          "ppid": 62678,
+          "rss": 12384,
+          "command": "/bin/bash -O extglob -c IFS= builtin read -r -d '' __grok_user_cmd <&5; exec 5<&-; builtin set -- \"$__grok_user_cmd\" \"$@\"; builtin unset __grok_user_cmd; snap=$"
+        },
+        {
+          "pid": 66691,
+          "ppid": 66687,
+          "rss": 72840,
+          "command": "node experiments/board-notice/test/n8n-route.mjs"
+        },
+        {
+          "pid": 66819,
+          "ppid": 66691,
+          "rss": 58416,
+          "command": "/exec-daemon/node /home/ubuntu/ae14-work/h98310/experiments/board-notice/bin/loopback-runner.mjs"
+        },
+        {
+          "pid": 67013,
+          "ppid": 66691,
+          "rss": 722172,
+          "command": "n8n start"
+        },
+        {
+          "pid": 67025,
+          "ppid": 67013,
+          "rss": 135960,
+          "command": "n8n task-runner"
+        }
+      ]
+    }
+  ],
+  "n8nVersion": "2.44.0",
+  "license": "Sustainable Use License v1.0 (npm license field: SEE LICENSE IN LICENSE.md)",
+  "isolatedVm": "7.0.2 rebuilt locally against Node 24.22.2 after the downloaded binary failed to load",
+  "peak": {
+    "where": "sink-accept",
+    "at": "2026-11-01T02:45:16.657Z",
+    "ownedRssKiB": 1053952,
+    "processCount": 8,
+    "withinAdmission": true,
+    "processes": [
+      {
+        "pid": 66687,
+        "ppid": 62678,
+        "rss": 12384,
+        "command": "/bin/bash -O extglob -c IFS= builtin read -r -d '' __grok_user_cmd <&5; exec 5<&-; builtin set -- \"$__grok_user_cmd\" \"$@\"; builtin unset __grok_user_cmd; snap=$"
+      },
+      {
+        "pid": 66691,
+        "ppid": 66687,
+        "rss": 70668,
+        "command": "node experiments/board-notice/test/n8n-route.mjs"
+      },
+      {
+        "pid": 66819,
+        "ppid": 66691,
+        "rss": 57212,
+        "command": "/exec-daemon/node /home/ubuntu/ae14-work/h98310/experiments/board-notice/bin/loopback-runner.mjs"
+      },
+      {
+        "pid": 67013,
+        "ppid": 66691,
+        "rss": 714972,
+        "command": "n8n start"
+      },
+      {
+        "pid": 67025,
+        "ppid": 67013,
+        "rss": 135960,
+        "command": "n8n task-runner"
+      },
+      {
+        "pid": 67041,
+        "ppid": 66819,
+        "rss": 58684,
+        "command": "/exec-daemon/node /home/ubuntu/ae14-work/h98310/experiments/board-notice/bin/journey.mjs --skill /home/ubuntu/ae14-work/h98310/skills/public-careers-board --boa"
+      },
+      {
+        "pid": 67053,
+        "ppid": 67041,
+        "rss": 2120,
+        "command": "/usr/bin/flock -n -E 11 -- /tmp/h98310-n8n-kifSi6/work/main-n8n.json.lock /bin/sh -c printf '%s\\n' ready; exec cat"
+      },
+      {
+        "pid": 67054,
+        "ppid": 67053,
+        "rss": 1952,
+        "command": "cat"
+      }
+    ]
+  },
+  "import": {
+    "storeAId": "ZsbX6nt9d2LslMjT",
+    "storeBId": "ZsbX6nt9d2LslMjT",
+    "inactiveBeforePublish": true,
+    "sourceFileActive": false,
+    "nodeNames": [
+      "Limits",
+      "Caller job",
+      "Run journey",
+      "Respond"
+    ],
+    "staticData": null,
+    "sqliteA": {
+      "file": "/tmp/h98310-n8n-kifSi6/store-a/.n8n/database.sqlite",
+      "bytes": 1519616
+    },
+    "sqliteB": {
+      "file": "/tmp/h98310-n8n-kifSi6/store-b/.n8n/database.sqlite",
+      "bytes": 1519616
+    }
+  },
+  "setupMs": 20031,
+  "runnerUrlHost": "127.0.0.1",
+  "webhookProbes": [
+    {
+      "attempts": 2,
+      "status": 500
+    },
+    {
+      "attempts": 1,
+      "status": 500
+    }
+  ],
+  "engineReadyMs": 25055,
+  "executionMs": 972,
+  "recoveryMs": 5290,
+  "skillDiffExit": 0,
+  "workflowFileActive": false,
+  "sqliteAfter": {
+    "file": "/tmp/h98310-n8n-kifSi6/store-b/.n8n/database.sqlite",
+    "bytes": 2461696
+  },
+  "finishedAt": "2026-11-01T02:45:18.694Z",
+  "caseCount": 12,
+  "mismatchCount": 0
+}

@@ -18,6 +18,9 @@ This experiment is MIT, copyright 2026 Neomorphic LLC. See `LICENSE`.
 Runtime that was actually started:
 
 - Journey and direct route: Node v22.23.4, `node --test --test-concurrency=1`.
+- State exclusion: `/usr/bin/flock` from util-linux (package `util-linux`,
+  advisory `flock(2)` on the local state lock file). No added npm dependency.
+  Not an NFS or distributed lock.
 - n8n: 2.44.0 on Node v24.22.2 from the official linux-x64 tarball
   sha256 `48cc0e21e048790e54c0cf5749c2725005313d652651c40b7a21feb9697aaf75`.
 - SQLite file inside the disposable `N8N_USER_FOLDER`. After the cases it was

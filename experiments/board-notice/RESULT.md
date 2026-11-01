@@ -85,3 +85,32 @@ baselines every row then present and sends nothing for those rows. Unknown,
 rejected, dropped, cut-off, oversized, and 3xx answers are not delivered. A
 later run can POST again. A busy caller is not queued. Root still owns real
 mail, criteria, and any account.
+
+## Lock correction
+
+The amendment's pathname lock was wrong. A holder that had created
+`<state>.lock` and not yet written its body could be renamed away, and a
+stale recoverer's `rename` could move a replacement live owner. Restoring
+with POSIX `rename` can overwrite. That evidence remains
+`evidence/direct-journey-amendment.json` and
+`evidence/n8n-route-amendment.json`. It is not this correction.
+
+Exclusion is now `/usr/bin/flock` (util-linux) on the existing lock inode,
+taken before the body is written and held across the read and any POST. The
+body is not the lock. The file is not unlinked. An empty body or a body that
+still names a dead pid does not evict a live holder. Two recoverers paused
+before `flock` do not rename; one enters and the other is `busy`. A dead
+holder's lock is released by the kernel, including after SIGKILL. A recorded
+dead pid may be retried for at most 200 ms. An unreadable body or a live pid
+is `busy` immediately. This is one machine, not NFS, and not exactly-once mail.
+
+Direct correction: exit 0, 16 passed, 0 failed, 10198 ms, Node v22.23.4.
+The paused-initializer contender returned `busy` in 5 ms and left the inode
+in place. A holder paused before writing over a dead-pid body was not
+evicted. Evidence: `evidence/direct-journey-lock.json`. No public GET.
+
+n8n correction: exit 0, 12 cases, 0 mismatches, 34 commands, all exit 0.
+Setup 20031 ms, engine ready 25055 ms, execution 972 ms, recovery 5290 ms.
+Peak owned RSS 1053952 KiB across 8 processes, within 2097152 KiB.
+`publicGets` 0. Workflow file stayed inactive. Evidence:
+`evidence/n8n-route-lock.json`.

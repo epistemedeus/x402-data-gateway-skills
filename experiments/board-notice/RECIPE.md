@@ -19,10 +19,18 @@ sends none. Source failure, a partial page, a wrong schema, and an unknown row
 do not change the file. A complete snapshot after a partial one baselines
 whatever is present then and does not notify those rows.
 
-The CLI and the loopback runner share one owner for each state file. A second
-caller gets `outcome` `busy` and `reason` `state_busy`, exit 0, and does not
-observe or POST. Retry after that process exits. A lock whose pid is dead is
-recovered. A live pid is not replaced. Another state file is independent.
+The CLI and the loopback runner share one owner for each state file. Ownership
+is an exclusive `flock` from util-linux `/usr/bin/flock` on `<state>.lock`,
+held for the whole read and any notice. The JSON in that file is not the lock.
+The file is not removed: a replacement inode would not conflict with a holder
+that still has the old one open. A second caller gets `outcome` `busy` and
+`reason` `state_busy`, exit 0, and does not observe or POST. Retry after the
+holder exits. The kernel drops the lock when the holder process exits,
+including a crash. An empty, partial, or unreadable lock body is not taken
+away from a live holder. A body whose pid is already dead may be retried for
+up to 200 ms so a just-exited flock can drop; it is not renamed or replaced.
+This is local advisory locking on one machine, not an NFS or distributed lock,
+and not exactly-once mail. Another state file is independent.
 
 ## Direct route
 

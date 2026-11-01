@@ -1,0 +1,124 @@
+{
+  "schema": "board-notice.direct-lock.v1",
+  "amends": "evidence/direct-journey-amendment.json",
+  "node": "v22.23.4",
+  "mechanism": "flock",
+  "cases": [
+    {
+      "case": "refuse",
+      "exits": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "case": "baseline-repeat",
+      "setupMs": 114,
+      "repeatMs": 112,
+      "exits": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "new-match",
+      "executionMs": 223,
+      "notices": 1,
+      "exits": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "empty-vs-failure",
+      "empty": "empty_board",
+      "failure": "source_failure"
+    },
+    {
+      "case": "partial-shape",
+      "partial": "partial",
+      "laterNotices": 0
+    },
+    {
+      "case": "duplicate-urls",
+      "seenCount": 1,
+      "duplicateUrls": 1
+    },
+    {
+      "case": "delivery",
+      "rejectedThenAccepted": true,
+      "unknown": "unknown",
+      "ambiguous": "ambiguous",
+      "droppedRetryPosts": 2,
+      "redirect": "not_followed",
+      "exactlyOnce": false,
+      "exactlyOnceMail": false
+    },
+    {
+      "case": "kill-restart",
+      "signal": "SIGKILL",
+      "recoveredNotices": 1
+    },
+    {
+      "case": "adapt",
+      "ms": 461,
+      "boards": [
+        "acxiom",
+        "liveramp",
+        "magnite"
+      ]
+    },
+    {
+      "case": "no-seed-argv",
+      "scope": "controlled-child-argv",
+      "liveGet": false,
+      "absentSeed": true,
+      "presentSeed": true,
+      "invalidSeedRejected": true,
+      "childSpawnedForInvalidSeed": false
+    },
+    {
+      "case": "runner-seed",
+      "scope": "controlled-child-argv",
+      "liveGet": false,
+      "absentSeed": true,
+      "presentSeed": true,
+      "invalidSeedRejected": true,
+      "emptySeedShape": true
+    },
+    {
+      "case": "partial-response",
+      "partial": "ambiguous",
+      "partialReason": "ECONNRESET",
+      "retryAccepted": true,
+      "retryPosts": 2,
+      "deadline": "timeout",
+      "deadlineMs": 516,
+      "limited": "response_limited",
+      "acceptedFromPartial": false
+    },
+    {
+      "case": "state-overlap",
+      "duplicate": "busy",
+      "duplicateMs": 48,
+      "otherBoardWhileHeld": "busy",
+      "foreignLiveStolen": false,
+      "deadOwnerRecovered": true,
+      "independentBusy": false,
+      "preservedForeignJourney": true
+    },
+    {
+      "case": "lock-barrier",
+      "mechanism": "flock",
+      "incompleteInitBusy": true,
+      "incompleteInitMs": 5,
+      "deadBodyInitializerKept": true,
+      "initializerEntered": true,
+      "inodeKept": true,
+      "staleLoserBusy": true,
+      "staleWinnerEntered": true,
+      "replacementOverwritten": false
+    }
+  ]
+}

@@ -6,8 +6,9 @@ Do not contact adas. Do not start the workflow on a schedule or leave n8n runnin
 
 When a caller brings one supported board, explicit phrases, and a loopback
 sink, they can run `RECIPE.md` with the Node 22 CLI, with or without
-`--seed`. Use the inactive n8n workflow only as a local HTTP caller of that
-same CLI. A caller that receives `state_busy` retries after the owner exits.
+`--seed`. The state file exclusion requires `/usr/bin/flock` on that machine.
+Use the inactive n8n workflow only as a local HTTP caller of that same CLI.
+A caller that receives `state_busy` retries after the holder exits.
 Supply any future secret through n8n or the caller's own sink, not through
 this tree.
 

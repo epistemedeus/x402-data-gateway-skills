@@ -20,8 +20,8 @@ const ADMISSION_KIB = 2097152;
 const workflowFile = path.join(experiment, 'workflow/board-notice.inactive.n8n.json');
 
 const report = {
-  schema: 'board-notice.n8n-amendment.v1',
-  amends: 'evidence/n8n-route.json',
+  schema: 'board-notice.n8n-lock.v1',
+  amends: 'evidence/n8n-route-amendment.json',
   repo,
   startedAt: new Date().toISOString(),
   node22: process.version,
@@ -631,7 +631,7 @@ async function main() {
   report.finishedAt = new Date().toISOString();
   report.caseCount = report.cases.length;
   report.mismatchCount = report.cases.filter((item) => !item.same || !item.sameState).length;
-  const evidence = path.join(experiment, 'evidence/n8n-route-amendment.json');
+  const evidence = path.join(experiment, 'evidence/n8n-route-lock.json');
   fs.writeFileSync(evidence, `${JSON.stringify(report, null, 2)}\n`);
   note(`wrote ${evidence}`);
 }

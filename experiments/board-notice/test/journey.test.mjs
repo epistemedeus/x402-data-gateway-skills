@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import http from 'node:http';
-import { mkdtemp, readFile, readdir, rm, writeFile, mkdir } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, rm, writeFile, mkdir, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { withStateOwner } from '../lib/state.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(here, '..');
@@ -888,14 +889,83 @@ test('a cut-off 200 body is not accepted and response reads stay bounded', async
   }
 });
 
+function ownerScript(stateFile, entered, release, out) {
+  return `
+import { readFile, writeFile } from 'node:fs/promises';
+import { withStateOwner } from ${JSON.stringify(path.join(packageRoot, 'lib/state.mjs'))};
+const entered = ${JSON.stringify(entered)};
+const release = ${JSON.stringify(release)};
+const out = ${JSON.stringify(out)};
+try {
+  let did = false;
+  const owned = await withStateOwner(${JSON.stringify(stateFile)}, async () => {
+    did = true;
+    await writeFile(entered, String(process.pid));
+    const deadline = Date.now() + 8000;
+    while (Date.now() < deadline) {
+      try { await readFile(release); break; }
+      catch (error) {
+        if (error?.code !== 'ENOENT') throw error;
+        await new Promise((resolve) => setTimeout(resolve, 5));
+      }
+    }
+    return 'held';
+  });
+  await writeFile(out, JSON.stringify({ busy: owned.busy, entered: did }));
+} catch (error) {
+  await writeFile(out, JSON.stringify({ busy: null, entered: false, error: String(error && error.stack || error) }));
+}
+`;
+}
+
+function spawnOwner(stateFile, dir, id, steps) {
+  const entered = path.join(dir, `${id}-entered`);
+  const release = path.join(dir, `${id}-release`);
+  const out = path.join(dir, `${id}-out`);
+  const env = { ...process.env };
+  if (steps) {
+    env.H98310_LOCK_BARRIER = dir;
+    env.H98310_LOCK_BARRIER_STEPS = steps;
+  } else {
+    delete env.H98310_LOCK_BARRIER;
+    delete env.H98310_LOCK_BARRIER_STEPS;
+  }
+  const child = spawn(process.execPath, ['--input-type=module', '-'], {
+    stdio: ['pipe', 'pipe', 'pipe'],
+    env,
+  });
+  const stderr = [];
+  child.stderr.on('data', (chunk) => stderr.push(chunk));
+  child.stdout.on('data', () => {});
+  child.stdin.end(ownerScript(stateFile, entered, release, out));
+  return { child, entered, release, out, stderr };
+}
+
+async function waitFor(file, ms = 4000) {
+  const deadline = Date.now() + ms;
+  while (Date.now() < deadline) {
+    try { return await readFile(file, 'utf8'); }
+    catch (error) {
+      if (error?.code !== 'ENOENT') throw error;
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    }
+  }
+  throw new Error(`timeout ${file}`);
+}
+
+function stopOwner(owner) {
+  if (!owner) return;
+  try { owner.child.kill('SIGKILL'); } catch { /* already exited */ }
+}
+
 test('overlapping callers on one state file get busy, and separate files do not', async () => {
   let opened;
   const arrived = new Promise((resolve) => { opened = resolve; });
   const sink = await startSink((req, res, body) => {
     opened({ res, body });
   });
-  const holder = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000);'], { stdio: 'ignore' });
   let first;
+  let foreignHeld;
   try {
     const state = path.join(work, 'overlap.json');
     const baseline = await run(args({
@@ -954,7 +1024,10 @@ test('overlapping callers on one state file get busy, and separate files do not'
     const finished = await first.done;
     assert.equal(finished.body.outcome, 'notice', finished.text + finished.stderr);
     assert.equal(finished.body.notices[0].delivery, 'accepted');
-    assert.equal(await absent(`${state}.lock`), true);
+    const releasedNames = await readdir(work);
+    assert.equal(releasedNames.some((name) => name.includes('.stale-') || name.includes('.release-')), false);
+    const releasedLock = JSON.parse(await readFile(`${state}.lock`, 'utf8'));
+    assert.equal(releasedLock.mechanism, 'flock');
     const after = await stateOf(state);
     assert.deepEqual(after.journeys.kept, stored.journeys.kept);
     assert.equal(after.journeys[key].seen.includes('https://jobs.example.invalid/seen-kept'), true);
@@ -963,22 +1036,22 @@ test('overlapping callers on one state file get busy, and separate files do not'
     assert.equal(Object.values(after.journeys).some((item) => item.board === 'liveramp'), false);
 
     const foreignState = path.join(work, 'foreign.json');
-    await writeFile(`${foreignState}.lock`, `${JSON.stringify({
-      schema: 'board-notice.lock.v1',
-      pid: holder.pid,
-      token: 'foreign-token-0123456789abcdef',
-      createdAt: new Date().toISOString(),
-    })}\n`);
+    const foreignDir = path.join(work, 'foreign-holder');
+    await mkdir(foreignDir);
+    foreignHeld = spawnOwner(foreignState, foreignDir, 'holder');
+    const holderPid = Number(await waitFor(foreignHeld.entered));
     const foreign = await run(args({
       sink: sink.url, state: foreignState, board: 'acxiom', phrases: ['account executive'],
       seed: path.join(fixtures, 'acxiom-baseline.seed.json'),
     }));
-    assert.equal(foreign.body.outcome, 'busy');
+    assert.equal(foreign.body.outcome, 'busy', foreign.text + foreign.stderr);
     assert.equal(foreign.body.reason, 'state_busy');
     assert.equal(await absent(foreignState), true);
     const foreignLock = JSON.parse(await readFile(`${foreignState}.lock`, 'utf8'));
-    assert.equal(foreignLock.pid, holder.pid);
-    process.kill(holder.pid, 0);
+    assert.equal(foreignLock.pid, holderPid);
+    assert.equal(foreignLock.mechanism, 'flock');
+    process.kill(holderPid, 0);
+    await writeFile(foreignHeld.release, '1');
 
     const ended = spawnSync(process.execPath, ['-e', 'process.exit(0)']);
     assert.equal(ended.status, 0);
@@ -1000,7 +1073,10 @@ test('overlapping callers on one state file get busy, and separate files do not'
     assert.equal(recovered.body.outcome, 'baseline');
     assert.equal(recovered.body.notices.length, 0);
     const names = await readdir(work);
-    assert.equal(names.some((name) => name.startsWith('dead.json.lock')), false);
+    assert.equal(names.some((name) => name.includes('.stale-') || name.includes('.release-')), false);
+    const deadLock = JSON.parse(await readFile(`${deadState}.lock`, 'utf8'));
+    assert.equal(deadLock.mechanism, 'flock');
+    assert.notEqual(deadLock.pid, ended.pid);
 
     const leftState = path.join(work, 'independent-a.json');
     const rightState = path.join(work, 'independent-b.json');
@@ -1031,21 +1107,136 @@ test('overlapping callers on one state file get busy, and separate files do not'
       preservedForeignJourney: true,
     });
   } finally {
-    try { holder.kill('SIGKILL'); } catch { /* already exited */ }
+    if (foreignHeld) {
+      try { await writeFile(foreignHeld.release, '1'); } catch { /* holder already left */ }
+      stopOwner(foreignHeld);
+    }
     if (first && first.child.exitCode === null && first.child.signalCode === null) first.child.kill('SIGKILL');
     await sink.close();
+  }
+});
+
+test('a paused initializer and two stale recoverers cannot both own one lock', async () => {
+  const dir = path.join(work, 'barriers');
+  await mkdir(dir);
+  const initState = path.join(dir, 'init.json');
+  const init = spawnOwner(initState, dir, 'init', 'held-before-body');
+  let paused;
+  let staleA;
+  let staleB;
+  try {
+    await waitFor(path.join(dir, `${init.child.pid}.held-before-body.ready`));
+    const initLock = `${initState}.lock`;
+    const initInode = (await stat(initLock)).ino;
+    let contenderEntered = false;
+    const contenderStarted = Date.now();
+    const contender = await withStateOwner(initState, async () => { contenderEntered = true; });
+    const contenderMs = Date.now() - contenderStarted;
+    assert.equal(contender.busy, true);
+    assert.equal(contenderEntered, false);
+    assert.equal(contenderMs < 1000, true, `contender waited ${contenderMs}ms`);
+    assert.equal((await stat(initLock)).ino, initInode);
+    assert.equal(await absent(init.entered), true);
+    await writeFile(path.join(dir, `${init.child.pid}.held-before-body.go`), '');
+    await waitFor(init.entered);
+    await writeFile(init.release, '1');
+    const initResult = JSON.parse(await waitFor(init.out));
+    assert.equal(initResult.busy, false, JSON.stringify(initResult) + Buffer.concat(init.stderr).toString('utf8'));
+    assert.equal(initResult.entered, true);
+    assert.equal(contenderEntered, false);
+
+    const pausedState = path.join(dir, 'paused-dead.json');
+    const pausedEnded = spawnSync(process.execPath, ['-e', 'process.exit(0)']);
+    await writeFile(`${pausedState}.lock`, `${JSON.stringify({
+      schema: 'board-notice.lock.v1',
+      pid: pausedEnded.pid,
+      token: 'paused-dead-token-0123456789',
+      mechanism: 'flock',
+      createdAt: new Date().toISOString(),
+    })}\n`);
+    paused = spawnOwner(pausedState, dir, 'paused', 'held-before-body');
+    await waitFor(path.join(dir, `${paused.child.pid}.held-before-body.ready`));
+    const pausedInode = (await stat(`${pausedState}.lock`)).ino;
+    const pausedBody = await readFile(`${pausedState}.lock`, 'utf8');
+    assert.equal(JSON.parse(pausedBody).pid, pausedEnded.pid);
+    let pausedContenderEntered = false;
+    const pausedContender = await withStateOwner(pausedState, async () => { pausedContenderEntered = true; });
+    assert.equal(pausedContender.busy, true);
+    assert.equal(pausedContenderEntered, false);
+    assert.equal((await stat(`${pausedState}.lock`)).ino, pausedInode);
+    assert.equal(JSON.parse(await readFile(`${pausedState}.lock`, 'utf8')).token, 'paused-dead-token-0123456789');
+    await writeFile(path.join(dir, `${paused.child.pid}.held-before-body.go`), '');
+    await waitFor(paused.entered);
+    await writeFile(paused.release, '1');
+    const pausedResult = JSON.parse(await waitFor(paused.out));
+    assert.equal(pausedResult.busy, false, JSON.stringify(pausedResult) + Buffer.concat(paused.stderr).toString('utf8'));
+    assert.equal(pausedResult.entered, true);
+    assert.equal(pausedContenderEntered, false);
+
+    const staleState = path.join(dir, 'stale.json');
+    const ended = spawnSync(process.execPath, ['-e', 'process.exit(0)']);
+    await writeFile(`${staleState}.lock`, `${JSON.stringify({
+      schema: 'board-notice.lock.v1',
+      pid: ended.pid,
+      token: 'stale-token-0123456789abcdef',
+      mechanism: 'flock',
+      createdAt: new Date().toISOString(),
+    })}\n`);
+    const staleInode = (await stat(`${staleState}.lock`)).ino;
+    staleA = spawnOwner(staleState, dir, 'stale-a', 'before-flock');
+    staleB = spawnOwner(staleState, dir, 'stale-b', 'before-flock');
+    await waitFor(path.join(dir, `${staleA.child.pid}.before-flock.ready`));
+    await waitFor(path.join(dir, `${staleB.child.pid}.before-flock.ready`));
+    await writeFile(path.join(dir, `${staleB.child.pid}.before-flock.go`), '');
+    const winnerPid = Number(await waitFor(staleB.entered));
+    const winnerLock = JSON.parse(await readFile(`${staleState}.lock`, 'utf8'));
+    assert.equal(winnerLock.pid, winnerPid);
+    assert.equal(winnerLock.mechanism, 'flock');
+    assert.equal((await stat(`${staleState}.lock`)).ino, staleInode);
+    await writeFile(path.join(dir, `${staleA.child.pid}.before-flock.go`), '');
+    const loser = JSON.parse(await waitFor(staleA.out));
+    assert.equal(loser.busy, true, JSON.stringify(loser) + Buffer.concat(staleA.stderr).toString('utf8'));
+    assert.equal(loser.entered, false);
+    assert.equal((await stat(`${staleState}.lock`)).ino, staleInode);
+    const afterLoser = JSON.parse(await readFile(`${staleState}.lock`, 'utf8'));
+    assert.equal(afterLoser.token, winnerLock.token);
+    assert.equal(await absent(staleA.entered), true);
+    const barrierNames = await readdir(dir);
+    assert.equal(barrierNames.some((name) => name.includes('.stale-') || name.includes('.release-')), false);
+    await writeFile(staleB.release, '1');
+    const winner = JSON.parse(await waitFor(staleB.out));
+    assert.equal(winner.busy, false, JSON.stringify(winner));
+    assert.equal(winner.entered, true);
+    evidence.push({
+      case: 'lock-barrier',
+      mechanism: 'flock',
+      incompleteInitBusy: true,
+      incompleteInitMs: contenderMs,
+      deadBodyInitializerKept: true,
+      initializerEntered: true,
+      inodeKept: true,
+      staleLoserBusy: true,
+      staleWinnerEntered: true,
+      replacementOverwritten: false,
+    });
+  } finally {
+    stopOwner(init);
+    stopOwner(paused);
+    stopOwner(staleA);
+    stopOwner(staleB);
   }
 });
 
 test('writes the direct-route evidence', async () => {
   await mkdir(path.join(packageRoot, 'evidence'), { recursive: true });
   const body = {
-    schema: 'board-notice.direct-amendment.v1',
-    amends: 'evidence/direct-journey.json',
+    schema: 'board-notice.direct-lock.v1',
+    amends: 'evidence/direct-journey-amendment.json',
     node: process.version,
+    mechanism: 'flock',
     cases: evidence,
   };
-  await writeFile(path.join(packageRoot, 'evidence/direct-journey-amendment.json'), `${JSON.stringify(body, null, 2)}\n`);
+  await writeFile(path.join(packageRoot, 'evidence/direct-journey-lock.json'), `${JSON.stringify(body, null, 2)}\n`);
   assert.equal(evidence.length >= 6, true);
 });
 
