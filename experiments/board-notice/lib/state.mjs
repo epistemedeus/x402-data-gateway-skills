@@ -139,17 +139,22 @@ async function acquire(file) {
     }
   }
   if (!acquired) return { busy: true };
-  await barrier('held-before-body');
-  const token = randomBytes(16).toString('hex');
-  const body = `${JSON.stringify({
-    schema: LOCK_SCHEMA,
-    pid: process.pid,
-    token,
-    mechanism: 'flock',
-    createdAt: new Date().toISOString(),
-  })}\n`;
-  await writeFile(path, body, { mode: 0o600 });
-  return { busy: false, path, token, child: acquired.child };
+  try {
+    await barrier('held-before-body');
+    const token = randomBytes(16).toString('hex');
+    const body = `${JSON.stringify({
+      schema: LOCK_SCHEMA,
+      pid: process.pid,
+      token,
+      mechanism: 'flock',
+      createdAt: new Date().toISOString(),
+    })}\n`;
+    await writeFile(path, body, { mode: 0o600 });
+    return { busy: false, path, token, child: acquired.child };
+  } catch (error) {
+    await releaseHold(acquired.child);
+    throw error;
+  }
 }
 
 async function stillOwn(path, token) {
