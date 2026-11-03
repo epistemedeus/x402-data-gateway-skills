@@ -44,6 +44,21 @@ Write one result line only when that destination does not already exist:
 node /path/to/public-careers-board/skills/public-careers-board/scripts/cli.mjs run --board acxiom --out /tmp/acxiom-board.json
 ```
 
+## Antigravity
+
+Antigravity CLI 1.4.12 installs this existing directory and generates native installation metadata. The source carrier is unchanged, and the plugin version stays 0.1.3. Use a separate `HOME` when an existing Antigravity profile must stay unchanged. A public clone does not need a GitHub credential. The tested checkout is `10fe00777a8ff99551bc0cd80df528fb3b8608cc`.
+
+```sh
+git -c credential.helper= clone https://github.com/epistemedeus/x402-data-gateway-skills.git
+git -C x402-data-gateway-skills -c credential.helper= checkout 10fe00777a8ff99551bc0cd80df528fb3b8608cc
+agy plugin install "$PWD/x402-data-gateway-skills/plugins/public-careers-board"
+agy plugin list --json
+```
+
+The installed plugin is enabled, version 0.1.3, carrier `claude-code`, with one skill named `public-careers-board`. Run it with the Node.js command in the examples above. Node.js >= 22.22.2 is required. A missing `node` does not read a board.
+
+`agy plugin install https://github.com/epistemedeus/x402-data-gateway-skills` is a different command. On 1.4.12 it clones the default branch with `git clone --depth 1` and installs every directory under `plugins/`. That does not pin the checkout above, and it is not this plugin alone. Installing the repository root does the same. An empty directory, a missing path, a regular file, and an unknown Git URL are refused.
+
 ## Support
 
 Source and questions: https://github.com/epistemedeus/x402-data-gateway-skills
