@@ -46,7 +46,7 @@ node /path/to/public-careers-board/skills/public-careers-board/scripts/cli.mjs r
 
 ## Antigravity
 
-Antigravity CLI 1.4.12 installs this existing directory. It does not add a second manifest, and the plugin version stays 0.1.3. Use a separate `HOME` when an existing Antigravity profile must stay unchanged. A public clone does not need a GitHub credential. The tested checkout is `10fe00777a8ff99551bc0cd80df528fb3b8608cc`.
+Antigravity CLI 1.4.12 installs this existing directory and generates native installation metadata. The source carrier is unchanged, and the plugin version stays 0.1.3. Use a separate `HOME` when an existing Antigravity profile must stay unchanged. A public clone does not need a GitHub credential. The tested checkout is `10fe00777a8ff99551bc0cd80df528fb3b8608cc`.
 
 ```sh
 git -c credential.helper= clone https://github.com/epistemedeus/x402-data-gateway-skills.git

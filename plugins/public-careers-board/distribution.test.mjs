@@ -235,6 +235,7 @@ test('plugin manifest, license, and consumer readme stay inside this folder', as
   assert.match(antigravity, /credential\.helper=/);
   assert.match(antigravity, /claude-code/);
   assert.match(antigravity, /0\.1\.3/);
+  assert.match(antigravity, /generates native installation metadata/);
   assert.equal(antigravity.includes('antigravity-plugins-official'), false);
   assert.equal(antigravity.includes('plugin.json'), false);
 
