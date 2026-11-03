@@ -227,6 +227,17 @@ test('plugin manifest, license, and consumer readme stay inside this folder', as
   assert.ok(words.length >= 40, `readme words ${words.length}`);
   const examples = readme.match(/scripts\/cli\.mjs run --board/g) || [];
   assert.ok(examples.length >= 3, `examples ${examples.length}`);
+  assert.match(readme, /node \/path\/to\/public-careers-board\/skills\/public-careers-board\/scripts\/cli\.mjs run --board liveramp/);
+  assert.match(readme, /\$\{CLAUDE_SKILL_DIR\}/);
+  const antigravity = readme.split('## Antigravity\n')[1]?.split('\n## ')[0] || '';
+  assert.match(antigravity, /agy plugin install "\$PWD\/x402-data-gateway-skills\/plugins\/public-careers-board"/);
+  assert.match(antigravity, /10fe00777a8ff99551bc0cd80df528fb3b8608cc/);
+  assert.match(antigravity, /credential\.helper=/);
+  assert.match(antigravity, /claude-code/);
+  assert.match(antigravity, /0\.1\.3/);
+  assert.match(antigravity, /generates native installation metadata/);
+  assert.equal(antigravity.includes('antigravity-plugins-official'), false);
+  assert.equal(antigravity.includes('plugin.json'), false);
 
   const cli = await readFile(path.join(pluginRoot, skillRel, 'scripts', 'cli.mjs'), 'utf8');
   assert.equal(cli.includes("from '../"), false);
