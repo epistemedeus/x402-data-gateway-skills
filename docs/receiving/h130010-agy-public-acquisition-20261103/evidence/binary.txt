@@ -1,0 +1,11 @@
+agy --version
+1.4.12
+
+binary sha256
+1edfb30477447825f0aaa05fd9a91d82f9adf26686f41cd4f5c70b90abe383e8  /tmp/h130010-own/bin/agy
+
+installer sha256
+62966c07365423bd4dc209355060744058fb30d60f5323e2d360e39de64e5042  /tmp/h130010-own/install.sh
+
+binary bytes
+234144144

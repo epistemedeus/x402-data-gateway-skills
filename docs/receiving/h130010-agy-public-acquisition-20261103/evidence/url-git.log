@@ -1,0 +1,7 @@
+CMD: clone --depth 1 https://github.com/epistemedeus/x402-data-gateway-skills.git /tmp/h130010-evidence/tmp-url/plugin-install-848664510
+HEAD:10fe00777a8ff99551bc0cd80df528fb3b8608cc DIR:/tmp/h130010-evidence/tmp-url/plugin-install-848664510
+CWDHEAD:10fe00777a8ff99551bc0cd80df528fb3b8608cc CWD:/home/ubuntu/ae14-work/h130010
+CMD: submodule update --init --recursive
+CWDHEAD:10fe00777a8ff99551bc0cd80df528fb3b8608cc CWD:/tmp/h130010-evidence/tmp-url/plugin-install-848664510
+CMD: clone --depth 1 https://github.com/epistemedeus/x402-data-gateway-skills-not-a-source.git /tmp/h130010-evidence/tmp-refuse/plugin-install-1310264267
+CWDHEAD:10fe00777a8ff99551bc0cd80df528fb3b8608cc CWD:/home/ubuntu/ae14-work/h130010
