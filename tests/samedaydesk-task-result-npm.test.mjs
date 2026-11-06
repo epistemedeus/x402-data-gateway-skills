@@ -184,7 +184,7 @@ test("npm resolution receives sibling, ambient, missing, and failed install", { 
 
   await t.test("genuinely missing npm does not become success", async () => {
     const { nodePath, work } = place("missing");
-    const result = runAcquire(nodePath, work, served.origin, "/usr/bin:/bin");
+    const result = runAcquire(nodePath, work, served.origin, "");
     assertNotAcquired(result);
     assert.equal(result.body.outcome, "install_failed");
     assert.equal(result.body.reason, "child_spawn_failed");
