@@ -1,0 +1,30 @@
+name: Documentation release check canary
+
+on:
+  pull_request:
+    paths:
+      - consumers/documentation-release-check/**
+      - .github/workflows/documentation-release-check-canary.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pair-fixture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Run the CLI fixtures
+        run: node --test consumers/documentation-release-check/check.test.mjs
+      - name: Run the composite action with a reciprocal fixture pair
+        uses: ./consumers/documentation-release-check
+        env:
+          NODE_OPTIONS: --import="${{ github.workspace }}/consumers/documentation-release-check/fixture-fetch.mjs"
+          DOCS_CHECK_FIXTURE: reciprocal
+        with:
+          first-origin: https://marketing.example
+          second-origin: https://docs.example

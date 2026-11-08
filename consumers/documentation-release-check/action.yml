@@ -1,0 +1,19 @@
+name: Documentation release check
+description: Verify reciprocal llms.txt list links for two trusted owner-configured HTTPS origins.
+inputs:
+  first-origin:
+    description: First origin set by the owner in a trusted post-deploy workflow.
+    required: true
+  second-origin:
+    description: Second origin set by the owner in a trusted post-deploy workflow.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Check both documentation indexes
+      shell: bash
+      env:
+        DOCS_CHECK_ACTION_PATH: ${{ github.action_path }}
+        DOCS_CHECK_FIRST_ORIGIN: ${{ inputs.first-origin }}
+        DOCS_CHECK_SECOND_ORIGIN: ${{ inputs.second-origin }}
+      run: exec node -- "$DOCS_CHECK_ACTION_PATH/check.mjs" "$DOCS_CHECK_FIRST_ORIGIN" "$DOCS_CHECK_SECOND_ORIGIN"
