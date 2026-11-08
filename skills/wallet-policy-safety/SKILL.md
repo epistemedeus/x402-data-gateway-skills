@@ -75,8 +75,9 @@ The server rejects unsupported, secret-like, nested evidence, raw payload, and
 duplicate case fields before payment. On HTTP 402, validate the identical POST
 route and canonical JSON body binding, current amount, `eip155:8453` payment
 network, canonical Base USDC asset, and recipient. Pay only with separate caller
-authorization through x402 v2 or native MPP `evm/charge`. Replay the identical
-method and canonical JSON body and reconcile the protocol receipt.
+authorization using one supported offer actually present in the live challenge.
+Replay the identical method and canonical JSON body and reconcile the selected
+protocol's receipt.
 
 ## Interpret the result
 

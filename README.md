@@ -1,14 +1,11 @@
 # SameDayDesk Agent Skills
 
-Installable skills that let an agent discover and call SameDayDesk's live
-machine-commerce gateway. The 2026-09-10 `GET /api/actions` readback for version 1.23.46 listed twenty-three
-deterministic paid HTTP actions (including `POST /extract/batch`), accepts x402
-v2 or native MPP Payment authentication on the same URLs, and settles exact USDC
-on Base without an account, API key, or subscription. Re-read the live catalog
-before trusting any cached count. MCP (Model Context Protocol) `tools/list` is a separate inventory (S77 reported
-twenty-three tools and thirteen typed `outputSchema` values; inventory counts
-are not evidence of native model execution); do not
-assume HTTP actions and MCP tools are the same population from a shared label.
+Installable skills for discovering and using SameDayDesk's machine-commerce
+gateway. Read the [live HTTP action catalog](https://agents.samedaydesk.com/api/actions)
+for the current routes, prices and supported payment protocols. The selected
+operation's live challenge is the authority for what can be paid. MCP (Model
+Context Protocol) `tools/list` is a separate inventory; an HTTP action is not
+necessarily an MCP tool.
 
 Canonical gateway: `https://agents.samedaydesk.com`
 
@@ -32,7 +29,7 @@ npx skills add epistemedeus/x402-data-gateway-skills --skill wallet-enrich --yes
 
 | Skill | Capability family | Paid routes |
 | --- | --- | --- |
-| `samedaydesk-machine-commerce` | Current walletless public-page discovery, catalog selection and nonspending purchase-intent preflight | All live paid HTTP routes from `/api/actions` (twenty-three at last check) |
+| `samedaydesk-machine-commerce` | Current walletless public-page discovery, catalog selection and nonspending purchase-intent preflight | Live paid HTTP routes from `/api/actions` |
 | `company-enrich` | Company, contact, infrastructure, and AI-readiness evidence | `/enrich` |
 | `wallet-enrich` | Base wallet and contract profiling | `/wallet-enrich` |
 | `web-extract` | Live walletless first use for structured extraction or bounded Markdown with supported tables; separate paid routes | `/extract`, `/extract/batch`, `/read` |
@@ -110,7 +107,7 @@ Discovery surfaces:
 
 - x402 manifest: `https://agents.samedaydesk.com/.well-known/x402`
 - OpenAPI: `https://agents.samedaydesk.com/openapi.json`
-- MPP OpenAPI: `https://agents.samedaydesk.com/mpp-openapi.json`
+- MPP compatibility document: `https://agents.samedaydesk.com/mpp-openapi.json` (not proof of a paid MPP offer)
 - Compact skill contract: `https://agents.samedaydesk.com/skill.md`
 - Action catalog: `https://agents.samedaydesk.com/api/actions`
 - MCP transport: `POST https://agents.samedaydesk.com/mcp`
