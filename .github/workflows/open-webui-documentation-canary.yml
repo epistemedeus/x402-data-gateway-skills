@@ -1,0 +1,50 @@
+name: Open WebUI documentation canary
+
+on:
+  pull_request:
+    paths:
+      - consumers/open-webui-documentation/**
+      - .github/workflows/open-webui-documentation-canary.yml
+
+permissions:
+  contents: read
+
+jobs:
+  native-workspace-tool:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Run unit and real native Tool canaries without a model provider
+        working-directory: consumers/open-webui-documentation
+        env:
+          OPEN_WEBUI_IMAGE: ghcr.io/open-webui/open-webui@sha256:283efb20756785229a388bcd1e56a052f5284ae8c861717eed5eaaa3bba6b20a
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest -v test_documentation_tool
+          docker pull "$OPEN_WEBUI_IMAGE"
+          docker network create owui-docs-canary
+          cleanup() {
+            docker rm -f owui-docs-app owui-fixture >/dev/null 2>&1 || true
+            docker network rm owui-docs-canary >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          docker run -d --name owui-fixture --network owui-docs-canary \
+            -p 127.0.0.1:9001:9001 -v "$PWD:/canary:ro" --entrypoint python \
+            "$OPEN_WEBUI_IMAGE" /canary/native_canary.py fixture
+          docker run -d --name owui-docs-app --network owui-docs-canary \
+            -p 127.0.0.1:8765:8080 --tmpfs /app/backend/data \
+            -e WEBUI_AUTH=False -e OFFLINE_MODE=true -e HF_HUB_OFFLINE=1 \
+            -e ENABLE_OPENAI_API=true -e ENABLE_OLLAMA_API=false \
+            -e OPENAI_API_BASE_URLS=http://owui-fixture:9001/v1 -e OPENAI_API_KEYS=fixture \
+            -e ENABLE_PIP_INSTALL_FRONTMATTER_REQUIREMENTS=False \
+            -e WEBUI_SECRET_KEY="$(openssl rand -hex 32)" "$OPEN_WEBUI_IMAGE"
+          if ! timeout 150s bash -c 'until curl -fsS --max-time 2 http://127.0.0.1:8765/health >/dev/null 2>&1 && curl -fsS --max-time 2 http://127.0.0.1:9001/healthz >/dev/null 2>&1; do sleep 2; done' || \
+             ! python3 native_canary.py receive; then
+            docker logs --tail 70 owui-docs-app 2>&1
+            docker logs --tail 35 owui-fixture 2>&1
+            exit 1
+          fi
