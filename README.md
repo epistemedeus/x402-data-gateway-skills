@@ -25,6 +25,14 @@ npx skills add epistemedeus/x402-data-gateway-skills --skill wallet-enrich --yes
 
 `plugins/samedaydesk-antigravity` is the Antigravity CLI plugin. `npx skills add` does not install it. It is not a listing in `antigravity-plugins-official`. The pinned checkout and the no-listing boundary are in that plugin's README.
 
+## Open WebUI
+
+The [documentation import check](consumers/open-webui-documentation/) is a
+separate Workspace Tool for deciding whether to use a public site's advertised
+sitemap before syncing it to a Knowledge Base. It uses the free documentation
+report and does not import pages. Review the source before installing it; this
+repository is the source route, not an Open WebUI Community listing.
+
 ## Skills
 
 | Skill | Capability family | Paid routes |
