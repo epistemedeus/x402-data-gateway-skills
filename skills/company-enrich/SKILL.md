@@ -15,8 +15,9 @@ Read the current operation, response contract, and price from
 
 On HTTP 402, verify the complete resource, amount, `eip155:8453` network,
 canonical Base USDC asset, and recipient. Pay only when the caller has
-authorized wallet use and the live amount. Use x402 v2 or native MPP
-`evm/charge`, preserve the source header, and reconcile the protocol receipt.
+authorized wallet use and the live amount. Choose one supported offer actually
+present in the live challenge. Preserve the source header and reconcile the
+selected protocol's receipt.
 
 Use the structured company, contact, social, technology, DNS, and AI-readiness
 fields. Keep evidence absence distinct from a negative fact. The service uses

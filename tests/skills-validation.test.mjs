@@ -19,3 +19,14 @@ test('request guidance preserves HTTP POST and read JSON versus MCP distinctions
  const catalog=fs.readFileSync(new URL('skills/samedaydesk-machine-commerce/SKILL.md',root),'utf8');assert.match(catalog,/End every\nrun before payment/);assert.match(catalog,/exact POST body/);
  const readme=fs.readFileSync(new URL('README.md',root),'utf8');assert.match(readme,/not a native Grok\/Heavy model/);assert.match(readme,/POST for `\/extract\/batch`/);
 });
+test('public installation docs defer payment authority to the live challenge',()=>{
+ const readme=fs.readFileSync(new URL('README.md',root),'utf8');
+ const entry=readme.split('## Install')[0];
+ assert.match(entry,/https:\/\/agents\.samedaydesk\.com\/api\/actions/);
+ assert.match(entry,/live challenge is the authority/);
+ assert.doesNotMatch(entry,/accepts x402|native MPP|at last check/i);
+ for(const name of ['company-enrich','wallet-enrich','wallet-policy-safety']){
+  const skill=fs.readFileSync(new URL(`skills/${name}/SKILL.md`,root),'utf8');
+  assert.match(skill,/offer actually\s+present in the live challenge/,name);
+ }
+});

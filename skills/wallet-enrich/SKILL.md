@@ -15,8 +15,8 @@ and price from `https://agents.samedaydesk.com/openapi.json`. Send
 
 On HTTP 402, verify the complete resource, amount, `eip155:8453` network,
 canonical Base USDC asset, and recipient. Pay only with caller authorization
-through x402 v2 or native MPP `evm/charge`. Preserve the source header and
-reconcile the protocol receipt.
+using one supported offer actually present in the live challenge. Preserve the
+source header and reconcile the selected protocol's receipt.
 
 Use `type`, `native`, `tokenHoldings`, `contract`, `activity`, `basename`, and
 `profile` as bounded evidence. Curated-token absence does not prove that every
